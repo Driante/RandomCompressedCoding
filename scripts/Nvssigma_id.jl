@@ -2,34 +2,45 @@ using DrWatson
 quickactivate(@__DIR__,"Random_coding")
 using Distributions,StatsBase , LinearAlgebra, MultivariateStats,Random,SparseArrays
 include(srcdir("network.jl"))
-#Computation of curves for error in function of σ for different network realization and different values of N
-function optimal_sigma(n::Network,σVec::Array{Float64},η::Float64,fdec::Function;ntrial=50,MC=0)
-    ε = zeros(length(σVec)); x_t = repeat(x_test,ntrial)
-    W = n.W
+#Computation of curves for error in function of σ for different network realization and different values of N.
+#Gaussian noise distribution and ideal decoder
+function vary_σ(n::Network,σVec::Array{Float64},η::Float64,fdec::Function;ntrial=50,MC=0)
+    N,L,W = n.N,n.L,n.W;ε = zeros(length(σVec));
     for (i,σi) = enumerate(σVec)
         #Keep fixed synaptic matrix
         n2 = Network(N,L,σi,f1=n.f1,rxrnorm=0); n2.W = W
-        if MC=0
+        if MC==0
             ε[i] = sqrt(fdec(n2,η,ntrial=ntrial))
         else
             ε_serie = fdec(n2,η,MC=MC)
-            ε[i] = sqrt(mean(ε_series[end-50,end]))
-    end
-    ε_o,i_o= findmin(ε); σ_o = σVec[i_o]
-    return ε,ε_o,σ_o
-end
-function Nvsσ(NVec::Array{Float64},σVec::Array{Float64},η::Float64;L=500, nets = 4,circ=0)
-    ε = zeros(length(NVec),length(σVec),nets); ε_o = zeros(length(NVec),nets);
-    σ_o = zeros(length(NVec),nets); σs = 10/L
-    if circ ==0
-        f1 = gaussian; fdec= MSE_ideal_gon
-    else
-        f2= VonMises; fdec = MSE_ideal_gon_c
-    end
-    for N = NVec
-        for net=1:nNet
-            n= Network(N,L,σs,f1=f1);
-            ε = optimal_sigma(n,σVec,η,fdec)
+            ε[i] = sqrt(mean(ε_serie[end-50,end]))
+            println(σi)
         end
     end
+    return ε
 end
+function Nvsσ(N::Int64,σVec::Array{Float64},η::Float64; nets = 4,circ=0,MC=0)
+    σs = 10/L;ε = zeros(length(σVec),nets);
+    if circ ==0
+        f1 = gaussian; fdec= MSE_ideal_gon
+        #fdec = MSE_net_gon
+    else
+        f1= VonMises; fdec = MSE_ideal_gon_c
+    end
+    Threads.@threads for net=1:nets
+        n= Network(N,L,σs,f1=f1); ε[:,net]= vary_σ(n,σVec,η,fdec,MC=MC);
+    end
+    println("N=",N)
+    return ε
+end
+
+L=500
+NVec = 10:5:60;σVec = collect(1.:2:50.)/L; η = 0.5:0.5:0.6;
+circ=0
+ε= [[Nvsσ(N,σVec,η,circ=0,MC=1) for N=NVec] for η = ηVec]
+#Do the same for a set of different noise levels
+#ηVec = 0.1:0.1:1.5; NVec = Int.(round.(10 .^(1:0.1:2.5)))
+Nmin,Nmax = first(NVec),last(NVec);η_min
+name = savename("Nvssigma" , (@dict Nmin Nmax η circ),"jld")
+data = Dict("NVec"=>NVec ,"σVec" => σVec,"ε" => ε,"ηVec" => ηVec)
+safesave(datadir("sims/iidnoise/idealdec",name) ,data)
