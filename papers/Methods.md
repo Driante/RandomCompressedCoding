@@ -28,7 +28,7 @@ Increasing $\sigma$ we go from a random uncorrelated code to a smooth one (Fig.1
 
 #### Global and Local Errors
 
-<img src="/home/simone/Documents/Neuroscience/Random_coding/plots/paper_figures/figure2b.svg" style="zoom:50%;" />
+![](/home/simone/Documents/Neuroscience/Random_coding/plots/paper_figures/figure2.svg)
 
 Fig2.
 
