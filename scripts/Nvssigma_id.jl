@@ -1,6 +1,5 @@
 using DrWatson
 quickactivate(@__DIR__,"Random_coding")
-using Distributions,StatsBase , LinearAlgebra, MultivariateStats,Random,SparseArrays
 include(srcdir("network.jl"))
 #Computation of curves for error in function of σ for different network realization and different values of N.
 #Gaussian noise distribution and ideal decoder
@@ -22,8 +21,8 @@ end
 function Nvsσ(N::Int64,σVec::Array{Float64},η::Float64; nets = 4,circ=0,MC=0)
     σs = 10/L;ε = zeros(length(σVec),nets);
     if circ ==0
-        f1 = gaussian; fdec= MSE_ideal_gon
-        #fdec = MSE_net_gon
+        f1 = gaussian; #fdec= MSE_ideal_gon
+        fdec = MSE_net_gon
     else
         f1= VonMises; fdec = MSE_ideal_gon_c
     end
@@ -35,12 +34,14 @@ function Nvsσ(N::Int64,σVec::Array{Float64},η::Float64; nets = 4,circ=0,MC=0)
 end
 
 L=500
-NVec = 10:5:60;σVec = collect(1.:2:50.)/L; η = 0.5:0.5:0.6;
+NVec = 10:5:60;σVec = collect(1.:2:50.)/L;
+#η = 0.5:0.5:0.6;
+ηVec = 0.1:0.1:1.5; NVec = Int.(round.(10 .^(1:0.1:2.5)))
 circ=0
 ε= [[Nvsσ(N,σVec,η,circ=0,MC=1) for N=NVec] for η = ηVec]
 #Do the same for a set of different noise levels
 #ηVec = 0.1:0.1:1.5; NVec = Int.(round.(10 .^(1:0.1:2.5)))
-Nmin,Nmax = first(NVec),last(NVec);η_min
-name = savename("Nvssigma" , (@dict Nmin Nmax η circ),"jld")
-data = Dict("NVec"=>NVec ,"σVec" => σVec,"ε" => ε,"ηVec" => ηVec)
+Nmin,Nmax = first(NVec),last(NVec);η_min, η_max = first(ηVec),last(ηVec)
+name = savename("Nvssigma" , (@dict Nmin Nmax η_min η_max circ),"jld")
+data = Dict("NVec"=>NVec ,"σVec" => σVec,"ηVec" => ηVec,"ε" => ε,)
 safesave(datadir("sims/iidnoise/idealdec",name) ,data)
