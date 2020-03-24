@@ -245,4 +245,4 @@ end
 
 #Analytical prediction for error scaling
 local_error(N::Int64,σ::Float64,η::Float64) = 2*σ^2*η/N
-global_error(N::Int64,σ::Float64,η::Float64;A=1) = A*(1/σ)*((1+σ+σ^2)/6)*erfc(sqrt((sqrt(pi)*σ/(sqrt(pi)*σ-2π*σ^2))N/(4(1+η))))
+global_error(N::Int64,σ::Float64,η::Float64;A=1) = A*(1/σ)*((1+σ+σ^2)/6)*erfc(sqrt((sqrt(pi)*σ/(sqrt(pi)*σ-2π*σ^2))N/(2(1+η))))
