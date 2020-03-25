@@ -13,7 +13,6 @@ function vary_σ(n::Network,σVec::Array{Float64},η::Float64,fdec::Function;ntr
         else
             ε_serie = fdec(n2,η,MC=MC)
             ε[i] = sqrt(mean(ε_serie[end-50,end]))
-            println(σi)
         end
     end
     return ε
@@ -27,18 +26,19 @@ function Nvsσ(N::Int64,σVec::Array{Float64},η::Float64; nets = 4,circ=0,MC=0)
         f1= VonMises; fdec = MSE_ideal_gon_c
     end
     Threads.@threads for net=1:nets
+        println(Threads.threadid())
         n= Network(N,L,σs,f1=f1); ε[:,net]= vary_σ(n,σVec,η,fdec,MC=MC);
     end
-    println("N=",N)
+    println("Finished N=",N," η=" ,η  )
     return ε
 end
 
 L=500
 NVec = 10:5:60;σVec = collect(1.:2:50.)/L;
 #η = 0.5:0.5:0.6;
-ηVec = 0.1:0.1:1.5; NVec = Int.(round.(10 .^(1:0.1:2.5)))
+ηVec = 0.1:0.1:1.5; NVec = Int.(round.(10 .^(1:0.1:2.1)))
 circ=0
-ε= [[Nvsσ(N,σVec,η,circ=0,MC=1) for N=NVec] for η = ηVec]
+ε= [[@time Nvsσ(N,σVec,η,circ=0,MC=1) for N=NVec] for η = ηVec]
 #Do the same for a set of different noise levels
 #ηVec = 0.1:0.1:1.5; NVec = Int.(round.(10 .^(1:0.1:2.5)))
 Nmin,Nmax = first(NVec),last(NVec);η_min, η_max = first(ηVec),last(ηVec)
