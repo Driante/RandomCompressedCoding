@@ -26,10 +26,9 @@ function Nvsσ(N::Int64,σVec::Array{Float64},η::Float64; nets = 4,circ=0,MC=0)
         f1= VonMises; fdec = MSE_ideal_gon_c
     end
     Threads.@threads for net=1:nets
-        println(Threads.threadid())
         n= Network(N,L,σs,f1=f1); ε[:,net]= vary_σ(n,σVec,η,fdec,MC=MC);
+        println("Finished N=",N," η=" ,η  ," on thread n", Threads.threadid())
     end
-    println("Finished N=",N," η=" ,η  )
     return ε
 end
 

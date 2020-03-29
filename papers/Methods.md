@@ -2,41 +2,43 @@
 
 ## Introduction
 
-- Tuning curves are often assumed to have a regular shape. Many studies are made analyzing populations of neurons which are responsive in a localized region of the stimulus space. (E.g. DS cells, Place Cells, ecc...)
+- Tuning curves are often assumed to have a regular shape. Many studies are made analysing populations of neurons which are responsive in a localised region of the stimulus space (E.g. DS cells, Place Cells, etc...)
 
-- Nevertheless data shows that in deeper regions of the brain, neurons does not always have a clear selectivity profile. A first example are grid cells. Another example is given by tuning curves which are not consistent with parametric shapes: data from Lalazar Abbott shows that the brain may employ random connectivity to transmit information from one region to the other, giving rise to irregular tuning curves.
+- Nevertheless data shows that in deeper regions of the brain, neurons does not always have a simple selectivity profile. For example, data from lalazar and Abbott shows that tuning curves of neurons in motor cortex may arise from random connectivity and possess an high degree of irregularity inside the same population. 
 
-- Intrinsic difference between localized tuning curves and multi-peaked ones: ambiguity at single cell level, efficient use of phase space.
+- A more structured  example is the coding schemes of grid cells. Grid cells encode the position of the animal by mean of a set of phases in a set of different periods. This coding scheme introduce high ambiguity at single cell level, but at level of population overcome the performance of classical coding schemes.
 
-- We study the coding properties of a population of neurons whose tuning curves arise from random connections with a classical sensory layer. Balance between local accuracy and global noise robustness.
+- Overall, heterogeneity and irregularities may improve the population code, but also introduce higher levels of ambiguity that can lead to disruptive errors when the population size is finite.
 
-- Explain figure 1a
+- Generally, a coding scheme must find a compromise between two instances. From one side, resources should be optimized and the information should be compressed and represented with few neurons. On the other hand, neurons are noisy channels and the neural code should be error-correcting. 
 
-  <img src="/home/simone/Documents/Neuroscience/Plots/figure1.svg" style="zoom:50%;" />
+- We study the coding properties of a population of neurons whose tuning curves arise from a  general biologically plausible generative model. A two layer network where a sensory layer have to encode a low dimensional variable and trasmit it to a smaller one. 
+
+- Here we ask if the high structure of grid cells is necessary to obtain a code with an high capacity or if we can achieve similar results with less structured codes. 
+
+  ![Caption](/home/simone/Documents/Neuroscience/Random_coding/plots/paper_figures/figure1.svg)
+  
+  Different types of encoding schemes. a) Difference between Gaussian bump and grid cells coding the same circular 1-d variable. On the top panel 3 tuning curves example are plotted. On the bottom panel is plotted the activity of the three neurons as x is varied. The Gaussian scheme produce a very smooth manifold; even in presence of neural noise, one can read the stimulus without large errors with few neurons. In the case of grid cells, there are many auto-intersections and, in presence of neural noise, one has to collect the activity of a whole population to avoid large scale errors. At the same time, the activity space is more filled, and this is a sign of high capacity code. b) Feed-forward Neural network. An array of L cells with Gaussian tuning curves encode the same 1-d stimulus.  A specific stimulus evoke a gaussian bump of activity. Then, they random project onto a smaller layer of N cells, producing irregular tuning curves.
+  c) Varying $\sigma$ , we change the neural manifold. For very low $\sigma$, each response is basically uncorrelated  with the others. Increasing $\sigma$ responses start to be correlated and we obtain a picture similar to the one of grid cells. For very large $\sigma$ we re-obtain the Gaussian bump scheme, with a very smooth manifold.
 
 ## Results
 
-### Example with Discrete Stimuli? 
+We studied the coding properties of a population of neurons whose tuning curves  heterogeneity arise from randomness in the connectivity structure. Our model consist in a two layer feed-forward network. The first layer is a sensory layer, that encode a low dimensional stimulus into an high dimensional representation, by mean of gaussian tuning curves centred on preferred positions that tiles uniformly the space. This population projects onto a smaller layer of N neurons with an all-to-all random connectivity. The random synapses causes second layer tuning curves to cover all the stimulus space, but with an irregular sensitivity profile. One parameter, $\sigma$ the width of the gausssian of first layer, govern the smoothness of this tuning curves, that is how far two similar stimuli evoke two similar responses.
+Increasing $\sigma$ we go from a random uncorrelated code to a smooth one (Fig.1 e).
 
-Plots: L vs N?
+### Uncorrelated Responses
 
-### Random Feedforward Network - 1D
+While the case of a population with Gaussian tuning curves is well studied in the literature, it is instructive to look at what happen when $\sigma ->0$. In this case only one neuron of the first layer respond to each stimulus and the manifold we obtain is very scattered. If we suppose our stimulus is discrete (we can eventually take the limit $L -> \infty $), what is the mean square error of this scheme?
 
-We extend the previous reasoning to a more biologically relevant architecture, and this allow us to use continuous stimuli and explain the randomness of firing rates. We introduce a 2 layer feedforward network.
-The first layer is a sensory layer, that encode a low dimensional stimulus into an high dimensional representation. Then, it transmit this information to a smaller layer with a random all to all connectivity. 
-Increasing $\sigma$ we go from a random uncorrelated code to a smooth one (Fig.1 e)
 
-#### Global and Local Errors
+
+### Random Feed-Forward Network - 1D
 
 ![](/home/simone/Documents/Neuroscience/Random_coding/plots/paper_figures/figure2.svg)
 
-Fig2.
+Fig.2  Global-Local Errors a) Two types of error in an auto-intersecting neural manifold. $\bm{v}(x_0)$ is the true response. The trial to trial variability is represented by a grey cloud of possible responses. Noise can cause a local error if the response fall close to a point of the manifold that represent a similar stimulus ($r^{I}$). In presence of many intersections, it can happen that the noise fall onto a point of the manifold that represent a completely uncorrelated stimulus ($r^{II}$) causing a global error. b) Histogram of errors magnitude. The probability of this two type of error is ruled by $\sigma$ .For a fixed N and noise, a very small $\sigma$ will cause very  small local errors (rapid fall of the purple line), but it will produce a substantial number of global errors . Increasing $\sigma$ the local accuracy decrease, but also the number of global errors. c) Analytical form for the two types of errors. d) Numerical simulation and analytical prediction for the (Root Mean Square) error in function of $\sigma$ .  When N is relatively low , it exist a  non trivial  $\sigma$ that balance the two types of error.
 
-Explain the concept of balance between the errors. Two types of error: global and local. Tuning $\sigma$ we change the relative contribution (Fig.2 a-b)
 
-Insert formulas from methods + fitting of the theoretical formula? Maybe with variance and local-global error single contributions
-
-<img src="/home/simone/Documents/Neuroscience/Random_coding/notebooks/summary_fit.png"  />
 
 
 
@@ -44,10 +46,15 @@ Scaling of optimal parameters with N and $\eta$.
 
 Fig.3
 
-![](/home/simone/Documents/Neuroscience/Plots/figure2.svg)
+<img src="/home/simone/Documents/Neuroscience/Random_coding/plots/paper_figures/figure3.svg" style="zoom:50%;" />
 
-### Extension to Multiple Dimensions (?)
+### Extension to Multiple Dimensions 
 
+The extension to multiple dimensions can be made in many ways. We will consider here the relevant case where the tuning curves of the first layer are simply multidimensional Gaussians. This mean that the neurons encode conjunctively the different dimensions of the stimulus. This case has biological relevance since, for example, the position of a point in the space is encoded in this way in the parietal cortex. Nevertheless, also the case where the cells encode the single dimensions of the stimulus separately is of biological relevance. \cite{Bouchacourt paper}. In the case where the stimulus is $x\in[0,1]^K$ , the following extensions hold:
+$$
+\varepsilon_l^2 = K\frac{\sigma^2 \sigma_\eta^2}{N}   \\
+\varepsilon_g^2 = \frac{1}{\sigma^K}\frac{1}{2}erfc(\sqrt{N'})
+$$
 
 
 ### Data Analysis
@@ -74,7 +81,7 @@ Until now we used an optimal decoder. It exist a network implementation of this 
 
 If we would have to learn the decoder, what is the optimal parameter for the encoding?
 
-### 
+
 
 
 

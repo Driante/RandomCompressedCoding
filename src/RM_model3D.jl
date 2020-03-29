@@ -3,8 +3,7 @@ quickactivate(@__DIR__,"Random_coding")
 using Distributions,LinearAlgebra, MultivariateStats,Random,SparseArrays
 #3D network definition of model v_i = f1(∑ w_ij u_j(x))
 mutable struct Network3D
-    M :: Int #first layer number of neurons
-    N::Int #second layer number of neurons
+    M :: Int;N::Int #second layer number of neurons
     W #Connectivity Matrix
     σ #Width of 1st layer tuning curve
     PP1l  #Preferred Positions of first layer

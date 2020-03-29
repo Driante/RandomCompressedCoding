@@ -1,28 +1,29 @@
 using DrWatson
 quickactivate(@__DIR__,"Random_coding")
 using JLD
-using Plots,Flux
+using Plots
 pyplot()
 include(srcdir("lalazarabbott.jl"))
-include(srcdir("RM_model3D.jl"))
-
+#Script that output the complexity and R2 histogram of the data, their linear fit, and the simulations
+#Data statistics and summary of fitting procedure
 r,r_var ,tP= import_and_clean_data()
-r = (r.-nanmean(r,2))./sqrt.(nanvar(r,2))
 #Fit response with a linear model, obtaining principal vectors and R2; Compute histogram of R2
-r_linear, PP, R2 = linear_fit(r , tP); r_linear = (hcat(r_linear...)' )[:,:] ;  hR2 = fit(Histogram,R2,0:0.1:1);
+r_linear, PP, R2 = linear_fit(r , tP); r_linear = (hcat(r_linear...)' )[:,:] ;
 #Fill NaN response with corresponding linear model + Standardize firing rate, to fit with our model
-r[isnan.(r)] = r_linear[isnan.(r)]; r_linear = standardize(ZScoreTransform,r_linear)
+r[isnan.(r)] = r_linear[isnan.(r)]; r_linear .-= mean(r_linear,dims=2); r_linear ./=sqrt.(var(r_linear,dims=2))
+#Standardize also the true data
+r .-=mean(r,dims=2); r./=std(r,dims=2);
+#The complexity is computed on the standradized tuning curves, to compare different range of firing rates
+complexity_data = complexity_opt(r,tP,36);complexity_linear = complexity_opt(r,tP,36)
+data = load(datadir("sims/LalaAbbott/tuning_curves","tuning_curves3D_ntest=27_s=0.1.jld"))
+Vdict,σVec,x_test = data["Vdict"],data["σVec"],data["x_test"];
+N = 412;
+complexity_sims,R2_sims = [zeros(N,length(σVec)) for n=1:2]
+for (i,σ) = enumerate(σVec)
+    V = Vdict[σ][2];
+    complexity_sims[:,i] = complexity_opt(V,x_test,36); ~,~,R2_sims[:,i] =  linear_fit(V,x_test)
+end
 
-np= 17;s = 0.1
-Δi = range(-40.,40., length=np); tP_fine = vcat(reshape([[x,y,z] for x=Δi,y=Δi,z=Δi],:,1)'...)
-σVec= 3.:1.:35.
-r_sf = zeros(N,np^3,length(σVec))
-N=460; L=100; M=L^3; x_min  = -100.; x_max = 100.;
-a=1;σmax=36.;σmin=15. ; θ = (-σmax^(-a)+σmin^(-a))^(1/a)
-σd = Truncated(Pareto(a,θ),σmin,σmax);
-σ = 23.0
-myn = Network3D(M,N,σ, x_min,x_max,sparsity=0.1)
-r_s = myn(tP[1]);r_s ./= std(r_s,dims=2)
-#Statistic of generated network
-r_linear_s,PP_s, R2_s = linear_fit(r_s,repeat([tP[1]],N));
-r_s[isnan.(r_s)].=0
+name = savename("3D_fitting" , (@dict  ),"jld")
+data = Dict("complexity_data"=>complexity_data,"complexity_linear"=>complexity_linear,"complexity-sims" => complexity_sims,"R2" => R2,"R2_sims"=> R2_sims)
+safesave(datadir("sims/LalaAbbott/tuning_curves",name) ,data)

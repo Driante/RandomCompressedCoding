@@ -60,15 +60,19 @@ function import_and_clean_data()
 end
 
 function linear_fit(r,tP;up=0)
-        #Return, from linear fitting parameters, r_linear(s) and PreferedPositions for each neuron (normalized to 1),
-        #together with R2 values for the fit. Input: firing rate for each neuron and target positions
-        N,nPos = size(r)
+        #Fit a tuning curve with linear combination of the input
+        N,nPos = size(r);
+        if length(tP) != N
+                tPv = [tP for n=1:N]
+        else
+                tPv = tP
+        end
         r_linear = [] ; PreferedPositions = zeros(N,3)  ; R2 = zeros(N);baseline= zeros(N)
         #Model + initial guesses
         @. model(x, p) = p[1] + p[2]*x[:,1] + p[3]*x[:,2] + p[4]*x[:,3]; p0 = [1.0,1.0,1.0,1.0]
         for n=1:N
                 if sum(isnan.(r[n,:])) ==0
-                        rn = r[n,:] ;tpn = tP[n][:,:]
+                        rn = r[n,:] ;tpn = tPv[n][:,:]
                 else
                         rn = r[n,.!isnan.(r[n,:])] ; tpn =  tP[n][.!isnan.(r[n,:]),:]
                 end
@@ -77,7 +81,7 @@ function linear_fit(r,tP;up=0)
                 #Projection on Prefered Position of target Positions
                 #tPos_norm = tpn*PreferedPositions[n
                 #Fit also non registered positions, in such a way that we can fill Nan data with lienar fitiing
-                push!(r_linear,model(tP[n],myfit.param))
+                push!(r_linear,model(tPv[n],myfit.param))
                 #push!(tp_proj,tPos_norm)
                 SSres = sum(myfit.resid.^2);SStot = sum((rn.-mean(rn)).^2)
                 R2[n] = 1-SSres/SStot
@@ -109,8 +113,13 @@ function complexity_opt(r::Array{Float64,1},nn,d)
 end
 function complexity_opt(r_vec::Array{Float64,2},tP,D)
     N,np = size(r_vec)
+    if length(tP) != N
+            tPv = [tP for n=1:N]
+    else
+            tPv = tP
+    end
     cmplx = zeros(N)
-    d = hcat([sqrt.(sum((tP[1][i,:]'.-tP[1]).^2,dims=2)) for i=1:np]...)
+    d = hcat([sqrt.(sum((tPv[1][i,:]'.-tPv[1]).^2,dims=2)) for i=1:np]...)
     nn = findall(d.<=D); d =d[nn]
     for n=1:N
         cmplx[n] = complexity_opt(r_vec[n,:],nn,d)
