@@ -28,7 +28,9 @@ Increasing $\sigma$ we go from a random uncorrelated code to a smooth one (Fig.1
 
 ### Uncorrelated Responses
 
-While the case of a population with Gaussian tuning curves is well studied in the literature, it is instructive to look at what happen when $\sigma ->0$. In this case only one neuron of the first layer respond to each stimulus and the manifold we obtain is very scattered. If we suppose our stimulus is discrete (we can eventually take the limit $L -> \infty $), what is the mean square error of this scheme?
+While the case of a population with Gaussian tuning curves is well studied in the literature, it is instructive to look at what happen when $\sigma ->0$. In this case only one neuron of the first layer respond to each stimulus and the manifold we obtain is very scattered. 
+
+
 
 
 
@@ -38,15 +40,15 @@ While the case of a population with Gaussian tuning curves is well studied in th
 
 Fig.2  Global-Local Errors a) Two types of error in an auto-intersecting neural manifold. $\bm{v}(x_0)$ is the true response. The trial to trial variability is represented by a grey cloud of possible responses. Noise can cause a local error if the response fall close to a point of the manifold that represent a similar stimulus ($r^{I}$). In presence of many intersections, it can happen that the noise fall onto a point of the manifold that represent a completely uncorrelated stimulus ($r^{II}$) causing a global error. b) Histogram of errors magnitude. The probability of this two type of error is ruled by $\sigma$ .For a fixed N and noise, a very small $\sigma$ will cause very  small local errors (rapid fall of the purple line), but it will produce a substantial number of global errors . Increasing $\sigma$ the local accuracy decrease, but also the number of global errors. c) Analytical form for the two types of errors. d) Numerical simulation and analytical prediction for the (Root Mean Square) error in function of $\sigma$ .  When N is relatively low , it exist a  non trivial  $\sigma$ that balance the two types of error.
 
+- When $\sigma$ start to increase, the manifold become more smooth, and the responses start to be close.  We have two type of errors... Fig2 explained.
 
 
 
+<img src="/home/simone/Documents/Neuroscience/Random_coding/plots/paper_figures/figure3.svg" style="zoom: 67%;" />
 
-Scaling of optimal parameters with N and $\eta$.
+Fig 3 Exponential scaling of the error. a)MSE in function of $\sigma$ for different N, for a fixed noise variance. Every curve reach the optimal performance at a given $\sigma^*$ that decrease increasing N. b) Same plot, but this time the error is showed in function of N, for a different fixed $\sigma$. c) -d) The optimal $\sigma$ decrease exponentially fast with the number of neurons.  This cause the optimal error, which is linear in $\sigma$, to decrease exponentially fast with the population size. e)-f) Optimal quantities for different pairs of N-SNR.
 
-Fig.3
-
-<img src="/home/simone/Documents/Neuroscience/Random_coding/plots/paper_figures/figure3.svg" style="zoom:50%;" />
+Exponential scaling of the optimal error with the population size. Figure 3 explained.
 
 ### Extension to Multiple Dimensions 
 
@@ -59,11 +61,12 @@ $$
 
 ### Data Analysis
 
-We know that a similar version of the model has been used to fit the data from Lalazar Abbott. We first test which parts of the data the simplest version of the model is able to explain (Fig.4 (a-d))
+- A slightly more complicated 3D version of the model has been used in LalazarAbbott to explain the diversity in the shape of the tuning curves in the M1 cortex. In their formulation, the weights were uniformly distributed and the random sum was passed by  a rectifying non linearity, with a varying threshold.
+- Knowing that the 3D version has biologically relevance, we first checked that has the same qualitative behaviour of the 1D model. Fig.4
 
-<img src="/home/simone/Documents/Neuroscience/Plots/figure4.svg" style="zoom:50%;" />
 
-Then, we do the same analysis of before, looking for the scaling of the optimal $\sigma$. In this case we have also a theoretical prediction for the parametric shape of the tuning curves, so we can compare how much is advantageous for the system having random tuning curves or linear ones.
+
+
 
 <img src="/home/simone/Documents/Neuroscience/Plots/figure3.svg" style="zoom:50%;" />
 
@@ -81,7 +84,7 @@ Until now we used an optimal decoder. It exist a network implementation of this 
 
 If we would have to learn the decoder, what is the optimal parameter for the encoding?
 
-
+<img src="/home/simone/Documents/Neuroscience/Plots/figure4.svg" style="zoom:50%;" />
 
 
 
@@ -172,3 +175,4 @@ This last formula is surprisingly robust and does not require any proportionalit
 <img src="/home/simone/Documents/Neuroscience/Random_coding/notebooks/summary_fit.png" style="zoom:150%;" />
 
 ## Discussion
+

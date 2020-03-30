@@ -1,7 +1,6 @@
 using DrWatson
 quickactivate(@__DIR__,"Random_coding")
 using JLD
-using Plots
 pyplot()
 include(srcdir("lalazarabbott.jl"))
 #Script that output the complexity and R2 histogram of the data, their linear fit, and the simulations
@@ -18,6 +17,7 @@ complexity_data = complexity_opt(r,tP,36);complexity_linear = complexity_opt(r,t
 data = load(datadir("sims/LalaAbbott/tuning_curves","tuning_curves3D_ntest=27_s=0.1.jld"))
 Vdict,σVec,x_test = data["Vdict"],data["σVec"],data["x_test"];
 N = 412;
+#COmpute the same quantities for all the precomputed tuning curves (to the same stimulus)
 complexity_sims,R2_sims = [zeros(N,length(σVec)) for n=1:2]
 for (i,σ) = enumerate(σVec)
     V = Vdict[σ][2];
