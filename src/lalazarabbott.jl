@@ -13,7 +13,7 @@ nanvar(x,y) = mapslices(nanvar,x,dims=y)
 nansum(x) = sum(filter(!isnan,x))
 nansum(x,y) = mapslices(nansum,x,dims=y)
 
-function import_and_clean_data()
+function import_and_clean_data(;stab_var=0,th=5.)
         #Import data, clean them, and return noise traces
         data = matread(datadir("exp_raw/LalazarAbbottVaadia_PLOSCB_2016_Dataset.mat"))
         #Read files
@@ -52,11 +52,47 @@ function import_and_clean_data()
         #Select only neurons with an average of 1 spike per condition (???)
         r = vcat(r...) ; var_r = vcat(var_r...) ; η = cat(η...,dims=1);trials = vcat(trials...)
         #tuned_neurons = findall(vec(nansum(r,2).>30))
-        tuned_neurons = findall(vec(nansum(r.>=5,2).>0))
+        tuned_neurons = findall(vec(nansum(r.>= th,2).>0))
         r = r[tuned_neurons,:] ; var_r = var_r[tuned_neurons,:] ;
-        η = η[tuned_neurons,:,:];trials = trials[tuned_neurons,:];
-        targetPositions = tPosxN[tuned_neurons]
-        return r,var_r, targetPositions,η,trials
+        η = η[tuned_neurons,:,:];
+        if stab_var==1
+                #Compute the same data with stabilzed variance transfromation
+                firingRates = [sqrt.(firingRates[s]) for s=1:Nsessions];
+                r_stab, var_r_stab ,tPosxN,η_stab,trials = [[] for n=1:5] ;
+                for session=1:Nsessions
+                        #Average firing rate in the same condition (no difference between pronation and supination)
+                        average = hcat([mean(firingRates[session][: , (posture[session][:,2] .==p )  ],dims=2) for p=1:nPos]...);
+                        variance = hcat([var(firingRates[session][:,(posture[session][:,2] .==p) ],dims=2) for p=1:nPos]...)
+                        #Build for every neuron an asosciated vector of positions (mainly, they are always equal except some situations)
+                        ns = size(firingRates[session])[1]
+                        ηs= zeros(ns,27,1000); txp = zeros(ns,27)
+                        for p=1:27
+                                rp = firingRates[session][: , (posture[session][:,2] .==p )  ]; ntrial = size(rp)[2];
+                                txp[:,p] = ones(ns)*ntrial
+                                for t=1:1000
+                                    for n=1:ns
+                                        if ntrial > 1
+                                            k,l = sample(1:ntrial,2,replace=false)
+                                            ηs[n,p,t] = (rp[n,l]-rp[n,k])/sqrt(2)
+                                        end
+                                    end
+                                end
+                        end
+                        push!(η_stab,ηs); push!(trials,txp)
+                        for n=1:size(average)[1]
+                                tPosxN = push!(tPosxN,targetPositions[:,:,session])
+                        end
+                        r_stab = push!(r_stab,average); var_r_stab = push!(var_r_stab,variance)
+                end
+                r_stab = vcat(r_stab...) ; var_r_stab = vcat(var_r_stab...) ; η_stab = cat(η_stab...,dims=1);trials = vcat(trials...)
+                r_stab = r_stab[tuned_neurons,:] ; var_r_stab = var_r_stab[tuned_neurons,:] ;
+                η_stab = η_stab[tuned_neurons,:,:];
+        else
+                r_stab,η_stab = 0,0
+        end
+        targetPositions = tPosxN[tuned_neurons];trials = trials[tuned_neurons,:];
+
+        return r,var_r, targetPositions,η,trials,r_stab,η_stab
 end
 
 function linear_fit(r,tP;up=0)

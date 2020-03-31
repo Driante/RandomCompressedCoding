@@ -6,9 +6,9 @@
 
 - Nevertheless data shows that in deeper regions of the brain, neurons does not always have a simple selectivity profile. For example, data from lalazar and Abbott shows that tuning curves of neurons in motor cortex may arise from random connectivity and possess an high degree of irregularity inside the same population. 
 
-- A more structured  example is the coding schemes of grid cells. Grid cells encode the position of the animal by mean of a set of phases in a set of different periods. This coding scheme introduce high ambiguity at single cell level, but at level of population overcome the performance of classical coding schemes.
+- A more structured  example is the coding scheme of grid cells. Grid cells encode the position of the animal by mean of a set of phases in a set of different periods. This coding scheme introduce high ambiguity at single cell level, but at level of population overcome the performance of classical coding schemes.
 
-- Overall, heterogeneity and irregularities may improve the population code, but also introduce higher levels of ambiguity that can lead to disruptive errors when the population size is finite.
+- Heterogeneity and irregularities may improve the population code, but also introduce higher levels of ambiguity that can lead to disruptive errors when the population size is finite.
 
 - Generally, a coding scheme must find a compromise between two instances. From one side, resources should be optimized and the information should be compressed and represented with few neurons. On the other hand, neurons are noisy channels and the neural code should be error-correcting. 
 
@@ -23,7 +23,7 @@
 
 ## Results
 
-We studied the coding properties of a population of neurons whose tuning curves  heterogeneity arise from randomness in the connectivity structure. Our model consist in a two layer feed-forward network. The first layer is a sensory layer, that encode a low dimensional stimulus into an high dimensional representation, by mean of gaussian tuning curves centred on preferred positions that tiles uniformly the space. This population projects onto a smaller layer of N neurons with an all-to-all random connectivity. The random synapses causes second layer tuning curves to cover all the stimulus space, but with an irregular sensitivity profile. One parameter, $\sigma$ the width of the gausssian of first layer, govern the smoothness of this tuning curves, that is how far two similar stimuli evoke two similar responses.
+We studied the coding properties of a population of neurons whose tuning curves  heterogeneity arise from randomness in the connectivity structure. Our model consist in a two layer feed-forward network. The first layer is a sensory layer, that encode a low dimensional stimulus into an high dimensional representation, by mean of gaussian tuning curves centred on preferred positions that tiles uniformly the space. This population projects onto a smaller layer of N neurons with an all-to-all random connectivity. The random synapses causes second layer tuning curves to cover all the stimulus space, but with an irregular sensitivity profile. One parameter, $\sigma$ the width of the gausssian of first layer, governs the smoothness of this tuning curves, that is how far two similar stimuli evoke two similar responses.
 Increasing $\sigma$ we go from a random uncorrelated code to a smooth one (Fig.1 e).
 
 ### Uncorrelated Responses
@@ -40,17 +40,15 @@ While the case of a population with Gaussian tuning curves is well studied in th
 
 Fig.2  Global-Local Errors a) Two types of error in an auto-intersecting neural manifold. $\bm{v}(x_0)$ is the true response. The trial to trial variability is represented by a grey cloud of possible responses. Noise can cause a local error if the response fall close to a point of the manifold that represent a similar stimulus ($r^{I}$). In presence of many intersections, it can happen that the noise fall onto a point of the manifold that represent a completely uncorrelated stimulus ($r^{II}$) causing a global error. b) Histogram of errors magnitude. The probability of this two type of error is ruled by $\sigma$ .For a fixed N and noise, a very small $\sigma$ will cause very  small local errors (rapid fall of the purple line), but it will produce a substantial number of global errors . Increasing $\sigma$ the local accuracy decrease, but also the number of global errors. c) Analytical form for the two types of errors. d) Numerical simulation and analytical prediction for the (Root Mean Square) error in function of $\sigma$ .  When N is relatively low , it exist a  non trivial  $\sigma$ that balance the two types of error.
 
-- When $\sigma$ start to increase, the manifold become more smooth, and the responses start to be close.  We have two type of errors... Fig2 explained.
+- When $\sigma$ start to increase, the manifold become more smooth, and the responses start to be closer each other. 
 
 
 
 <img src="/home/simone/Documents/Neuroscience/Random_coding/plots/paper_figures/figure3.svg" style="zoom: 67%;" />
 
-Fig 3 Exponential scaling of the error. a)MSE in function of $\sigma$ for different N, for a fixed noise variance. Every curve reach the optimal performance at a given $\sigma^*$ that decrease increasing N. b) Same plot, but this time the error is showed in function of N, for a different fixed $\sigma$. c) -d) The optimal $\sigma$ decrease exponentially fast with the number of neurons.  This cause the optimal error, which is linear in $\sigma$, to decrease exponentially fast with the population size. e)-f) Optimal quantities for different pairs of N-SNR.
+Fig 3 Exponential scaling of the error. a) Error in function of $\sigma$ for different N, for $\eta=0.5$.The optimal error is attained at the optimal $\sigma^*$ that decrease increasing N. b) Same plot, but this time the error is showed in function of N, for a different fixed $\sigma$. The error at first decrease exponentially fast until we eliminate the global errors, then the finite width makes the error decrease linearly. Decreasing $\sigma$, we increase the N at which the transition happen, but also the error. c) -d) The optimal $\sigma$ decrease exponentially fast with the number of neurons.  This cause the optimal error, which is linear in $\sigma$, to decrease exponentially fast with the population size. e)-f) Optimal quantities for different pairs of N-SNR. The optimal width, and the error, scale exponentially with the population size, with an exponent that depends from the variance of the noise.
 
-Exponential scaling of the optimal error with the population size. Figure 3 explained.
-
-### Extension to Multiple Dimensions 
+### Extension to Many Dimensions 
 
 The extension to multiple dimensions can be made in many ways. We will consider here the relevant case where the tuning curves of the first layer are simply multidimensional Gaussians. This mean that the neurons encode conjunctively the different dimensions of the stimulus. This case has biological relevance since, for example, the position of a point in the space is encoded in this way in the parietal cortex. Nevertheless, also the case where the cells encode the single dimensions of the stimulus separately is of biological relevance. \cite{Bouchacourt paper}. In the case where the stimulus is $x\in[0,1]^K$ , the following extensions hold:
 $$
@@ -58,25 +56,37 @@ $$
 \varepsilon_g^2 = \frac{1}{\sigma^K}\frac{1}{2}erfc(\sqrt{N'})
 $$
 
+<img src="/home/simone/Documents/Neuroscience/Plots/figure3.svg" style="zoom:50%;" />
+
+Fig.4 a)For a fixed $\eta$, for different N the error function of $\sigma$ is plotted. b)-c)Optimal error and optimal width in function of N d) Ratio between error of the irregular population and error of an homogeneous population with linear tuning curves. The principal directions are taken from the linear fit of the data, and the variance across stimuli is constrained to be 1 for all neurons.
 
 ### Data Analysis
 
 - A slightly more complicated 3D version of the model has been used in LalazarAbbott to explain the diversity in the shape of the tuning curves in the M1 cortex. In their formulation, the weights were uniformly distributed and the random sum was passed by  a rectifying non linearity, with a varying threshold.
+
 - Knowing that the 3D version has biologically relevance, we first checked that has the same qualitative behaviour of the 1D model. Fig.4
 
+- Then, we check if the model explain the data. We mean center and rescale the data to have variance =1. The we compared the distribution of the value of complexity across different neurons. There is no reason why we should use the value of R2, since our model has no non-linearity. Therefore we pick as $\sigma_f$ the $\sigma$ that achieve the minimal KS distance between the complexity histograms. At these value, the two histograms are similar. These can be read as a sign that the only fact of having random synapses explain a lot of the deviation from the parametric form of the data.
+
+  <img src="/home/simone/Documents/Neuroscience/Plots/figure4.svg" style="zoom:50%;" />
+
+Fig.5 Data and fits. d) K-S distance between the distribution of complexity measure across different neurons. The minimum of the K-S distance is attained at $\sigma_f$ . The resulting Histogram is plotted in Fig. 5 a. b) Histogram of the R2 distribution. Even if the linear model underestimate the number of neurons with a good linear fit,  still gives a population with a broad distribution. More linearity can be achieved simply by introducing a non-linearity. c) Fraction of variance explained by the principal components.
+
+
+
+				-  Finally, we want to analyse the coding properties at this best $\sigma_f$ , and compare them with the classical parametric shape of tuning curves. For a fixed noise, there exist two regions in the $N-\sigma$ plane where one coding scheme is better than the other. This regions change changing the noise.
+				-  The noise distribution is extremely irregular. The signal to noise variance  has a very broad distribution over neurons, not correlated with the number of trials. Moreover no simple parametric function of the mean is able to explain the noise distribution.
+				-  Therefore, we have been conservative and we analysed the performance of the network over several values of noise variance.
 
 
 
 
-<img src="/home/simone/Documents/Neuroscience/Plots/figure3.svg" style="zoom:50%;" />
 
-Finally, real data shows an high variance of the noise magnitude (insert data analysis?).
 
-We fix the $\sigma_t$ to be the parameter that better fit the data, and we vary the noise level, showing that the size of the population required for doing better than a linear code is quite big and comparable with the number of input a single muscle receive.
 
 ![](/home/simone/Documents/Neuroscience/Plots/figure5.svg)
 
-
+Fig. 6 Best $\sigma$ performance. a)Error at the $\sigma_f$ in function of N, for different values of noise. 
 
 ### Decoder
 
@@ -84,7 +94,7 @@ Until now we used an optimal decoder. It exist a network implementation of this 
 
 If we would have to learn the decoder, what is the optimal parameter for the encoding?
 
-<img src="/home/simone/Documents/Neuroscience/Plots/figure4.svg" style="zoom:50%;" />
+
 
 
 

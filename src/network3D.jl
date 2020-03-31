@@ -46,9 +46,8 @@ end
 function compute_tuning_curves(n::Network3D,x_test)
     #Vector of position is given in a column nposx3
     np,~ = size(x_test);
-    U = hcat([n.f1(x_test[p,:],n.A,n.σ,n.cVec) for p=1:np]...)
-    V = n.f2.(n.W*U)./n.Z
-    return U,V
+    V = hcat([n.f2(n.W*n.f1(x_test[p,:],n.A,n.σ,n.cVec)) for p=1:np]...)
+    return V
 end
 
 function MSE_net_gon(V::Array{Float64},η::Float64,x_test;ntrial=50,MC=0,tol=1,maxiter=500)
