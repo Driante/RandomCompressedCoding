@@ -50,7 +50,7 @@ Fig 3 Exponential scaling of the error. a) Error in function of $\sigma$ for dif
 
 ### Extension to Many Dimensions 
 
-The extension to multiple dimensions can be made in many ways. We will consider here the relevant case where the tuning curves of the first layer are simply multidimensional Gaussians. This mean that the neurons encode conjunctively the different dimensions of the stimulus. This case has biological relevance since, for example, the position of a point in the space is encoded in this way in the parietal cortex. Nevertheless, also the case where the cells encode the single dimensions of the stimulus separately is of biological relevance. \cite{Bouchacourt paper}. In the case where the stimulus is $x\in[0,1]^K$ , the following extensions hold:
+The extension to multiple dimensions can be made in many ways. We will consider here the case where the first layer tuning curves are multidimensional gaussians with a preferred D-dimensional stimulus. This mean that the neurons encode conjunctively the different dimensions of the stimulus. This case has biological relevance since, for example, the position of a point in the space is encoded in this way in the parietal cortex. Nevertheless, also the case where the cells encode the single dimensions of the stimulus separately is of biological relevance. \cite{Bouchacourt paper}. In the case where the stimulus is $x\in[0,1]^K$ , the following extensions hold:
 $$
 \varepsilon_l^2 = K\frac{\sigma^2 \sigma_\eta^2}{N}   \\
 \varepsilon_g^2 = \frac{1}{\sigma^K}\frac{1}{2}erfc(\sqrt{N'})

@@ -442,8 +442,11 @@ $$
 
 Now, even if we assume that the probability of local error is almost 1, we have still that the probability of global errors are approximated and with a proportionality constant that may change depending from lot of things. 
 
-Let's do the following reasoning. Let's start from $c=0$ and lets find optimal $\sigma*$. Now let's allow the partecipation of a small $\sigma_2$ , in such a way that we can lower the local errors, increasing gradually c. For c verylarge, the error should be the error of one single width with $\sigma=\sigma_2$. For $\sigma_1<\sigma*$, we have no possibility of decreasing the error. The addition of a larger $\sigma_2$ increase the local error, and since $\sigma* $ already balnce local and global contribution, we decrease the global error but overall we cannot to better than $\sigma*$.
-If we take $\sigma_1<\sigma*$ we can think that adding a low frequency mode lower the global errors, still not detriorating the local ones.
+We made an extensive number of exmperiments, and overall they give very ambiguous results. We operate in the folowing regime: we compute the error for a $\sigma = [\sigma_1 \sigma_2]$ , increasing gradually c, the contributions of $\sigma_1 < \sigma_2$, trying to lower the local errors. What we obtain is incredibly variegate and depends from the realization of the network.
+
+<img src="/home/simone/Documents/Neuroscience/Random_coding/notebooks/double_width_high1.svg" style="zoom:50%;" /><img src="/home/simone/Documents/Neuroscience/Random_coding/notebooks/double_width_mhigh1.svg" alt="double_width_mhigh1" style="zoom:50%;" /><img src="/home/simone/Documents/Neuroscience/Random_coding/notebooks/double_width_mlows1.svg" alt="double_width_mlows1" style="zoom:50%;" /><img src="/home/simone/Documents/Neuroscience/Random_coding/notebooks/double_width_lows1.svg" alt="double_width_lows1" style="zoom:50%;" />
+
+
 
 
 

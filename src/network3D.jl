@@ -50,7 +50,7 @@ function compute_tuning_curves(n::Network3D,x_test)
     return V
 end
 
-function MSE_net_gon(V::Array{Float64},η::Float64,x_test;ntrial=50,MC=0,tol=1,maxiter=500)
+function MSE_net_gon(V::Array{Float64},η::Float64,x_test;ntrial=50,MC=0,tol=0.5,maxiter=500)
     N,ntest = size(V)
     #Montecarlo extimate of the mse
     ε = []; t= 1;s=0
@@ -62,7 +62,7 @@ function MSE_net_gon(V::Array{Float64},η::Float64,x_test;ntrial=50,MC=0,tol=1,m
         s  += mean(sum((x_ext-x_test).^2,dims=2))
         push!(ε,s/(t))
         if t>30
-            if std(ε[t-20:t]) < tol ; break;end
+            if std(ε[t-10:t]) < tol ; break;end
         end
         #println(ε[t])
         t +=1
