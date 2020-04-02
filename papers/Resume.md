@@ -110,25 +110,7 @@ Increasing the noise on the first layer, we simply move the optimal sigma to hig
 
 # Week  03/02 - 09/02
 
-## Todo
-
-- [x] Explore L+N behavior
-
-  - [x] Minima behavior, why they don't move with $\eta_u$ increasing? Zoom on minima
-
-  ​	
-
-- [ ] Retinal data: 
-
-  - [ ] look at git repo: receptive field computation
-  - [ ] read botond's paper and rava's one
-  - [ ] 
-
-- [ ] Comitè de suivi
-
-  - [ ] Srjan Ostojic
-  - [x] Ulisse Ferrari
-  - [x] Remi Monasson
+- [ ] - [x] 
 
 - [ ] Covariance matrix: look at distribution of $\sigma$ performance
 
@@ -444,7 +426,7 @@ Now, even if we assume that the probability of local error is almost 1, we have 
 
 We made an extensive number of exmperiments, and overall they give very ambiguous results. We operate in the folowing regime: we compute the error for a $\sigma = [\sigma_1 \sigma_2]$ , increasing gradually c, the contributions of $\sigma_1 < \sigma_2$, trying to lower the local errors. What we obtain is incredibly variegate and depends from the realization of the network.
 
-<img src="/home/simone/Documents/Neuroscience/Random_coding/notebooks/double_width_high1.svg" style="zoom:50%;" /><img src="/home/simone/Documents/Neuroscience/Random_coding/notebooks/double_width_mhigh1.svg" alt="double_width_mhigh1" style="zoom:50%;" /><img src="/home/simone/Documents/Neuroscience/Random_coding/notebooks/double_width_mlows1.svg" alt="double_width_mlows1" style="zoom:50%;" /><img src="/home/simone/Documents/Neuroscience/Random_coding/notebooks/double_width_lows1.svg" alt="double_width_lows1" style="zoom:50%;" />
+<img src="/home/simone/Documents/Neuroscience/Random_coding/notebooks/double_width_high1.svg"  /><img src="/home/simone/Documents/Neuroscience/Random_coding/notebooks/double_width_mhigh1.svg" alt="double_width_mhigh1"  /><img src="/home/simone/Documents/Neuroscience/Random_coding/notebooks/double_width_mlows1.svg" alt="double_width_mlows1" style="zoom:50%;" /><img src="/home/simone/Documents/Neuroscience/Random_coding/notebooks/double_width_mhigh1.svg" alt="double_width_mhigh1"  /><img src="/home/simone/Documents/Neuroscience/Random_coding/notebooks/double_width_mlows1.svg" alt="double_width_mlows1" style="zoom:50%;" /><img src="/home/simone/Documents/Neuroscience/Random_coding/notebooks/double_width_lows1.svg" alt="double_width_lows1" style="zoom:50%;" />
 
 
 

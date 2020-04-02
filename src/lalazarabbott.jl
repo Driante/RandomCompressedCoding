@@ -110,7 +110,7 @@ function linear_fit(r,tP;up=0)
                 if sum(isnan.(r[n,:])) ==0
                         rn = r[n,:] ;tpn = tPv[n][:,:]
                 else
-                        rn = r[n,.!isnan.(r[n,:])] ; tpn =  tP[n][.!isnan.(r[n,:]),:]
+                        rn = r[n,.!isnan.(r[n,:])] ; tpn =  tPv[n][.!isnan.(r[n,:]),:]
                 end
                 myfit = curve_fit(model, tpn, rn, p0)
                 PreferedPositions[n,:]= myfit.param[2:end]./sqrt.(sum((myfit.param[2:end]).^2))

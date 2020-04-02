@@ -1,5 +1,15 @@
 # Structure
 
+## Todo
+
+- [ ] Change Fig 2 b,adding the average over ntetwork realization and an inset with a single network
+
+- [ ] Add the uncorrelated case.  Scatter plot + probability of error vs N at different L and noise
+
+- [ ] Add pure cells discussion on K dimensional case. Add plot and fig.4
+- [ ] rewrite lalazar and abbott explanation more clearly (maybe play with the noise distribution)
+- [ ] 
+
 ## Introduction
 
 - Tuning curves are often assumed to have a regular shape. Many studies are made analysing populations of neurons which are responsive in a localised region of the stimulus space (E.g. DS cells, Place Cells, etc...)
@@ -72,11 +82,15 @@ Fig.4 a)For a fixed $\eta$, for different N the error function of $\sigma$ is pl
 
 Fig.5 Data and fits. d) K-S distance between the distribution of complexity measure across different neurons. The minimum of the K-S distance is attained at $\sigma_f$ . The resulting Histogram is plotted in Fig. 5 a. b) Histogram of the R2 distribution. Even if the linear model underestimate the number of neurons with a good linear fit,  still gives a population with a broad distribution. More linearity can be achieved simply by introducing a non-linearity. c) Fraction of variance explained by the principal components.
 
+Finally, we want to analyse the coding properties at this best $\sigma_f$ , and compare them with the classical parametric shape of tuning curves. For a fixed noise, there exist two regions in the $N-\sigma$ plane where one coding scheme is better than the other. This regions change changing the noise.
 
+- The noise distribution is extremely irregular. The signal to noise variance  has a very broad distribution over neurons, not correlated with the number of trials. Moreover no simple parametric function of the mean is able to explain the noise distribution.
+- Therefore, we have been conservative and we analysed the performance of the network over several values of noise variance.
 
-				-  Finally, we want to analyse the coding properties at this best $\sigma_f$ , and compare them with the classical parametric shape of tuning curves. For a fixed noise, there exist two regions in the $N-\sigma$ plane where one coding scheme is better than the other. This regions change changing the noise.
-				-  The noise distribution is extremely irregular. The signal to noise variance  has a very broad distribution over neurons, not correlated with the number of trials. Moreover no simple parametric function of the mean is able to explain the noise distribution.
-				-  Therefore, we have been conservative and we analysed the performance of the network over several values of noise variance.
+	x	-  Finally, we want to analyse the coding properties at this best $\sigma_f$ , and compare them with the classical parametric shape of tuning curves. For a fixed noise, there exist two regions in the $N-\sigma$ plane where one coding scheme is better than the other. This regions change changing the noise.
+			-  The noise distribution is extremely irregular. The signal to noise variance  has a very broad distribution over neurons, not correlated with the number of trials. Moreover no simple parametric function of the mean is able to explain the noise distribution.
+			
+	
 
 
 

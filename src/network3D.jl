@@ -6,7 +6,7 @@ mutable struct Network3D
     #First layer properties
     M :: Int; A::Float64; σ; cVec; f1::Function
     #Connectivity matrix, number of neurons of second layer,function, normalization constant
-    W :: AbstractArray;N::Int64; f2::Function; Z::Array{Float64};
+    W :: AbstractArray;N::Int64; f2::Function; Z::Array{Float64}; B::Array{Float64}
     #row by row normalization flag, if ==1, tin computing the tuning curves Z is updated
     rxrnorm
 end
@@ -20,9 +20,10 @@ function Network3D(N::Int64,L::Int64,σ,x_min::Float64,x_max::Float64;s=0.1,f1= 
     V = (x_max-x_min)^3;M=L^3
     A =sqrt(1/((π*σ^2)^(3/2)/V - (2*π*σ^2)^3/V^2))
     cVec = build_cVec(x_min,x_max,L);
-    W = sqrt(1/(s*M))*sprandn(N,M,s); Z= ones(N)
-    return Network3D(M,A,σ ,cVec,f1,W,N,f2,Z,rxrnorm)
+    W = sqrt(1/(s*M))*sprandn(N,M,s); Z= ones(N); B=zeros(N)
+    return Network3D(M,A,σ ,cVec,f1,W,N,f2,Z,B,rxrnorm)
 end
+
 function Network3D(W::AbstractArray,σ ::Float64,x_min::Float64,x_max::Float64;s=0.1,f1= gaussian_3D,f2 = identity,rxrnorm=0)
     N,M = size(W); L = Int(round(M^(1/3)))
     #Create  a grid of preferred positions of first layer cells
@@ -34,8 +35,24 @@ function Network3D(W::AbstractArray,σ ::Float64,x_min::Float64,x_max::Float64;s
     Vol = (x_max-x_min)^3;M=L^3
     A =sqrt(1/((π*σ^2)^(3/2)/Vol - (2*π*σ^2)^3/Vol^2))
     cVec = build_cVec(x_min,x_max,L);
-    Z= ones(N)
-    return Network3D(M,A,σ ,cVec,f1,W,N,f2,Z,rxrnorm)
+    Z= ones(N); B=zeros(N)
+    return Network3D(M,A,σ ,cVec,f1,W,N,f2,Z,B,rxrnorm)
+end
+
+function Network3D_p(W::AbstractArray,σ ::Float64,x_min::Float64,x_max::Float64;f1= gaussian_3D_p,f2 = identity,rxrnorm=0)
+    #Network of pure cells
+    N,M = size(W); L = Int(round(M/3))
+    #Create  a grid of preferred positions of first layer cells
+    cVec = range(x_min,x_max, length=L)
+    l = (x_max-x_min)
+    A =sqrt(1/((π*σ^2)^(1/2)/l - (2*π*σ^2)/l^2))
+    Z= ones(N); B=zeros(N)
+    return Network3D(M,A,σ ,cVec,f1,W,N,f2,Z,B,rxrnorm)
+end
+
+function gaussian_3D_p(x::Array{Float64},A::Float64,σ,cVec)
+    u = vcat([A*exp.(-(x[i].-cVec).^2/(2*σ^2)) for i=1:3]...)
+    return u
 end
 
 function gaussian_3D(x::Array{Float64},A::Float64,σ,cVec::Array{Float64,2})
@@ -43,10 +60,15 @@ function gaussian_3D(x::Array{Float64},A::Float64,σ,cVec::Array{Float64,2})
     return u
 end
 
+
 function compute_tuning_curves(n::Network3D,x_test)
     #Vector of position is given in a column nposx3
     np,~ = size(x_test);
-    V = hcat([n.f2(n.W*n.f1(x_test[p,:],n.A,n.σ,n.cVec)) for p=1:np]...)
+    V = hcat([n.f2.(n.W*n.f1(x_test[p,:],n.A,n.σ,n.cVec) .+n.B) for p=1:np]...)
+    if n.rxrnorm==1
+        n.Z = std(V,dims=2); n.Z[n.Z .== 0.] .=1.
+        V./=n.Z
+    end
     return V
 end
 
