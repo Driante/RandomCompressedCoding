@@ -23,8 +23,8 @@ function compute_tuning_curves_pvsc(Wp::AbstractArray,Wc::AbstractArray,σVec,x_
         return Vcdict,Vpdict
 end
 
-N=400; L=100;x_min  = -1.; x_max = 2.; M=L^3;s=0.1;
-x_test_min = -1.; x_test_max=2.; ntest = 20; x_test = build_grid(x_test_min,x_test_max,ntest);
+N=400; L=100;x_min  = -0.5; x_max = 1.5; M=L^3;s=0.1;
+x_test_min = 0.; x_test_max=1.; ntest = 20; x_test = build_grid(x_test_min,x_test_max,ntest);
 #Or use stimuli from data
 #~,~,tP= import_and_clean_data(); x_test = tP[1]; ntest,~ =size(x_test)
 σVec  = (1:14)./L; Wc = sqrt(1/(s*M))*sprandn(N,M,s);Wp = sqrt(1/(3*L))*randn(N,3*L);
