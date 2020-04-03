@@ -2,11 +2,13 @@
 
 ## Todo
 
-- [ ] Change Fig 2 b,adding the average over ntetwork realization and an inset with a single network
+- [x] Change Fig 2 b,adding the average over ntetwork realization and an inset with a single network
 
 - [ ] Add the uncorrelated case.  Scatter plot + probability of error vs N at different L and noise
 
 - [ ] Add pure cells discussion on K dimensional case. Add plot and fig.4
+  - [ ] Generate tuning curves
+  - [ ] write the code for the comaprison
 - [ ] rewrite lalazar and abbott explanation more clearly (maybe play with the noise distribution)
 - [ ] 
 

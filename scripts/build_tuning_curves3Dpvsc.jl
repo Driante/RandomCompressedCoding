@@ -31,3 +31,4 @@ x_test_min = -1.; x_test_max=2.; ntest = 20; x_test = build_grid(x_test_min,x_te
 Vcdict,Vpdict = compute_tuning_curves_pvsc(W,σVec,x_test)
 name = savename("tuning_curves3D_pvsc" , (@dict ntest  ),"jld")
 data = Dict("σVec"=>σVec,"Vpdict"=>Vpdict ,"Vcdict"=> Vcdict,"x_test" => x_test)
+safesave(datadir("sims/LalaAbbott/tuning_curves",name) ,data)
