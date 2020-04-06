@@ -125,3 +125,24 @@ function MSE_net_linear(V,η,x_test,PP;ntrial=50,MC=0,tol=1,maxiter=500)
     end
     return ε
 end
+
+function MSE_net_gonD(V::Array{Float64},ηVec::Array{Float64},x_test;ntrial=50,MC=0,tol=0.5,maxiter=500)
+    #Decoder where each neuron is affected by gaussian noise with different variance
+    N,ntest = size(V)
+    #Montecarlo extimate of the mse
+    ε = []; t= 1;s=0
+    b = sum(V.^2 ./(2*ηVec),dims=1)'
+    while t <maxiter
+        R = V .+ sqrt.(ηVec).*randn(N,ntest);
+        H = exp.((V./ηVec)'*R .-b );Zh = sum(H,dims=1);H = H./Zh
+        x_ext = H'*x_test;
+        s  += mean(sum((x_ext-x_test).^2,dims=2))
+        push!(ε,s/(t))
+        if t>30
+            if std(ε[t-10:t]) < tol ; break;end
+        end
+        #println(ε[t])
+        t +=1
+    end
+    return ε
+end

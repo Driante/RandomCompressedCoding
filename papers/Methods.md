@@ -3,22 +3,24 @@
 ## Todo
 
 - [x] Change Fig 2 b,adding the average over ntetwork realization and an inset with a single network
+- [x] Add the uncorrelated case.  Scatter plot + probability of error vs N at different L and noise
+  - [ ] Add methods
+- [x] Add pure cells discussion on K dimensional case. Add plot and fig.4
+  - [x] Generate tuning curves
+  - [x] write the code for the comaprison
+  - [ ] Do fig4 a)-b) Error vs sigma  for pure and conj case c)-d) optimal scaling for the two cases
+- [x] rewrite lalazar and abbott explanation more clearly (maybe play with the noise distribution)
+  - [ ] do fig. 6 a) heatmap N vs sigma b)  e vs noise c) heatmap N vs noise d) line noise distribution
 
-- [ ] Add the uncorrelated case.  Scatter plot + probability of error vs N at different L and noise
 
-- [ ] Add pure cells discussion on K dimensional case. Add plot and fig.4
-  - [ ] Generate tuning curves
-  - [ ] write the code for the comaprison
-- [ ] rewrite lalazar and abbott explanation more clearly (maybe play with the noise distribution)
-- [ ] 
 
 ## Introduction
 
 - Tuning curves are often assumed to have a regular shape. Many studies are made analysing populations of neurons which are responsive in a localised region of the stimulus space (E.g. DS cells, Place Cells, etc...)
 
-- Nevertheless data shows that in deeper regions of the brain, neurons does not always have a simple selectivity profile. For example, data from lalazar and Abbott shows that tuning curves of neurons in motor cortex may arise from random connectivity and possess an high degree of irregularity inside the same population. 
+- Nevertheless data shows that in deeper regions of the brain, neurons does not always have a simple selectivity profile. A well studied example are grid cells. Grid cells encode the position of the animal by mean of a set of phases in a set of different periods. This coding scheme introduce high ambiguity at single cell level, but at level of population overcome the performance of classical coding schemes.
 
-- A more structured  example is the coding scheme of grid cells. Grid cells encode the position of the animal by mean of a set of phases in a set of different periods. This coding scheme introduce high ambiguity at single cell level, but at level of population overcome the performance of classical coding schemes.
+- Another example, data from lalazar and Abbott shows that tuning curves of neurons in motor cortex may arise from random connectivity and possess an high degree of irregularity inside the same population. 
 
 - Heterogeneity and irregularities may improve the population code, but also introduce higher levels of ambiguity that can lead to disruptive errors when the population size is finite.
 
@@ -40,7 +42,7 @@ Increasing $\sigma$ we go from a random uncorrelated code to a smooth one (Fig.1
 
 ### Uncorrelated Responses
 
-While the case of a population with Gaussian tuning curves is well studied in the literature, it is instructive to look at what happen when $\sigma ->0$. In this case only one neuron of the first layer respond to each stimulus and the manifold we obtain is very scattered. 
+While the case of a population with Gaussian tuning curves is well studied in the literature, it is instructive to look at what happen when $\sigma ->0$. In this case only one neuron of the first layer respond to each stimulus and the manifold we obtain is very scattered. <img src="/home/simone/Documents/Neuroscience/Random_coding/plots/paper_figures/figure2_b.svg" style="zoom: 200%;" />
 
 
 
@@ -74,27 +76,35 @@ Fig.4 a)For a fixed $\eta$, for different N the error function of $\sigma$ is pl
 
 ### Data Analysis
 
-- A slightly more complicated 3D version of the model has been used in LalazarAbbott to explain the diversity in the shape of the tuning curves in the M1 cortex. In their formulation, the weights were uniformly distributed and the random sum was passed by  a rectifying non linearity, with a varying threshold.
+- A slightly more complicated 3D version of the model has been used in LalazarAbbott to explain the diversity in the shape of the tuning curves in the M1 cortex. Briefly
 
-- Knowing that the 3D version has biologically relevance, we first checked that has the same qualitative behaviour of the 1D model. Fig.4
+  ​		 tuning curves of that region were supposed to be linearly tuned to the arm position
 
-- Then, we check if the model explain the data. We mean center and rescale the data to have variance =1. The we compared the distribution of the value of complexity across different neurons. There is no reason why we should use the value of R2, since our model has no non-linearity. Therefore we pick as $\sigma_f$ the $\sigma$ that achieve the minimal KS distance between the complexity histograms. At these value, the two histograms are similar. These can be read as a sign that the only fact of having random synapses explain a lot of the deviation from the parametric form of the data.
+  - $r = a_0 + \sum a_ix_i$ 
+
+  - Data shows that tuning curves exhibit a lot of heterogeneity, going from very linear shapes to highly irregular ones (Insert a figure?Maybe in the fig 1?)
+
+  - The authors explained this heterogeneity with randomness in the connectivity structure. The model is the 3D version of the random feedforward network  with conjunctive cells, with two difference (uniform distribution and non linearity). 
+
+  - The idea is that the first layer contain the visual information about the postion, and this information is transmitted to the motor neurons through random connectivity.
+
+  - To check if the model was able to explained the data, they compared the histogram of two summary statistics of the neural population (see Methods).
+
+    
 
   <img src="/home/simone/Documents/Neuroscience/Plots/figure4.svg" style="zoom:50%;" />
 
 Fig.5 Data and fits. d) K-S distance between the distribution of complexity measure across different neurons. The minimum of the K-S distance is attained at $\sigma_f$ . The resulting Histogram is plotted in Fig. 5 a. b) Histogram of the R2 distribution. Even if the linear model underestimate the number of neurons with a good linear fit,  still gives a population with a broad distribution. More linearity can be achieved simply by introducing a non-linearity. c) Fraction of variance explained by the principal components.
 
-Finally, we want to analyse the coding properties at this best $\sigma_f$ , and compare them with the classical parametric shape of tuning curves. For a fixed noise, there exist two regions in the $N-\sigma$ plane where one coding scheme is better than the other. This regions change changing the noise.
+
+
+Firstly therefore we asked how much of the data our model was able to explain. We generate the response of a 3D network to the same stimuli of the data, and we compare the histogram of the same summary statistic for different values of $\sigma$  (see methods for the data preprocessing) We found that this simple version of the model well capture the complexity distribution of the data at a given $\sigma_f$ , while it fails in capturing the distribution of the linear fitting. 
+
+Finally, we want to analyse the coding properties at this best $\sigma_f$ , and compare them with the classical parametric shape of tuning curves. 
 
 - The noise distribution is extremely irregular. The signal to noise variance  has a very broad distribution over neurons, not correlated with the number of trials. Moreover no simple parametric function of the mean is able to explain the noise distribution.
-- Therefore, we have been conservative and we analysed the performance of the network over several values of noise variance.
-
-	x	-  Finally, we want to analyse the coding properties at this best $\sigma_f$ , and compare them with the classical parametric shape of tuning curves. For a fixed noise, there exist two regions in the $N-\sigma$ plane where one coding scheme is better than the other. This regions change changing the noise.
-			-  The noise distribution is extremely irregular. The signal to noise variance  has a very broad distribution over neurons, not correlated with the number of trials. Moreover no simple parametric function of the mean is able to explain the noise distribution.
-			
-	
-
-
+- Therefore, we first analysed the performance of the network over several values of noise variance, checking where is convenient having irregular tuning curves and where is not.
+- Then we took a different noise distribution for each neuron (see Methods) and we did the same
 
 
 
@@ -103,14 +113,6 @@ Finally, we want to analyse the coding properties at this best $\sigma_f$ , and 
 ![](/home/simone/Documents/Neuroscience/Plots/figure5.svg)
 
 Fig. 6 Best $\sigma$ performance. a)Error at the $\sigma_f$ in function of N, for different values of noise. 
-
-### Decoder
-
-Until now we used an optimal decoder. It exist a network implementation of this decoder that achieve the same result. It requires to know the true responses. Can we actually LEARN this type of decoder, especially in  presence of global errors?
-
-If we would have to learn the decoder, what is the optimal parameter for the encoding?
-
-
 
 
 
