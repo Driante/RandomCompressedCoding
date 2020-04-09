@@ -23,7 +23,7 @@ function double_width(N::Int64,σVec::Array{Float64},η::Float64,cVec::Array{Flo
         #W = randn(N,L)*sqrt(1/L);
         W = randn(N,Lp[1])*sqrt(1/L); W = hcat(W,W)
         for (i,c)=enumerate(cVec)
-            ε[:,i,net] = vary_σ1(W,σVec,σ2,η,c)
+            @time ε[:,i,net] = vary_σ1(W,σVec,σ2,η,c)
         end
     end
     return ε
