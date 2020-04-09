@@ -20,7 +20,8 @@ end
 function double_width(N::Int64,σVec::Array{Float64},η::Float64,cVec::Array{Float64},σ2::Float64;nets=4)
     ε = zeros(length(σVec),length(cVec),nets)
     Threads.@threads for net=1:nets
-        W = randn(N,L)*sqrt(1/L)
+        #W = randn(N,L)*sqrt(1/L);
+        W = randn(N,Lp[1])*sqrt(1/L); W = hcat(W,W)
         for (i,c)=enumerate(cVec)
             ε[:,i,net] = vary_σ1(W,σVec,σ2,η,c)
         end
@@ -28,8 +29,8 @@ function double_width(N::Int64,σVec::Array{Float64},η::Float64,cVec::Array{Flo
     return ε
 end
 L,N = 500,25; η = 0.5;Lp = [250,250];
-cVec = collect(0:0.2:1.5);     σVec = collect((1:2:40)/L);
-σ2Vec = [3/L,5/L,7/L,10/L]
+cVec = collect(0:0.5:10.);     σVec = collect((1:2:40)/L);
+σ2Vec = [3/L,5/L,7/L,9/L]
 ε = [double_width(N,σVec,η,cVec,σ2,nets=2) for σ2 = σ2Vec]
 σ2min,σ2max = first(σ2Vec),last(σ2Vec);
 name = savename("double_width" , (@dict N η σ2min σ2max),"jld")

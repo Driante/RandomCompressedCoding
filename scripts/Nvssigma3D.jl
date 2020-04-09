@@ -51,13 +51,15 @@ end
 #Generate Linear Tuning curves from fitting, standardize also them
 V_l,PP,R2 = linear_fit(Vdict[last(σVec)],x_test); V_l = vcat(V_l'...);
 V_l ./= sqrt.((var(V_l,dims=2))); V_l  .-=mean(V_l,dims=2)
-NVec = Int.(round.(10 .^(1:0.1:2.1))); ηVec  = 1.0:1.0:1.5;η=1.
-#curve for all the σ
-ε =[Nvsσ(Vdict,N,collect(σVec[1:2:end]),V_l,PP,η) for N =NVec];
 
-#ε =[[singleσ(Vdict[19.],N,V_l,PP,η)    for N =NVec] for η=ηVec];
+NVec = Int.(round.(10 .^(1.3:0.1:2.3))); ηVec  = 1.0:1.0:5.;η=1.
+#curve for all the σ
+#ε =[Nvsσ(Vdict,N,collect(σVec[1:2:end]),V_l,PP,η) for N =NVec];
+
+ε =[[singleσ(Vdict[19.],N,V_l,PP,η)    for N =NVec] for η=ηVec];
 
 Nmin,Nmax = first(NVec),last(NVec);η_min, η_max = first(ηVec),last(ηVec)
+
 name = savename("Nvssigma3D" , (@dict Nmin Nmax η_min η_max),"jld")
 data = Dict("NVec"=>NVec ,"σVec" => σVec,"ηVec" => ηVec,"ε" => ε)
 safesave(datadir("sims/LalaAbbott/iidnoise",name) ,data)

@@ -33,7 +33,7 @@ end
 data =load(datadir("sims/LalaAbbott/tuning_curves","tuning_curves3D_pvsc_ntest=20.jld"))
 Vcdict,Vpdict,x_test,σVec = data["Vcdict"],data["Vpdict"],data["x_test"],data["σVec"]
 η =1.0; NVec = Int.(round.(10 .^(1:0.1:2.1)))
-ε = [Nvsσ(Vcdict,Vpdict,N,σVec,η) for N=NVec]
+ε = [Nvsσ(Vpdict,Vcdict,N,σVec,η) for N=NVec]
 Nmin,Nmax = first(NVec),last(NVec);
 name = savename("Nvssigma3D_cvsp" , (@dict Nmin Nmax η),"jld")
 data = Dict("NVec"=>NVec ,"σVec" => σVec,"ε" => ε)

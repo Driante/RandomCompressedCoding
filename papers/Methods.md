@@ -70,9 +70,9 @@ $$
 \varepsilon_g^2 = \frac{1}{\sigma^K}\frac{1}{2}erfc(\sqrt{N'})
 $$
 
-<img src="/home/simone/Documents/Neuroscience/Plots/figure3.svg" style="zoom:50%;" />
+![](/home/simone/Documents/Neuroscience/Random_coding/plots/paper_figures/figure4.svg)
 
-Fig.4 a)For a fixed $\eta$, for different N the error function of $\sigma$ is plotted. b)-c)Optimal error and optimal width in function of N d) Ratio between error of the irregular population and error of an homogeneous population with linear tuning curves. The principal directions are taken from the linear fit of the data, and the variance across stimuli is constrained to be 1 for all neurons.
+Fig.4 3D generalization a) Error vs width for a first layer made up by conjunctive cells b)Error vs width for a first layer made up by pure cells  c)Optimal error scaling with Number of neurons, for pure(blue) and conjunctive cells(red). d) Optimal width scaling with number of neurons e)(central panel) Error ratio between pure and conjunctive cells
 
 ### Data Analysis
 
@@ -110,9 +110,9 @@ Finally, we want to analyse the coding properties at this best $\sigma_f$ , and 
 
 
 
-![](/home/simone/Documents/Neuroscience/Plots/figure5.svg)
+![](/home/simone/Documents/Neuroscience/Random_coding/plots/paper_figures/figure5.svg)
 
-Fig. 6 Best $\sigma$ performance. a)Error at the $\sigma_f$ in function of N, for different values of noise. 
+Fig. 6 Random vs linear. a) Relative improvement $\Delta\varepsilon = (\varepsilon_l-\varepsilon_i)/\varepsilon_l$	 for a fixed noise variance, in the $N-\sigma$ plane. Negative values, sign that a smoother coding is more efficient, are in the low N-low $\sigma$ region. Keeping fixed $\sigma$, when we increase N, we have a very sharp transition and we go to high positive values, since we eliminated global errors and the local error is very low. Increasing $\sigma$ the improvement diminish, since the tuning curves start to be smoother. b) Error at high noise, for $\sigma = \sigma_f$ and same stimulus space of data. c) Relative improvement in the $N-\eta$ plane, for best $\sigma_f$ . We notice that at very high noise and low N, is much more favourable having a smoother code. d)  Relative improvement for $\sigma_f$ and noise extracted from data, average over 4 group of neurons of that size N. We can see that the improvement saturate at N =100.
 
 
 
@@ -201,6 +201,49 @@ $$
 This last formula is surprisingly robust and does not require any proportionality constant.
 
 <img src="/home/simone/Documents/Neuroscience/Random_coding/notebooks/summary_fit.png" style="zoom:150%;" />
+
+### Multi-Dimension
+
+First layer population can have pure and conjunctive encoding. In the pure case we have $L$ neurons monitoring each dimensions of the space for a  total number of K neurons. Second layer tuning curve are the linear combination of these , with weights different for each dimension
+$$
+v_i(\mathbf{x}) = \frac{1}{Z_p}\sum_k \sum_{j_k=1}^L w_{ij_k} exp(-(x_k-c_{j_k})^2/2\sigma^2)
+$$
+In the conjunctive case first layer neurons are selective to all the stimulus dimensionality. If we want a similar distance between preferred positions, we should tile the space with a grid of $L^3$ neurons
+$$
+v_i(\mathbf{x}) = \frac{1}{Z_c} \sum_j^{L^3} w_{ij} exp(-(\mathbf{x-c_j})^2/2\sigma^2)
+$$
+
+#### Constraint
+
+Until now I adopted the same constraint of before, imposing that the variance of the firing rates across all the stimulus space is =1. Since we are considering here the transformation from layer to layer and we can rescale arbirtarly the firing rates of the second layer simply rescaling the synaptic weights, this comparison makes more sense. Within this context we obtain (using the unit volume of the stimulus space) $\frac{1}{Z_p^2} = \frac{1}{(\pi\sigma^2)^{1/2} - 2\pi\sigma^2}$ for pure cells and $\frac{1}{Z_c^2} = \frac{1}{(\pi\sigma^2)^{3/2} - (2\pi\sigma^2)^3}$ for conjunctive cells, assuming to rescale the variance of the synaptic weights according to the number of neurons of first layer : $w_{ij} \sim \mathcal{N}(0,\frac{1}{3L}) $ for pure cells and $w_{ij} \sim \mathcal{N}(0,\frac{1}{s*L^3}) $ for conjunctive cells (eventually including sparsity in the matrix).
+
+#### Local Error
+
+We can compute the local error looking at the fisher information in the two cases. Define the scalar error as the sum of the squared error for each dimension $\varepsilon^2 = \sum_k \varepsilon^2_k$. 
+The fisher matrix is the proportional to identity and therefore $\varepsilon^2 = \frac{3}{J_{xx}}$ where $J_{x_k x_k} $ is the diagonal element of the FI matrix.
+We can compute it in the two cases (averaged over the weights distribution) obtaining:
+
+for the pure case 
+$$
+J^p_{x_kx_k} = \frac{\sum_i |\partial v_i(\mathbf{x})/\partial x_k|^2}{\sigma^2_\eta} = \frac{N (\pi \sigma^2)^{1/2}}{3*2 \sigma_\eta^2 \sigma^2 Z_p^2}
+$$
+where the 3 comes from the fact that each dimension is encoded seprately and therefore the derivative act only on 1/3 of the terms. In the conjunctive case, the derivative act on all terms and we have
+$$
+J_{x_k x_k}^c = \frac{\sum_i |\partial v_i(\mathbf{x})/\partial x_k|^2}{\sigma^2_\eta} = \frac{N (\pi \sigma^2)^{3/2}}{2 \sigma_\eta^2 \sigma^2 Z_c^2}
+$$
+Obtaining that $\varepsilon_{l,p}^2 = 3 \varepsilon_{l,c}^2$ 
+
+#### Global error 
+
+In the conjunctive case we can extend the same reasoning as before, but the number n of uncorrelated cluster goes like $\frac{1}{\sigma^K}$ . 
+$$
+\varepsilon_{g,c}^2 = \bar{\varepsilon}_g \frac{1}{2\sigma^K} erfc(\sqrt{N'})
+$$
+In the pure case, we have that each response is a linear combination of gaussian process of smaller variance (depending on the scaling of the synaptic weights, with our scaling it wil have a variance $1/K$). We can compute the probability of having a global error as the probability of having a global error in at least one coordinate. If these probability are very low, we can sum them to obtain the probability of the union of events. The result is a scaling
+$$
+\varepsilon_{g,c}^2 = \bar{\varepsilon}_g \frac{K}{2\sigma} erfc(\sqrt{N'/K})
+$$
+therefore the probabilty of global error has a lower prefactor but slower scaling with N.
 
 ## Discussion
 

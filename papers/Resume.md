@@ -428,7 +428,28 @@ We made an extensive number of exmperiments, and overall they give very ambiguou
 
 <img src="/home/simone/Documents/Neuroscience/Random_coding/notebooks/double_width_high1.svg"  /><img src="/home/simone/Documents/Neuroscience/Random_coding/notebooks/double_width_mhigh1.svg" alt="double_width_mhigh1"  /><img src="/home/simone/Documents/Neuroscience/Random_coding/notebooks/double_width_mlows1.svg" alt="double_width_mlows1" style="zoom:50%;" /><img src="/home/simone/Documents/Neuroscience/Random_coding/notebooks/double_width_mhigh1.svg" alt="double_width_mhigh1"  /><img src="/home/simone/Documents/Neuroscience/Random_coding/notebooks/double_width_mlows1.svg" alt="double_width_mlows1" style="zoom:50%;" /><img src="/home/simone/Documents/Neuroscience/Random_coding/notebooks/double_width_lows1.svg" alt="double_width_lows1" style="zoom:50%;" />
 
+The problem was that the minimum is very noisy and therefore changing simply random weights can improve the situation or worsen it.
+
+# April 2020
+
+## TODO
+
+- [ ] Summer schools application
+- [ ] Book Basel
+- [ ] 2 widths problem
+  - [ ] Make it fully differentiable and optmize over number of neurons
+  - [x] rewrite gaussian process with the proposed normalization
+  - [ ] learnability of the function
+  - [x] Go on with the analytics
+  - [x] Numerical simulation in a intelligent way to show optimality in some cinfigurations
+  - [ ] check network decoder, write it and write code for error curves
+- [ ] Random moving objects: start to think a project
+- [ ] Smooth pursuit: talk with Rava
+- [ ] Finish the paper
 
 
 
+2 Width problems
+
+We tried to analyze the 2 width problem
 
