@@ -8,9 +8,11 @@
 - [x] Add pure cells discussion on K dimensional case. Add plot and fig.4
   - [x] Generate tuning curves
   - [x] write the code for the comaprison
-  - [ ] Do fig4 a)-b) Error vs sigma  for pure and conj case c)-d) optimal scaling for the two cases
+  - [x] Do fig4 a)-b) Error vs sigma  for pure and conj case c)-d) optimal scaling for the two cases
 - [x] rewrite lalazar and abbott explanation more clearly (maybe play with the noise distribution)
-  - [ ] do fig. 6 a) heatmap N vs sigma b)  e vs noise c) heatmap N vs noise d) line noise distribution
+  - [ ] Fig.6 D add inset
+- [ ] Integral for global error
+- [ ] Noise on the first layer
 
 
 
