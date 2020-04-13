@@ -12,7 +12,7 @@
 - [x] rewrite lalazar and abbott explanation more clearly (maybe play with the noise distribution)
   - [ ] Fig.6 D add inset
 - [ ] Integral for global error
-- [ ] Noise on the first layer
+- [ ] Noise on the first layer: information limiting correlations, corrupt info in the second layer
 
 
 
@@ -219,6 +219,16 @@ $$
 
 Until now I adopted the same constraint of before, imposing that the variance of the firing rates across all the stimulus space is =1. Since we are considering here the transformation from layer to layer and we can rescale arbirtarly the firing rates of the second layer simply rescaling the synaptic weights, this comparison makes more sense. Within this context we obtain (using the unit volume of the stimulus space) $\frac{1}{Z_p^2} = \frac{1}{(\pi\sigma^2)^{1/2} - 2\pi\sigma^2}$ for pure cells and $\frac{1}{Z_c^2} = \frac{1}{(\pi\sigma^2)^{3/2} - (2\pi\sigma^2)^3}$ for conjunctive cells, assuming to rescale the variance of the synaptic weights according to the number of neurons of first layer : $w_{ij} \sim \mathcal{N}(0,\frac{1}{3L}) $ for pure cells and $w_{ij} \sim \mathcal{N}(0,\frac{1}{s*L^3}) $ for conjunctive cells (eventually including sparsity in the matrix).
 
+Note: we could state a constraint on the first layer in the following way. Let's denote as $M_c$ the number of cells in the conjunctive case. The tuning curves of the first layer can be modulated by a maximum firing rate $A_c$, such that $u_j(x) = A*exp(...)$ . Let's suppose the stimulus space is just a cube of side 1,the mean (square  for better comparison with the previous case) activity will be therefore $M_c A_c^2 (\pi\sigma^2)^{3/2}$ . For pure cells it will be $M_p A_p^2 (\pi\sigma^2)^{1/2}$ . We could therefore put the constraint  $\frac{A_p^2}{A_c^2} = \frac{M_c (\pi \sigma^2)}{M_p}$ . 
+
+We could satisfy this constraint fixing the number of neurons in the two layer and then adjusting the amplitudes.Note that if $M_c/M_p \sim L^2$ (fixing the coverage, or distance between preferred poistions) in principle we could have that the two maximum firing rate are comparable, since $\sigma^2$ is very small and $\sigma^2*L^2$ is of order 1. Let's fix for the moment the number of neurons in this way.
+
+  If we impose the same constraint of before of the variance of firing rates in the second layer we obtain (assuming for the synaptic weights the same scaling as $1/M$)
+
+$\frac{A_c^2 Z_p^2}{A_p^2 Z_c^2} = \frac{ (\pi\sigma^2)^{1/2} - 2\pi\sigma^2}{(\pi\sigma^2)^{3/2} - (2\pi\sigma^2)^3}$ 
+
+Note that both in the local error and in the global error, what really matter is the ratio $A/Z $ , therefore changing the constraint on the first layer in this way does not change the results. What may change the result is  fixing the two populations of the first layer to have the same number of neurons. In this way, going to a very low $\sigma$ impact differently the two population since they have different coverage.
+
 #### Local Error
 
 We can compute the local error looking at the fisher information in the two cases. Define the scalar error as the sum of the squared error for each dimension $\varepsilon^2 = \sum_k \varepsilon^2_k$. 
@@ -249,3 +259,4 @@ therefore the probabilty of global error has a lower prefactor but slower scalin
 
 ## Discussion
 
+pyte

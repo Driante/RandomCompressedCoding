@@ -30,7 +30,7 @@ function Nvsσ(Vpdict::Dict,Vcdict::Dict,N::Int64,σVec,η::Float64;nets=4)
     return εp,εc
 end
 
-data =load(datadir("sims/LalaAbbott/tuning_curves","tuning_curves3D_pvsc_ntest=20.jld"))
+data =load(datadir("sims/LalaAbbott/tuning_curves","tuning_curves3D_pvsc_Meq_ntest=20.jld"))
 Vcdict,Vpdict,x_test,σVec = data["Vcdict"],data["Vpdict"],data["x_test"],data["σVec"]
 η =1.0; NVec = Int.(round.(10 .^(1:0.1:2.1)))
 ε = [Nvsσ(Vpdict,Vcdict,N,σVec,η) for N=NVec]

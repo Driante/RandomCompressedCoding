@@ -26,7 +26,9 @@ end
 N=400; L=1000;x_min  = -0.1; x_max = 1.1; M=L^3;s=0.1;
 M =15^3
 x_test_min = 0.; x_test_max=1.; ntest = 20; x_test = build_grid(x_test_min,x_test_max,ntest);
-σVec  = (3:15)./L; #Wc = sqrt(1/(s*M))*sprandn(N,M,s);Wp = sqrt(1/(3*L))*randn(N,3*L);
+σVec  = (3:15)./L;
+#Different 
+#Wc = sqrt(1/(s*M))*sprandn(N,M,s);Wp = sqrt(1/(3*L))*randn(N,3*L);
 Wc = sqrt(1/(M))*randn(N,M);Wp = sqrt(1/(M))*randn(N,M);
 Vcdict,Vpdict = compute_tuning_curves_pvsc(Wp,Wc,σVec,x_test)
 name = savename("tuning_curves3D_pvsc_Meq" , (@dict ntest  ),"jld")

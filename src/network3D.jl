@@ -1,6 +1,8 @@
 using DrWatson
 quickactivate(@__DIR__,"Random_coding")
 using Distributions,LinearAlgebra, MultivariateStats,Random,SparseArrays
+nanmean(x) = mean(filter(!isnan,x))
+nanmean(x,y) = mapslices(nanmean,x,dims=y)
 #3D network definition of model v_i = f1(∑ w_ij u_j(x))
 mutable struct Network3D
     #First layer properties
@@ -81,7 +83,7 @@ function MSE_net_gon(V::Array{Float64},η::Float64,x_test;ntrial=50,MC=0,tol=0.5
         R = V .+ sqrt(η)*randn(N,ntest);
         H = exp.((V'*R .-0.5*b )/(η));Zh = sum(H,dims=1);H = H./Zh
         x_ext = H'*x_test;
-        s  += mean(sum((x_ext-x_test).^2,dims=2))
+        s  += nanmean(sum((x_ext-x_test).^2,dims=2))
         push!(ε,s/(t))
         if t>30
             if std(ε[t-10:t]) < tol ; break;end
