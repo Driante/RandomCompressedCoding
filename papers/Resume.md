@@ -434,8 +434,6 @@ The problem was that the minimum is very noisy and therefore changing simply ran
 
 ## TODO
 
-- [ ] Summer schools application
-- [ ] Book Basel
 - [ ] 2 widths problem
   - [ ] Make it fully differentiable and optmize over number of neurons
   - [x] rewrite gaussian process with the proposed normalization
@@ -451,5 +449,5 @@ The problem was that the minimum is very noisy and therefore changing simply ran
 
 2 Width problems
 
-We tried to analyze the 2 width problem
+Due to the high variability of the minimum given the synaptic matrix, we chose to analyze the following case. We fix the two population to have equal size $L_p=250$. 
 
