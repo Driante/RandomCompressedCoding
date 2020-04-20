@@ -18,8 +18,7 @@ function singleσ(V,N::Int64,V_l::Array{Float64},η::Float64;nets=4)
     println(" ε_o=",  mean(ε)," ε_l=" , mean(ε_l))
     return ε,ε_l
 end
-functi
-function singleσ(V,N::Int64,V_l::Array{Float64},ηVec::Array{Float64};nets=4)
+function singleσ(V,N::Int64,V_l::Array{Float64},ηVec::Array{Float64};nets=8)
     #Compute error for different number of neurons and compare with case where tuning curves are linear
     ε = zeros(nets) ; ε_l = zeros(nets)
     Nneurons,ntest = size(V)
@@ -35,6 +34,10 @@ function singleσ(V,N::Int64,V_l::Array{Float64},ηVec::Array{Float64};nets=4)
 end
 
 σf = 22.
+#Use noise from data
+r,r_var ,tP,η,trials,r_stab,η_stab= import_and_clean_data(stab_var=1);
+N,~ = size(r)
+ηVec =vec(mean(var(η_stab,dims=3)./nanvar(r_stab,2),dims=2))
 #Import precomputed tuning curves
 data = load(datadir("sims/LalaAbbott/tuning_curves","tuning_curves3D_ntest=9261_s=0.1.jld"))
 Vdict,σVec,x_test= data["Vdict"],data["σVec"],data["x_test"];
@@ -45,13 +48,11 @@ V_l ./= sqrt.((var(V_l,dims=2))); V_l  .-=mean(V_l,dims=2); V_l = V_l[1:N,:]
 NVec = Int.(round.(10 .^(1.3:0.1:2.3)));
 
 #Fix noise variance
-#ηVec  = 1.0:1.0:5.
-#ε =[[singleσ(Vdict[19.],N,V_l,PP,η)    for N =NVec] for η=ηVec];
+ηVec  = 1.0:1.0:5.
+ε =[[singleσ(V,N,V_l,PP,η)    for N =NVec] for η=ηVec];
 
-#Use noise from data
-r,r_var ,tP,η,trials,r_stab,η_stab= import_and_clean_data(stab_var=1);
-ηVec =vec(mean(var(η_stab,dims=3)./nanvar(r_stab,2),dims=2))
-ε = [singleσ(V,N,V_l,ηVec) for N=NVec]
+
+ #ε = [singleσ(V,N,V_l,ηVec) for N=NVec]
 
 Nmin,Nmax = first(NVec),last(NVec);η_min, η_max = minimum(ηVec),maximum(ηVec)
 
