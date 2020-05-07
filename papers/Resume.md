@@ -149,17 +149,7 @@ $$
 $$
 where $\sigma_{min/max}$ are determined by the probability distribution.
 
-
-
-
-
-
-
 Otherwise, is  a mess. Even if synapse are idnependent from neuron to neuron:$v(x) = \int dc_j w(c_j)u(x-c_j)$ The covariance function is now$<v(x)v(x+x')> = <\int dc_j dc_{j'} w(c_j)w(c_{j'}) u(x-c_j) u(x'-c_{j'})>_W$ . If $<w_j w_{j'}>  \delta_{jj'}$
-
-
-
-
 
 ## L vs N
 
@@ -440,14 +430,45 @@ The problem was that the minimum is very noisy and therefore changing simply ran
   - [ ] learnability of the function
   - [x] Go on with the analytics
   - [x] Numerical simulation in a intelligent way to show optimality in some cinfigurations
-  - [ ] check network decoder, write it and write code for error curves
+  - [x] check network decoder, write it and write code for error curves
 - [ ] Random moving objects: start to think a project
 - [ ] Smooth pursuit: talk with Rava
-- [ ] Finish the paper
+- [x] Finish the paper
+
+### Machine Learning view of our problem
+
+A 1D latent variable $x$ is supposed to generate a set of N responses $\mathbf{v}$,  described by a random realziation of a gaussian process. The covariance function is assumed to be s.e., s.t. noise free
+
+$K(\mathbf{v}(x),\mathbf{v}(x')) \propto exp(-(\Delta x^2)/(2\sigma^2))$.
+
+We access only a set of noisy measurements of $v$, namely $\mathbf{r} = \mathbf{v}(x) + \mathbf{\eta}$. How we can perform regression on this noisy response to learn the decoding function $\hat{x} = f(\mathbf{r})$ , knowing a set of p training point $\mathbf{r} -> \hat{x}$ . How the rapidity of learning depends from $\sigma^2$ ?
+
+Generally it is possible to relate the learning curve to the spectrum of the covariance function $K(x,x')$  for data without input noise. How input noise affect the learnability of the function?
+
+Our aim is to learn the function $\hat{x} = f^*(\mathbf{v})$ , possibly generalizing to noisy variations of the input. 
+Let's consdier a feedforward architecture with an infinitely wide layer, minimizing  the loss function through gradient descent is equivalent to kernel regression with the neural tangent kernel (NTK). Now, we would like to relate the content in frequency of $\mathbf{v}$, and possibly the input noise affecting the measurements, to the generalization error
+
+# May 2020
+
+## TODO
+
+- [ ] Multiscale problem
+- [ ] Decoder
+- [ ] Random moving objects: start to think a project
+- [ ] Smooth pursuit?
 
 
 
-2 Width problems
+## Multiscale problem
 
-Due to the high variability of the minimum given the synaptic matrix, we chose to analyze the following case. We fix the two population to have equal size $L_p=250$. 
+We analyzed the problem of encoding the 1D variable with 2 widths $[\sigma_1,\sigma_2]$. We related the amplitude of one tuning curves to the other $A_2 = c A_1$. We then fixed the variance of each tuning curve to be EXACTLY 1. We split evenly the number of cells between the two population . We also replicated the connecvtivity matrix, such that $w_{ij} = w_{i(j+L/2)}$ , such that when sending $c\rightarrow \infty$ , $\varepsilon (\sigma_1,\sigma_2,c= \infty) = \varepsilon(\sigma_2,\sigma^*_1,c=0)$, for all pairs $\sigma_1,\sigma_1^*$. In order to see if introducing a lower width we reduce the error, we did the following simulations. For a given $W$, we compute the error curve in function of $\sigma_1$ when $c=0$. In order to restrict the hige spae of parameters to explore, we did the following analysis. We fixed $c=0$ and we computed the error curve, finding $\sigma_1^*$. We then fixed a $\sigma_2 < \sigma_2$ and we analyzed how the error curves evolve changing $c$. 
+To see: how $\sigma_1^*(\sigma_2,c)$ evolve. A predictable result is that it increases with c to counter the effect of low $\sigma_2$.   We would like also to say something about the error at the optimal width. Generally, if the error at the optimal width decrease or not, depends from the specfic realization of the random matrix. Anyway, it is possbile average over it. If the average  show that there exist an improvement, than is a good sign. Since we are considering the MSE and generally it si very low, we worked on the following measure: $\Delta\varepsilon(c) = \frac{\varepsilon(\sigma_1^*,\sigma_2,c) - \varepsilon(\sigma_1^*,\sigma_2,c=0)}{\varepsilon(\sigma_1^*,\sigma_2,c=0)}$ , that is how the addition of $\sigma_2$ improve the optimal error. The following plot show how the optimal $\sigma_1^*$ and the error evolve introducing a $\sigma_2=0.01$, for 4 different networks.
+
+![](/home/simone/Documents/Neuroscience/Random_coding/plots/tmp/doublewidth_optimalvsc.svg)
+
+
+
+We can see the different wrt the case of very low $\sigma_2$ ![](/home/simone/Documents/Neuroscience/Random_coding/plots/tmp/doublewidth_optimalvsc_σ2=0.008.svg)
+
+
 

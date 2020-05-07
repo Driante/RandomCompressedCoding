@@ -235,15 +235,7 @@ This last formula is surprisingly robust and does not require any proportionalit
 
 ##### d given lambda
 
-We can notice that $p(d|\{\tilde{v}_i^2\}) \sim \mathcal{N}(\lambda,4\lambda \sigma_\eta^2) $  with $\lambda = \sum_i \tilde{v}^2_i$ . Computing its cumulative density function we obtain the probability that, given $\lambda$, d is less than 0.
-$$
-p(\varepsilon) = \frac{1}{2}\int d\lambda p(\lambda) erfc(\sqrt{\lambda/8\sigma_\eta^2})
-$$
-where $p(\lambda) = \frac{(\frac{\lambda}{2})^{N/2-1}exp(-\lambda/4)}{2^{N/2+1} \Gamma(N/2)}$. Computing this integral we obtain 
-$$ { }
-p(\varepsilon) = \frac{(\sigma_\eta^2/2)^{N/2}\Gamma(N)}{\Gamma(N/2)} {}_2\tilde{F}_1(N/2,(1+N)/2,(2+N)/2,-2\sigma_\eta^2)
-$$
-where ${}_2\tilde{F}_1(a,b,c,x)$ is the regularized 2F1 hypergeometric function
+W
 
 ### Multi-Dimension
 
