@@ -20,7 +20,7 @@ function Nvsσ_cvsi(N::Int64,σVec::Array{Float64},η::Float64,ηu::Float64; net
     σs = 10/L;εc, εi = [zeros(length(σVec),nets) for n=1:2]
     Threads.@threads for net=1:nets
         n= Network(N,L,σs); εc[:,net],εi[:,net]  = vary_σ(n,σVec,η,ηu,MC=MC);
-        @info "Finished N= $(N),  η= $(ηu)   on thread $(nThreads.threadid())"
+        @info "Finished N= $(N),  η= $(ηu)   on thread $(nThreads.threadid()): εc/εi = $(εc[:,net]/εi[:,net])"
     end
     return εc,εi
 end
