@@ -34,5 +34,5 @@ cVec =[0.,0.1,0.5,1.,1.5,2.,5.,10.];     σVec = collect((1:2:40)/L);
 ε = [double_width(N,σVec,η,cVec,σ2,nets=10) for σ2 = σ2Vec]
 σ2min,σ2max = first(σ2Vec),last(σ2Vec);
 name = savename("double_width" , (@dict N η σ2min σ2max),"jld")
-data = Dict("σVec" => σVec,"σ2Vec" => σ2Vec,"cVec" =>cVec,"ε" => ε,)
+data = Dict("σVec" => σVec,"σ2Vec" => σ2Vec,"cVec" =>cVec,"ε" => ε)
 safesave(datadir("sims/iidnoise/double_width",name) ,data)

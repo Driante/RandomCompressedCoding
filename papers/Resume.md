@@ -431,8 +431,7 @@ The problem was that the minimum is very noisy and therefore changing simply ran
   - [x] Go on with the analytics
   - [x] Numerical simulation in a intelligent way to show optimality in some cinfigurations
   - [x] check network decoder, write it and write code for error curves
-- [ ] Random moving objects: start to think a project
-- [ ] Smooth pursuit: talk with Rava
+- [x] Random moving objects: start to think a project
 - [x] Finish the paper
 
 ### Machine Learning view of our problem
@@ -454,8 +453,8 @@ Let's consdier a feedforward architecture with an infinitely wide layer, minimiz
 
 - [ ] Multiscale problem
 - [ ] Decoder
-- [ ] Random moving objects: start to think a project
-- [ ] Smooth pursuit?
+- [x] Random moving objects: start to think a project
+- [ ] Write a table of comparison between different approaches of coding w tuning curves
 
 
 
@@ -470,5 +469,141 @@ To see: how $\sigma_1^*(\sigma_2,c)$ evolve. A predictable result is that it inc
 
 We can see the different wrt the case of very low $\sigma_2$ ![](/home/simone/Documents/Neuroscience/Random_coding/plots/tmp/doublewidth_optimalvsc_σ2=0.008.svg)
 
+Generally, we note that introducing a double width with different partecipation ration may allow the error to improve
+
+## 	 Coding with tuning curves
+
+Wrt to classical measures, Yarrow and Butts introduce Stimulus Specific Information which is defined by
+
+$SSI (s) = <I(r)>_{r|s} = \sum_r p(r|s) \sum_{s'} p(s'|r)log(p(s'|r)) - p(s')log (p(s'))$. $I(r)$ is also called response specific information and depends on the specific response
+
+| Paper                                                        | Stimulus                         | Encoding function                                            | Noise model                                                  | Loss function                              | Constraints  and pop size                                    |                     Parameters explored                      | Results                                                      | Methods Comments                                             |
+| ------------------------------------------------------------ | -------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------ | ------------------------------------------------------------ | :----------------------------------------------------------: | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| Tuning curves:to sharpen or broaden. Zhang-Sejnowski-1999    | $x\in R^D$                       | Radially symmetric with constant gain $f(x) = F \phi(\frac{|x-c|^2}{\sigma^2})$with centers uniformly distributed | Generalized Poisson $P(N spikes) = S(N,f(x),\tau)$ + Noise correlation impact | J                                          | Fixed peak activity and neurons/preferred position such that allow continuous approximation |                            Width                             | Fisher Info scale as  $\sigma^{2-D}$                         | Sum over neurons -> sum over stimuli -> integral             |
+| Brunel-Nadal 1999                                            |                                  |                                                              |                                                              |                                            |                                                              |                                                              | Relationship between FI and lower bound to MI $I_f \propto ln(J)$ |                                                              |
+| Statistically efficient estimation,Pouget -1998 , (Partially NarrowvsWide-Pouget 1999, PopCodes-Pouget Rev 2000) | $\theta \in [0,\pi]$             | Von Mises                                                    | Poisson and iid gaussian                                     | Peak of activity of a RNN                  | Weights of RNN set equal to tuning curves of input(or at least same form) |   Difference in amplitude and width between RRN and Input    | Show that a plausible RNN act as a ML decoder                | Dependence of the estimator from the difference in width between decoder and ecndoe |
+| F and Shannon Info in finite neural pop, Yarrow 2012,Tuning Curves, neuronal variability-Butts, Goldman 2006 | $\theta \in [0,\pi]$             | Von Mises (fixed amplitude)                                  | Multivariate gaussian with variance proportional to firing rate $\sigma(\theta)^2 = F\tau f(\theta)$ . Three correlations: diagonal, expdecay, uniform | MI (SSI ,$I_f$ , J  ) Discrimination tasks | Fixed width and peak                                         | Population size. Background  firing rate, noise level-time of integration | MI and $I_f$ both grow with logN even at small popsizes. Their difference is consistent at small population sizes. Difference between MI and J optimal coding at different noise regimes (from flank to peak coding). Pop size determine the transition from peak to flank coding | Numerical estimation of MI                                   |
+| The infleunce of PopSize , Yarrow 2015                       | , not uniform priors             | VonMises, Montonic                                           | Poisson                                                      | SSI,FI                                     |                                                              |                                                              |                                                              |                                                              |
+| Optimal neural rate coding leads to bimodal firing rate distributions-Betghe 2003 | $x\in R$                         | Fisher Optimized (parabolic and step function)               | Poisson                                                      | MSE                                        | Max and min firjg rate                                       |                       Integration time                       | Discrete to contniuous optimality reducing time window       | Numerical integration for MSE                                |
+| When Fisher Information fail, Bethge 2002 (Reassessing Optimal codes... -Berens 2012) | $x \in R$                        | Monomodal (several considered)                               | Poisson                                                      | MSE                                        | Max firing rate and others                                   |        Width, integration time , also tuning function        | Optimal width depend on time of integration FIsher optimal tuning function can be non optimal wrt MSE Analysis of fisher optimal codes | Numerical integrtion of MSE and analytical computation of FI for different tuning curves |
+| Tuning curve sharpening for orientation selectivity, Series  | $\theta \in [0,2\pi]$            | Feedforward model with recurrent conections of retina lng-V1 | Poisson                                                      | Information                                |                                                              |                 Sharpening vs non sharpening                 | Sharpening introduce correlation that are not beneficial     |                                                              |
+| How Behavioral Constraints May Determine Optimal Sensory Representations,Salinas 2006 | $x \in R$                        | gaussians and monotonic, heterogeneity allowed               | Gaussian with variacnce dependent from the mean              | Approximation of downstream motor function |                                                              |     Width and shape for different function approximation     | Shape of optimal tc depends on behavioral constraints        |                                                              |
+| Efficient coding heterogeneous population, Simoncelli 2014   | $x\in R$  with non uniform prior | Monomodal (no specification)                                 | Poisson                                                      | J (and related quantities, but not MSE)    | Mean total firing rate (gain), number of neurons (density)   |                                                              | Density proprotional to prior, constant gain                 | Define a convolutional population and then transform it according to some change of parameters coupling density and width. FIx fisher info for the convolutional population (that, implicitlty, depends on the width, here is the hack) |
+| Implications of Neuronal Diversity on Population Coding- Sompolinski 2006 | $\theta\in [-\pi,\pi]$           | VonMises + fluctuation in the parameters                     | Multivariate gaussian                                        | J                                          |                                                              |                                                              |                                                              |                                                              |
+| Error-based analysis of optimal tuning functions, Meir 2010  | $x\in R$ , gaussian prior        | Gaussian with homogenoeus width (or diagonal covariance matrix in the multivariate case) | Poisson                                                      | MSE                                        |                                                              |        Width, integration time, variance of the prio         | Existance of optimal width that decrease with increasing integration time | Write MMSE as a gaussian estimator allow to write MSE in a closed form. Still it is assumed that the number of neurons and width is "sufficiently high" to cover the stimulus space |
+
+ 
+
+## Generalization of optimal coding with tuning curves
+
+* Stimulus $x\in R$ dsitributed according $p(x)$ 
+* N parametrized neurons $u_j(x,\{\theta_j\}) = A_j exp(- \frac{(x- c_j)^2}{2\sigma_j^2})$ 
+* Model of noise $p(\mathbf{r}|x) = f(\mathbf{u},\mathbf{r})$
+* Constraint(s) (reasonable ?) Constant response across stimuli $\sum_j u_j(x) = R$ / maximum firing rate of single neuron $A_j = A$ 
+* Loss function $\varepsilon = \int dx p (x) \int dr (\hat{x}(r)- x)^2 p(r|x)$ 
+* Optimal estimator $\hat{x}(r) = \int dx x p(x|r)$
+* Problem: find $argmin_{\{\theta_j\}} \varepsilon$
+
+Stated like this, the problem has 3N free parameters. The choice of the prior, constraint and loss function has each one some problem and they have been explored in different ways.
+
+### Uniform Prior on a bounded region of the stimulus space
+
+If $p(x) \sim \mathcal{U}[0,1]$  (without loss of generality), a natural  assumption is that all stimuli are "efficiently well encoded". Let's consider for example gaussian tuning curves with a maximal firing rate. The total number of spike for a given stimulus is $R(x) = \sum_{j=1}^N u_j(x) $ . To obtain an analytical estimate of this quantity we may consider constant maximal firing rates  and width and equally spaced centers. This introduce of course edge effects, but quantify them analytically is "hard". If we admit an array of equally spaced neurons, we can compute the limit of $N->\infty$ for stimuli in the middle of the stimulus space. This gives $R = N A \sqrt{2\pi }\sigma$ , independent from x. 
+
+This reasoning can be made more rigorous considering Von Mises distribution where we have a translational invariant stimulus and we obtain $R = AN I_0(k)$ . All this mean that for every $\varepsilon $ small, we can find an $N_c (\sigma)$ such that $|R(x)/N_c-R/N_c| < \varepsilon$ for all x.
+
+Let's consider the fisher information as a lower bound for the local error (writing the J in the case of gaussian noise):
+
+$J(x) = \frac{1}{\sigma_\eta^2}\sum_j A^2 \frac{(x-c_j)^2}{\sigma^4} exp(-\frac{(x-c_j)^2}{\sigma^2})$ the limit of $N-> \infty $ exist and gives (in the central stimuli) 
+
+$J = \sqrt{\frac{\pi}{2}}\frac{N A^2 }{\sigma_\eta^2\sigma}$ . Again, this mean that exist $N'_c(\sigma)$ such that $|J(x)/N'_C - J/N_c| <\varepsilon$ for all small $\varepsilon$. Now, we can formulate the problem in many ways. Numerically we can investigate the oscillations of J, but the analytical computation gives a good idea about the asymptotic behavior.  The following constraint have been explored:
+
+* Fix A (Zhang 1999). For a finite N the problem is ill posed, but once we fix N, we can add the constraint (verificable numerically) to check that the oscilaltions of $J/N$ are below a given $\varepsilon$ .
+* Fix R. This imply that $J \propto  \frac{R^2}{N\sigma^3}$ . This is "strange" because adding neurons, in order to keep the overall activity constrained, one lower their gain. Still , if one state that the fisher information have to be more or less cosntant (as before), one can lower the $\sigma$ more if we have more neurons, and the advantage of lowering the $\sigma$ is greater than the disadvantage of increasing the number of neurons. 
+
+An alternative formulation is trying to compute the variance of J across stimulus space. We obtain (for Poisson neurons, which is easier):
+
+$<J(x)>_x = \frac{NA\sqrt{2\pi}}{\sigma}$. The second moment instead is given by:
+
+$<J(x)^2>_x = \int dx A^2\sum_{i,i'}\frac{(x-c_i)^2(x-c_{i'})^2}{\sigma^8}exp(-\frac{(x-c_i)^2 + (x-c_{i'}^2)^2}{2\sigma^2})  = A^2 \frac{\sqrt{\pi}}{16\sigma^7}\sum_{ii'} exp(-\frac{(c_i-c_{i'})^2}{4\sigma^2})[(c_i-c_{i'})^4 - 4(c_i-c_{i'})^2\sigma^2 +12\sigma^4] $   In the limit of N to infinity, the variance goes to 0.
 
 
+
+Note that using the MSE, in the case of asymptotic good estimator, is just a different way to fix $\varepsilon$ , but again we cannot expect a different result that "lower sigma until you can". An interesting generalization we can consider is the one of two populations, parametrized by $A_1,A_2$ and $\sigma_1,\sigma_2$ 
+
+In this case $<J(x)>_x = A\sqrt{2\pi}(\frac{N_1}{\sigma_1} + \frac{N_2}{\sigma_2}) $, and, calling $J^2_1 = <J_1(x)^2>_x$ , the second moment will be $<J(x)^2>_x = J_1^2 + J_2^2 + J_{1,2}$  with 
+
+$J_{1,2} = \sum_{i,j}$
+
+We want to check that  J in the case of two widths is greater. Calling $N_1 = \alpha N$ we obtain:
+
+
+
+$\begin{cases} \frac{\alpha}{\sigma_1} + \frac{1-\alpha}{\sigma_2} = \frac{1}{\sigma}\\   \alpha \sigma_1 + (1-\alpha) \sigma_2 = \sigma \end{cases}$
+
+
+
+
+
+
+
+### Prior (2D)
+
+we want to analyze the impact of the prior on the optimal arrangement of the tuning curves. Let's take a 2D stimulus space with prior $p(\mathbf{x})$ where $\mathbf{x} \in R$ encoded by tuning curves which depends only on the distnace between the center and the stimulus $u(\mathbf{c}_j-\mathbf{x})$ .  We can define the expected sum of spikes at a given stimulus as $R(x) = \sum_j u_j(x)$
+
+The constraint Simoncelli imposed, in 1D, is the one of constant mean number of spikes $R = \int p(x ) R(x)$ . The loss function considered is the lowe bound on the mutual information. Locally this is expressed by $I_f(x) = \int dx p(x)log(|J(\mathbf{x})|)$ where $|J(x)|$ is the determinant of the fisher info matrix. For a Poisson independent noise model the entries of the diagonal fisher matrix are igven by 
+
+$J_{x_1,x_1} = \sum_j \frac{(\partial u_j(x)/\partial x_1)^2}{u_j(x)}$  
+
+
+
+# June 2020
+
+## TODO
+
+- [ ] Correct the paper
+- [ ] Add section about input noise: mantain fixed the ratio between the variance and the peak of tc
+- [ ] Choice a journal
+- [ ] Think what to do next (multiscale problem efficient coding): use information theory constraints (capacity of the channel) to see if we find multiscale solutions (analougsly to Georgjieva)
+- [ ] prepare presentation: title and absteact
+
+## Journals
+
+
+
+| Journal        | Maximum length                       | Figures  | Nreferences | Pro/cons                  |
+| -------------- | ------------------------------------ | -------- | ----------- | ------------------------- |
+| eLife          |                                      |          |             | Too much biological       |
+| Pnas           | 6 pages                              | 4        |             |                           |
+| Plos Comp.Bio. | No                                   | No       | No          |                           |
+| Neuron         | 45000 words (excluding star methods) | 8        |             | Modify figures, very hard |
+| Manuscripit    | 11122 words -25 pages                | $\sim 7$ | $\sim 60$   |                           |
+|                |                                      |          |             |                           |
+
+## Input Noise- Results to present
+
+If the first layer is also  perturbed by iid gaussian noise, the reesponse of the second layer becomes
+$$
+r_i = v_i(x) + \frac{1}{Z}W\eta_u + \eta
+$$
+where $\eta_{u_i} \sim \mathcal{N}(0,\sigma_{\eta_u}^2)$  . The likelihood function  is now more complex:
+$$
+p(\mathbf{r}|x) \sim \exp(- \frac{1}{2}(\mathbf{r} - \mathbf{v}(x)^T)\Sigma_\eta^{-1}(\mathbf{r} - \mathbf{v}(x)^T))
+$$
+where the noise covariance matrix is given by $\Sigma_\eta = \frac{\sigma^2_{\eta_u}}{Z}WW^T + \sigma_\eta^2I$ 
+According to me, would make sense to present the comparison between the input noise and a system with an analog output noise but with just the diagonal term. 
+
+The MMSE estimator has still an interpretation as neural network: 
+$$
+\hat{x} = \frac{\sum_m x_m \exp(\mathbf{v}^T(x_m)\Sigma_\eta^{-1}\cdot r - \frac{1}{2}\mathbf{v}(x)^T\Sigma^{-1}\mathbf{v}(x))}{Z} = \frac{\sum_m x_m h_m}{\sum_m h_m}
+$$
+where the parameters of the NN are given by 
+$$
+h_m = \exp(\sum_i \lambda_{mi}r_i - b_m)\\
+\lambda_m = v(x_m)^T *\Sigma^{-1}
+$$
+
+
+Add section with the following comparisons: for almost 0 output noise, comparison between 2nd layer with input noise and 2nd layer with equivalent diagonal noise.
+
+Is decoding directly from the fisr layer a good comparison?

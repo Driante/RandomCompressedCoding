@@ -13,7 +13,7 @@ mutable struct Network
     L::Int64; A;σ;cVec;f1::Function;
     #Connectivity matrix, number of neurons of second layer,function, normalization constant
     W::Array{Float64,2};N::Int64; f2::Function; Z::Array{Float64};
-    #row by row normalization flag, if ==1, tin computing the tuning curves Z is updated
+    #flag, if ==1, in computing the tuning curves Z is updated to ensure row normalization=1
     rxrnorm
 end
 function Network(N::Int64,L::Int64,σ::Float64; f1= gaussian ,f2 =identity,rxrnorm = 1)
@@ -72,15 +72,27 @@ end
 
 
 #Error computing functions
-#Ideal decoders
+#Ideal decoders: Given a vector of noisy responses, return the MMSE estimate as the average over the posterior distribution
 function MMSE_gon(r,V,η::Float64,x_test)
+    #iid gaussian output noise:diagonal covariance matrix
     logl = vec(-0.5*sum((r.-V).^2,dims=1)/η);
     likelihood = exp.(logl); likelihood ./=sum(likelihood)
     x_ext = x_test'*likelihood
     return x_ext
 end
 
-function MSE_ideal_gon(n::Network,η::Float64;ntrial=50,MC=0,tol=1E-7)
+
+function MMSE_ginoutn(r,V,iΣ::Matrix,x_test)
+    #Corrlelated noise: full covariance matrix
+    N,L = size(V)
+    logl = [-.5*(r -V[:,x])'*iΣ*(r.-V[:,x]) for x= 1:L]
+    likelihood = exp.(logl)/sum(exp.(logl))
+    x_ext = x_test'likelihood
+    return x_ext
+end
+
+
+function MSE_ideal_gon(n::Network,η::Float64;ntrial=50,MC=0,tol=1E-7,maxiter=5000, miniterext=100)
     #Mean square error with gaussian output noise of fixed variance. If MC ==1
     N=n.N;x_test = test_point(x_min,x_max);U,V = compute_tuning_curves(n,x_test);
     if MC==0
@@ -95,7 +107,7 @@ function MSE_ideal_gon(n::Network,η::Float64;ntrial=50,MC=0,tol=1E-7)
     else
         #Montecarlo extimate of the mse
         ε = []; t= 1;s=0
-        while t <5000
+        while t <maxiter
             R = V .+ sqrt(η)*randn(N,ntest)
             for i=1:ntest
                 x = x_test[i]; r = R[:,i];
@@ -138,6 +150,26 @@ function MSE_net_gon(n::Network,η::Float64;ntrial=50,MC=0,tol=1E-7)
             end
             t +=1
         end
+    end
+    return ε
+end
+function MSE_net_ginoutn(n::Network,η::Float64,ηu::Float64;ntrial=50,MC=0,tol=1E-7,maxiter=5000, miniterext=100)
+    #Mean square error with gaussian output noise and gaussian input noise. Network implementation of  the ideal decoder
+    L,N=n.L,n.N;x_test = test_point(x_min,x_max);U,V = compute_tuning_curves(n,x_test);
+    Σ = ηu*n.A^2*n.W*n.W' + η*I; iΣ = inv(Σ)
+    λ = V'*iΣ; b = diag(0.5*V'*iΣ*V)
+    #Montecarlo extimate of the mse
+    ε = []; t= 1;s=0
+    while t <maxiter
+        R = V .+ sqrt(η)*randn(N,ntest) .+sqrt(ηu)*n.A*n.W*randn(L,L)
+        H = exp.(λ*R .- b); Zh = sum(H,dims=1);H = H./Zh;x_ext2 =  H'*x_test
+        x_ext = H'*x_test;
+        s  += mean((x_ext-x_test).^2)
+        push!(ε,s/(t))
+        if t>100
+            if std(ε[t-50:t]) < tol ; break;end
+        end
+        t +=1
     end
     return ε
 end
