@@ -20,16 +20,16 @@ function Nvsσ_cvsi(N::Int64,σVec::Array{Float64},η::Float64,ηu::Float64; net
     σs = 10/L;εc, εi = [zeros(length(σVec),nets) for n=1:2]
     Threads.@threads for net=1:nets
         n= Network(N,L,σs); εc[:,net],εi[:,net]  = vary_σ(n,σVec,η,ηu,MC=MC);
-        @info "Finished N= $(N),  η= $(ηu)   on thread $(nThreads.threadid()): εc/εi = $(εc[:,net]/εi[:,net])"
+        @info "Finished N= $(N),  η= $(ηu)   on thread $(Threads.threadid()): εc/εi = $(εc[:,net]./εi[:,net])"
     end
     return εc,εi
 end
 
 L=500
-NVec = 10:5:60;σVec = collect(1.:2:50.)/L;
+NVec = 10:5:60;σVec = collect(1.:3:50.)/L;
 η = 0.01; ηuVec = 0.1:0.3:1
 ε= [[@time Nvsσ_cvsi(N,σVec,η,ηu) for N=NVec] for ηu = ηuVec]
 Nmin,Nmax = first(NVec),last(NVec);ηu_min, ηu_max = first(ηuVec),last(ηuVec)
 name = savename("Nvssigma" , (@dict Nmin Nmax η ηu_min ηu_max ),"jld")
-data = Dict("NVec"=>NVec ,"σVec" => σVec,"ηVec" => ηVec,"ε" => ε,)
+data = Dict("NVec"=>NVec ,"σVec" => σVec,"ηuVec" => ηuVec,"ε" => ε)
 safesave(datadir("sims/iidnoise/inputnoise",name) ,data)
