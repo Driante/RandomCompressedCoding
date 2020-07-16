@@ -153,15 +153,16 @@ function MSE_net_gon(n::Network,η::Float64;ntrial=50,MC=0,tol=1E-7)
     end
     return ε
 end
-function MSE_net_ginoutn(n::Network,η::Float64,ηu::Float64;ntrial=50,MC=0,tol=1E-7,maxiter=5000, miniterext=100)
-    #Mean square error with gaussian output noise and gaussian input noise. Network implementation of  the ideal decoder
+function MSE_net_ginoutn(n::Network,Σ::AbstractMatrix;ntrial=50,MC=0,tol=1E-7,maxiter=5000, miniterext=100,Wrand=0)
+    #Mean square error with general covariance matrix
     L,N=n.L,n.N;x_test = test_point(x_min,x_max);U,V = compute_tuning_curves(n,x_test);
-    Σ = ηu*n.A^2*n.W*n.W' + η*I; iΣ = inv(Σ)
+    iΣ = inv(Σ);
     λ = V'*iΣ; b = diag(0.5*V'*iΣ*V)
     #Montecarlo extimate of the mse
     ε = []; t= 1;s=0
     while t <maxiter
-        R = V .+ sqrt(η)*randn(N,ntest) .+sqrt(ηu)*n.A*n.W*randn(L,L)
+        #if Wrand == 0
+        R =  hcat([rand(MvNormal(V[:,x],Σ)) for x=1:ntest]...)
         H = exp.(λ*R .- b); Zh = sum(H,dims=1);H = H./Zh;x_ext2 =  H'*x_test
         x_ext = H'*x_test;
         s  += mean((x_ext-x_test).^2)

@@ -1,5 +1,6 @@
 using DrWatson
 quickactivate(@__DIR__,"Random_coding")
+using JLD
 include(srcdir("network.jl"))
 #Computation of curves for error in function of σ for different network realization and different values of N.
 #Gaussian noise distribution and ideal decoder

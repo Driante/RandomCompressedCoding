@@ -561,11 +561,11 @@ $J_{x_1,x_1} = \sum_j \frac{(\partial u_j(x)/\partial x_1)^2}{u_j(x)}$
 
 ## TODO
 
-- [ ] Correct the paper
-- [ ] Add section about input noise: mantain fixed the ratio between the variance and the peak of tc
-- [ ] Choice a journal
+- [x] Correct the paper
+- [x] Add section about input noise: mantain fixed the ratio between the variance and the peak of tc: currently running
+- [x] Choice a journal
 - [ ] Think what to do next (multiscale problem efficient coding): use information theory constraints (capacity of the channel) to see if we find multiscale solutions (analougsly to Georgjieva)
-- [ ] prepare presentation: title and absteact
+- [x] prepare presentation: slides: 30'
 
 ## Journals
 
@@ -607,3 +607,70 @@ $$
 Add section with the following comparisons: for almost 0 output noise, comparison between 2nd layer with input noise and 2nd layer with equivalent diagonal noise.
 
 Is decoding directly from the fisr layer a good comparison?
+
+## Decoding
+
+What are the architectures + loss function that allow  to learn the posterior approximation? Let's suppose we have M neurons and we want to learn the linear filters such that given a noisy response, we have the output of the  mth neuron to represent $p(x_m|\mathbf{r})$ ?  The architecture we want to learn is the one having an output layer + normalization, whcih can be implemented by a weight matrix + biases followed by a non linearity $\mathbf{h}= \exp( \lambda \mathbf{r} + \mathbf{b}) $  and a last normalization layer. This kind of layer is usually called softmax in the machine learning gergo. At the end of the day, the output layer will be
+$$
+p(x_m|r) = \frac{h_m}{\sum_m h_m}
+$$
+We would like to learn the correct weights for the ideal decoder. Let's suppose a setting where we learn by examples, therefore we are given a noisy response with the correct label.  What is a good loss function to minimize?
+
+One possibility is using the negative log-likelihood of the true response, that is 
+$$
+\mathcal{L}(\mathbf{r}) = -\sum_m y_m log(p(x_m|r))
+$$
+where $y$ is a vector which is 0 everywhere except at the true stimulus. Interestingly, such a loss function would naturally implement h
+
+## Coding with tuning curve - Information Bottleneck approach
+
+The info-bottleneck approach aim to minimize the loss function
+$$
+\mathcal{C} = D + \beta R = -\int dx p(x) \int dr q(r|x)\log(p(x|r)) + \beta \int dx p(x)\int dr q(r|x) \log \frac{q(r|x)}{\tilde{q}(r)}
+$$
+assuming a decoder which satisfy the CRAO bound and a normal distribution for the likelihood of the decdoer given the response, we obtain that the distortion is given by the inverse of the fisher information 
+$$
+D = -\int dx p(x) \frac{1}{J(x)}
+$$
+for the second term, if the approximated marginal is equal to the true marginal $q(r) = \tilde{q}(r)$, the DKL is the Rate of the coding scheme, that is the mutual information $I(\mathbf{r},x)$  .We know from Brunel-Nadal, that this quantiy is lower bounded by the $H(x) + I_f$ where $I_f = \int dx \log(J(x))$. Therefore, we could minimize the quatntiy 
+$$
+\mathcal{C}_1 = \int dx p(x) [\frac{1}{J(x)} + \beta\log(J(x)]
+$$
+
+this is ill defined. Is a bit circular. Better use sum of single mutual information. 
+
+# July 2020
+
+## TODO
+
+- [ ] Input noise: run comparisons for input/output noise +random covariance matrix
+  - [ ] Plot1 : e vs sigma for three cases
+
+- [x] correct slides
+- [x] read review paper
+- [ ] decide problem: woodford paper but with single MI as a constraint
+- [ ] see input noise problem with perturbative expansion
+
+
+
+## Considering Information as a Constraint for tuning curves- Define a problem
+
+Ingredients
+
+* stimulus $x \sim p(x)$ 
+* tuning curves array $u_j(x) $
+* Noise model (poisson) $p(r|x) = \prod_j \frac{u_j(x)^{r_j} e^{-u_j(x)}}{r_j!}$ , or gaussian $p(r|x) \propto \exp(-(r-u(x)^2/2\sigma^2))$
+* Additional constraints.
+  * maximum firing rate $u_j(x) < u_{max}$
+  *  expected neural activity $\int dx p(x) \sum_j u_j(x) = R$
+  *  'tiling property' $\sum_j u_j(x) = \lambda $
+  * coding resources $\int dx \sqrt{J(x)} < C$ 
+* Loss function to minimize
+  * MSE $\varepsilon = \int dx $
+
+It is usually difficult to minimize information related quantities. List of definitions
+
+* $I(r,x) = \int dx p(x)p(r|x) log(p(r|x)/p(r))$ , which even given simple tuning functions, is hard to compute
+
+
+

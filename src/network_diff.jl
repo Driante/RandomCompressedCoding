@@ -1,6 +1,6 @@
 using DrWatson
 quickactivate(@__DIR__,"Random_coding")
-#Strutcture and function for 1D model and ML-MSE inference
+#Strutcture and function for 1D model and ML-MSE inference, fully differentiable such that is possible to take the gradient with Automatic differentation
 using Distributions,StatsBase , LinearAlgebra, MultivariateStats,Random,SparseArrays
 using Zygote
 include("network.jl")
