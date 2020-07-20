@@ -105,3 +105,5 @@ $$
 <B> = \frac{N}{L}\delta_{mn}
 $$
 and the perturbation has therefore 0 mean.
+
+Did some simulations more. Apparently the approximation is good if N<<L and input noise is comparable to output noise. Nevertheless, random covariance amtrix results in  a increase of the fisher information, even if the mean of the correction is 0.

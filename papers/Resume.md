@@ -645,11 +645,11 @@ this is ill defined. Is a bit circular. Better use sum of single mutual informat
 
 - [ ] Input noise: run comparisons for input/output noise +random covariance matrix
   - [ ] Plot1 : e vs sigma for three cases
-
 - [x] correct slides
 - [x] read review paper
 - [ ] decide problem: woodford paper but with single MI as a constraint
-- [ ] see input noise problem with perturbative expansion
+- [ ] decide problem: vaes with exponential many states
+- [x] see input noise problem with perturbative expansion
 
 
 
