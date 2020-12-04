@@ -6,7 +6,11 @@ nanmean(x,y) = mapslices(nanmean,x,dims=y)
 #3D network definition of model v_i = f1(∑ w_ij u_j(x))
 mutable struct Network3D
     #First layer properties
-    M :: Int; A::Float64; σ; cVec; f1::Function
+    M :: Int;
+    A::Float64;
+    σ;
+    cVec;
+    f1::Function
     #Connectivity matrix, number of neurons of second layer,function, normalization constant
     W :: AbstractArray;N::Int64; f2::Function; Z::Array{Float64}; B::Array{Float64}
     #row by row normalization flag, if ==1, tin computing the tuning curves Z is updated

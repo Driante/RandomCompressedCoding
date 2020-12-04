@@ -34,8 +34,8 @@ function Nvsσ_cvsi(N::Int64,σVec::Array{Float64},η::Float64,ηu::Float64; net
 end
 
 L=500
-NVec = Int.(round.(10 .^(1.4:0.15:2.4)));σVec = collect(1.:3:40.)/L;
-η = 0.3; ηuVec = [.2]
+NVec = 70;σVec = collect(1.:3:40.)/L;
+η = 0.4; ηuVec = [.3]
 ε= [[@time Nvsσ_cvsi(N,σVec,η,ηu) for N=NVec] for ηu = ηuVec]
 Nmin,Nmax = first(NVec),last(NVec);ηu_min, ηu_max = first(ηuVec),last(ηuVec)
 name = savename("Nvssigma" , (@dict Nmin Nmax η ηu_min ηu_max ),"jld")

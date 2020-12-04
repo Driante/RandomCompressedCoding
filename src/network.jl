@@ -2,20 +2,31 @@ using DrWatson
 quickactivate(@__DIR__,"Random_coding")
 #Strutcture and function for 1D model and ML-MSE inference
 using Distributions,StatsBase , LinearAlgebra, MultivariateStats,Random,SparseArrays,SpecialFunctions
-##Todo::rewrite code properly
-#constant of discretization of tuning curves and stimulus bounds
+##Initialize constants of stimulus discrteization for numerical test.
+#Predefined: 500 points from 0 to 1
+
 ntest = 500; x_min,x_max=0,1;
 test_point(x_min,x_max) = range(x_min,x_max,length = ntest)
 Δx = x_max-x_min;x_test=test_point(x_min,x_max)
-#Network structures
+
+## Construct structure of Feedforward Network
+
 mutable struct Network
-    #1st layer: number of neurons, vector of centers,tuning function and width
-    L::Int64; A;σ;cVec;f1::Function;
+    #1st layer: number of neurons, Gain, tuning width, vector of centers, tuning function
+    L::Int64;
+    A;
+    σ;
+    cVec;
+    f1::Function;
     #Connectivity matrix, number of neurons of second layer,function, normalization constant
-    W::Array{Float64,2};N::Int64; f2::Function; Z::Array{Float64};
+    W::Array{Float64,2};
+    N::Int64;
+    f2::Function;
+    Z::Array{Float64};
     #flag, if ==1, in computing the tuning curves Z is updated to ensure row normalization=1
     rxrnorm
 end
+
 function Network(N::Int64,L::Int64,σ::Float64; f1= gaussian ,f2 =identity,rxrnorm = 1)
     #Defaul normalization is maintaining the average over the variance constant
     if f1==gaussian
@@ -27,7 +38,9 @@ function Network(N::Int64,L::Int64,σ::Float64; f1= gaussian ,f2 =identity,rxrno
     W = sqrt(1/L)*randn(N,L); Z = ones(N)
     return Network(L,A,σ,cVec,f1,W,N,f2,Z,rxrnorm)
 end
+
 function Network(N::Int64,Lpop::Array{Int64},σpop::Array{Float64};f1= gaussian ,f2 =identity,rxrnorm =1,c=1)
+    #Multi-population first layer
     L = sum(Lpop);Δx = x_max-x_min;cVec = [[Δx*i/L for i=1:L] for L=Lpop]
     function constraints(σp,Lp,c)
         L = sum(Lp)
@@ -40,19 +53,28 @@ function Network(N::Int64,Lpop::Array{Int64},σpop::Array{Float64};f1= gaussian 
     return Network(L,Apop,σpop,cVec,f1,W,N,f2,Z,rxrnorm)
 end
 
+## Tuning functions
 
 function gaussian(x,A,σ,cVec)
+    #Gaussian function of gain A
     u = A.*exp.(-(x.-cVec).^2 ./(2*σ.^2))
     return u
 end
+
 function VonMises(x,A,σ,cVec)
+    #VonMises function
     u = A.*exp.(cos.(2*π*(x.-cVec))/((2*π*σ).^2))
 end
+
 function gaussian(x,pop)
+    #Gaussian function with neurons of different width
     u = A*exp.(-(x.-cVec).^2 ./(2*σ.^2))
     return u
 end
+
 function compute_tuning_curves(n::Network,x_test)
+    #Precompute the tuning curves, as the mean response of neurons to an array of stimuli. Given L the number of stimuli,
+    #returns two (1st and 2nd layer) matrix NxL
     if length(n.σ)==1
         U = n.f1(x_test',n.A,n.σ,n.cVec)
     else
@@ -69,18 +91,16 @@ function compute_tuning_curves(n::Network,x_test)
 end
 
 
-
-
-#Error computing functions
+##Error computing functions -Ideal
 #Ideal decoders: Given a vector of noisy responses, return the MMSE estimate as the average over the posterior distribution
+
 function MMSE_gon(r,V,η::Float64,x_test)
-    #iid gaussian output noise:diagonal covariance matrix
+    #Iid gaussian output noise:diagonal covariance matrix.
     logl = vec(-0.5*sum((r.-V).^2,dims=1)/η);
     likelihood = exp.(logl); likelihood ./=sum(likelihood)
     x_ext = x_test'*likelihood
     return x_ext
 end
-
 
 function MMSE_ginoutn(r,V,iΣ::Matrix,x_test)
     #Corrlelated noise: full covariance matrix
@@ -90,7 +110,6 @@ function MMSE_ginoutn(r,V,iΣ::Matrix,x_test)
     x_ext = x_test'likelihood
     return x_ext
 end
-
 
 function MSE_ideal_gon(n::Network,η::Float64;ntrial=50,MC=0,tol=1E-7,maxiter=5000, miniterext=100)
     #Mean square error with gaussian output noise of fixed variance. If MC ==1
@@ -123,59 +142,67 @@ function MSE_ideal_gon(n::Network,η::Float64;ntrial=50,MC=0,tol=1E-7,maxiter=50
     end
     return ε
 end
+## Error computing functions: network implementation
 
 
-function MSE_net_gon(n::Network,η::Float64;ntrial=50,MC=0,tol=1E-7)
-    #Mean square error with gaussian output noise of fixed variance. If MC ==1
-    N=n.N;x_test = test_point(x_min,x_max);U,V = compute_tuning_curves(n,x_test);
-    #vector of bias
+function MSE_net_gon(n::Network,η::Float64;ntrial=50,MC=0,tol=1E-7,maxsteps=5000,boutsteps=100,convsteps=50)
+    #Mean square error with gaussian output noise of fixed variance. If MC ==1, compute it with Montecarlo method until convergence, otherwise fixed numbe of trials.
+    N=n.N;
+    x_test = test_point(x_min,x_max);
+    #Precompute tuning curves. The readout weights will be related to V.
+    #The posterior is indeed proportional to p(x_m|r) α h_m = exp( v(x_m)^T*r - b_m)
+    U,V = compute_tuning_curves(n,x_test);
     b = sum(V.^2,dims=1)'
     if MC==0
         #Generate ntrial noisy responses and average to obtain the MSE
-        R = hcat([V + sqrt(η)*randn(N,length(x_test)) for t=1:ntrial]...);x_t = repeat(x_test,ntrial);
-        H = exp.((V'*R .-0.5*b )/(η));Zh = sum(H,dims=1);H = H./Zh
+        R = hcat([V + sqrt(η)*randn(N,length(x_test)) for t=1:ntrial]...);
+        x_t = repeat(x_test,ntrial);
+        H = exp.((V'*R .-0.5*b )/(η));
+        Zh = sum(H,dims=1);
+        H = H./Zh
         x_ext = H'*x_test;
         ε = mean((x_t-x_ext).^2)
     else
         #Montecarlo extimate of the mse
         ε = []; t= 1;s=0
-        while t <5000
+        while t < maxsteps
             R = V .+ sqrt(η)*randn(N,ntest);
-            H = exp.((V'*R .-0.5*b )/(η));Zh = sum(H,dims=1);H = H./Zh
+            H = exp.((V'*R .-0.5*b )/(η));Zh = sum(H,dims=1);
+            H = H./Zh
             x_ext = H'*x_test;
             s  += mean((x_ext-x_test).^2)
             push!(ε,s/(t))
-            if t>100
-                if std(ε[t-50:t]) < tol ; break;end
+            #Condition for convergence: after a burnout period, take the average over the last 50 steps and check that is less than tol
+            if t>boutsteps
+                if std(ε[t-convstep:t]) < tol ; break;end
             end
             t +=1
         end
     end
     return ε
 end
-function MSE_net_ginoutn(n::Network,Σ::AbstractMatrix;ntrial=50,MC=0,tol=1E-7,maxiter=5000, miniterext=100,Wrand=0)
+
+function MSE_net_ginoutn(n::Network,Σ::AbstractMatrix;ntrial=50,MC=0,tol=1E-8,Wrand=0,maxsteps=5000, boutsteps=100,convsteps=50)
     #Mean square error with general covariance matrix
     L,N=n.L,n.N;x_test = test_point(x_min,x_max);U,V = compute_tuning_curves(n,x_test);
     iΣ = inv(Σ);
     λ = V'*iΣ; b = diag(0.5*V'*iΣ*V)
     #Montecarlo extimate of the mse
     ε = []; t= 1;s=0
-    while t <maxiter
+    while t <maxsteps
         #if Wrand == 0
         R =  hcat([rand(MvNormal(V[:,x],Σ)) for x=1:ntest]...)
         H = exp.(λ*R .- b); Zh = sum(H,dims=1);H = H./Zh;x_ext2 =  H'*x_test
         x_ext = H'*x_test;
         s  += mean((x_ext-x_test).^2)
         push!(ε,s/(t))
-        if t>100
-            if std(ε[t-50:t]) < tol ; break;end
+        if t>boutsteps
+            if std(ε[t-convsteps:t]) < tol ; break;end
         end
         t +=1
     end
     return ε
 end
-
-
 
 function errors_table(n::Network,η::Float64,ntrial::Int64)
     #Given a network, a level of noise and a number of trials, return a table of errors. Can be used to plot histograms of errors
@@ -192,13 +219,16 @@ function errors_table(n::Network,η::Float64,ntrial::Int64)
     return errors
 end
 
-#Circular variable MMSE
+## Error computing functions. Case of circular variable
+# If the variable is circular, the MMSE estimator is ̂x = atan(⟨ sin(x) ⟩_x|r / ⟨cos(x)⟩_x|r)
+
 function MMSE_gon_c(r,V,η::Float64,x_test)
     logl = vec(-0.5*sum((r.-V).^2,dims=1)/η); likelihood = exp.(logl);
     S = sum(sin.(2π*x_test')*likelihood); C = sum(cos.(2π*x_test')*likelihood)
     x_ext = mod(atan(S,C)/(2π),1)
     return x_ext
 end
+
 function MSE_ideal_gon_c(n::Network,η::Float64;ntrial=50,MC=0,tol=1E-6)
     #Mean square error with gaussian output noise of fixed variance. If MC ==1
     N = n.N;x_test = test_point(x_min,x_max);U,V = compute_tuning_curves(n,x_test);
@@ -231,6 +261,7 @@ function MSE_ideal_gon_c(n::Network,η::Float64;ntrial=50,MC=0,tol=1E-6)
     end
     return ε
 end
+
 function errors_table_c(n::Network,η::Float64,ntrial::Int64)
     #Given a network, a level of noise and a number of trials, return a table of errors. Can be used to plot histograms of errors
     N=n.N;x_test = test_point(x_min,x_max);U,V = compute_tuning_curves(n,x_test)
@@ -276,6 +307,11 @@ function MSE_net_gon_c(n::Network,η::Float64;ntrial=50,MC=0,tol=1E-7)
     return ε
 end
 
-#Analytical prediction for error scaling
+
+##Analytical prediction for error scaling
+
 local_error(N::Int64,σ::Float64,η::Float64) = 2*σ^2*η/N
 global_error(N::Int64,σ::Float64,η::Float64;A=1) = A*(1/σ)*((1+σ+σ^2)/6)*erfc(sqrt((sqrt(pi)*σ/(sqrt(pi)*σ-2π*σ^2))N/(2(1+η))))
+global_error2(N::Int64,σ::Float64,η::Float64;A=1) = ((1+σ+σ^2)/6)*(1/(σ*sqrt(2*π*N)))*exp(-N/2*log((1+2η)/(2η)))
+σ_opt(N,η) = (sqrt(N/(2π))*1/(6*4η))^(1/3)*exp(-N/6*log((1+2η)/(2η)))
+ε_opt(N,η) = sqrt.(2*η*σ_opt(N,η)^2/N  + 1/(σ_opt(N,η)*sqrt(2*π*N))*1/6*exp(-N/2*log((1+2η)/(2η))))

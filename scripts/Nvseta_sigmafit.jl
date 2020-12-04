@@ -3,7 +3,8 @@ quickactivate(@__DIR__,"Random_coding")
 using JLD
 include(srcdir("network3D.jl"))
 include(srcdir("lalazarabbott.jl"))
-#Coding properties of network at best σ
+##Coding properties of tuning curves generated from adapted model of Lalazaretal
+
 function singleσ(V,N::Int64,V_l::Array{Float64},η::Float64;nets=4)
     #Compute error for different number of neurons and compare with case where tuning curves are linear
     ε = zeros(nets) ; ε_l = zeros(nets)
@@ -18,8 +19,9 @@ function singleσ(V,N::Int64,V_l::Array{Float64},η::Float64;nets=4)
     println(" ε_o=",  mean(ε)," ε_l=" , mean(ε_l))
     return ε,ε_l
 end
+
 function singleσ(V,N::Int64,V_l::Array{Float64},ηVec::Array{Float64};nets=8)
-    #Compute error for different number of neurons and compare with case where tuning curves are linear
+    #Compute MSE for different numbe rof neurons, with noise variance preassigned to each neuron through ηVec
     ε = zeros(nets) ; ε_l = zeros(nets)
     Nneurons,ntest = size(V)
      @time Threads.@threads for net=1:nets
@@ -33,6 +35,7 @@ function singleσ(V,N::Int64,V_l::Array{Float64},ηVec::Array{Float64};nets=8)
     return ε,ε_l
 end
 
+##Run script with different parameters
 σf = 22.
 #Use noise from data
 r,r_var ,tP,η,trials,r_stab,η_stab= import_and_clean_data(stab_var=1);

@@ -2,13 +2,15 @@ using DrWatson
 quickactivate(@__DIR__,"Random_coding")
 using JLD
 include(srcdir("network.jl"))
-#Computation of curves for error in function of σ for different network realization and different values of N.
+##Computation of curves for error in function of σ for different network realization and different values of N.
 #Gaussian noise distribution and ideal decoder
+
 function vary_σ(n::Network,σVec::Array{Float64},η::Float64,fdec::Function;ntrial=50,MC=0)
     N,L,W = n.N,n.L,n.W;ε = zeros(length(σVec));
     for (i,σi) = enumerate(σVec)
         #Keep fixed synaptic matrix
-        n2 = Network(N,L,σi,f1=n.f1,rxrnorm=0); n2.W = W
+        n2 = Network(N,L,σi,f1=n.f1,rxrnorm=0);
+        n2.W = W
         if MC==0
             ε[i] = sqrt(fdec(n2,η,ntrial=ntrial))
         else
@@ -18,6 +20,7 @@ function vary_σ(n::Network,σVec::Array{Float64},η::Float64,fdec::Function;ntr
     end
     return ε
 end
+
 function Nvsσ(N::Int64,σVec::Array{Float64},η::Float64; nets = 4,circ=0,MC=0)
     σs = 10/L;ε = zeros(length(σVec),nets);
     if circ ==0
@@ -27,7 +30,8 @@ function Nvsσ(N::Int64,σVec::Array{Float64},η::Float64; nets = 4,circ=0,MC=0)
         f1= VonMises; fdec = MSE_ideal_gon_c
     end
     Threads.@threads for net=1:nets
-        n= Network(N,L,σs,f1=f1); ε[:,net]= vary_σ(n,σVec,η,fdec,MC=MC);
+        n= Network(N,L,σs,f1=f1);
+        ε[:,net]= vary_σ(n,σVec,η,fdec,MC=MC);
         println("Finished N=",N," η=" ,η  ," on thread n", Threads.threadid())
     end
     return ε

@@ -643,8 +643,8 @@ this is ill defined. Is a bit circular. Better use sum of single mutual informat
 
 ## TODO
 
-- [ ] Input noise: run comparisons for input/output noise +random covariance matrix
-  - [ ] Plot1 : e vs sigma for three cases
+- [x] Input noise: run comparisons for input/output noise +random covariance matrix
+  - [x] Plot1 : e vs sigma for three cases
 - [x] correct slides
 - [x] read review paper
 - [ ] decide problem: woodford paper but with single MI as a constraint
@@ -673,4 +673,81 @@ It is usually difficult to minimize information related quantities. List of defi
 * $I(r,x) = \int dx p(x)p(r|x) log(p(r|x)/p(r))$ , which even given simple tuning functions, is hard to compute
 
 
+
+# August 2020
+
+## TODO
+
+- [ ] Finish paper draft:
+  - [ ]  Introduction review
+  - [ ] Discussion: is it fine?
+- [ ] Think to open problems and what to do next:
+  - [ ] Symmetry breaking solutions in terms of tuning width: re-read Ganguli pape, understand reasons, think about a possible formulation
+  - [ ] VAE's approach to neural coding but with many states possible $N - > 2^N$
+  - [ ] Decoding (?)
+- [ ] Prepare presentation 1st eyar
+
+
+
+
+
+# September 2020
+
+## TODO
+
+- [ ] Finish paper draft
+  - [ ] read Mk's feedback before Monday
+- [x] Read statement of ganguli about noise dimensionality and manifold, paper, check consistency with harris work
+- [ ] Symmetry breaking
+  - [ ] Infotheory justification of the constraint : consistency between two variational approach?
+  - [ ] rethink simoncelli formulation with the additional constraint: but that work necessarily imply a diversity of tuning curves, because they are modulated by the prior? What we expect to find? That series of work always try to relate the prior to the fisher info, but they do not attempt to increase the fisher info
+  - [ ] general constraint
+  - [ ] more simulations: bernoulli distribution, ecc..
+- [x] Write rapport 1er annèe
+
+## About Ganguli work
+
+The statement of Ganguli is "Our re-analysis of this model revealed that the dimensionality of the space of receptive fields in the output layer equals the number of noise covariance matrix eigenvectors for which the eigenvalues increase linearly with the number of output cells". 
+1) The model they are referring to is a model of V1 response where we have a set of Gabor-like RF responding to an image, which is corrupted by noise. The shared input to the neurons generate a correlated noise in the second layer. This correlation has a structure depending on the similarity between RF (neurons with similar TC will be moe strongly correlated).
+
+2) The significance of the statement is motivated by the following computation. Taking a simple two layer linear network where both input and ouput are affected by iid noise (this is similar to our model), calling W the synaptic matrix, the fisher information is related to the eigenvalues of the covariance matrix (because both the signal and the noise covariance are related to the same matrix). In particular, the eigenvalues determine ho much we are far from the upper bound of the J of the first layer
+$$
+J = \frac{1}{\sigma_{in}^2}\sum_\alpha (\delta s \cdot v_\alpha)^2 \frac{d_\alpha^2}{d_\alpha^2 + \frac{\sigma_{out^2}}{\sigma_{in}^2} }
+$$
+The eigenvalues are the same of the similarity matrix between RFs $WW^T$ , and the number of non trivial egvs is related to the dimensionality of the manifold. That's why the number of eigenavleus
+
+While a proper definition is lacking ( n of eigenvalues whihc retain x% of variance), a mor estable definition is given by Gao-ganguli as the partecipation ratio. Given a correlation matrix $C$ 
+$$
+PR(C) = \frac{[Tr(C)]^2}{Tr(C^2)}
+$$
+with this definition the dimensionality of the manifold of the receptive fields scale as (the eignevalues follow the MP distribution and we can compute the PR)
+$$
+PR(W) = \frac{L}{1 + \frac{L}{N}}
+$$
+Interestinglym in the same paper, it is introduced the Neural Task Complexity as an upper bound to the dimensionality of a neural manifold: $NTC = C \Pi_k \frac{L_k}{\lambda_k}$ where $L_k$ is the dimensionality of the stimulus space and $\lambda_k$ is the length-scale of the autocorrelation function of the neural responses. 
+In our case, the first layer impose the autocorrelation function since $NTC \propto \frac{1}{\sigma}$ . One way for a neural manifold to actually saturate this bound is having the neural responses generated from a gaussian process with the same correlation length, which is exactly what is done in the second layer. 
+
+
+
+# October 2020
+
+## TODO
+
+- [ ] Finish paper draft: wait Rava suggestions and write to Yoram/Mirko
+- [ ] Symmetry breaking solutions:
+  - [ ] write properly ALL the computation
+  
+  - [ ] write code for general optimization problem
+  
+  - [ ] energy constraint and amplitude depending on the width: worth considering?
+  
+  - [ ] same computation of finite number of spikes, but two populations
+  
+  - [x] Extend the intuition about global error considering more geenral loss function:constrain on the mutual information of single neuron: done, but pay attention the MI of isngle neuron is non monotonic
+  
+  - [ ] different noise model?
+  
+    
+
+## On the noise model
 

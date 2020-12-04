@@ -2,7 +2,8 @@ using DrWatson
 quickactivate(@__DIR__,"Random_coding")
 using JLD
 include(srcdir("network3D.jl"))
-#Script comparing the mean square error in the pure and conjuntive case for a 3D stimulus
+
+##Compare
 
 
 function vary_σ(Vdict::Dict,Nid::Array{Int64},η::Float64,σVec)
@@ -30,9 +31,12 @@ function Nvsσ(Vpdict::Dict,Vcdict::Dict,N::Int64,σVec,η::Float64;nets=4)
     return εp,εc
 end
 
+##Run script with different parameters. Load preocumputed tuning curves
+
 data =load(datadir("sims/LalaAbbott/tuning_curves","tuning_curves3D_pvsc_Meq_ntest=20.jld"))
 Vcdict,Vpdict,x_test,σVec = data["Vcdict"],data["Vpdict"],data["x_test"],data["σVec"]
-η =1.0; NVec = Int.(round.(10 .^(1:0.1:2.1)))
+η =1.0;
+NVec = Int.(round.(10 .^(1:0.1:2.1)))
 ε = [Nvsσ(Vpdict,Vcdict,N,σVec,η) for N=NVec]
 Nmin,Nmax = first(NVec),last(NVec);
 name = savename("Nvssigma3D_cvsp" , (@dict Nmin Nmax η),"jld")

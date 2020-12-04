@@ -1,6 +1,13 @@
 ## Input noise
 
-Given the responses of the second layer $v_i(x) = \frac{1}{Z}\sum_{j}w_{ij}u_j(x)$  with $w_{ij} \sim \mathcal{N}(0,\frac{1}{L})$ and $u_j(x) = \exp({-(x-c_j)^2/2\sigma^2})$ . If the input layer is affected by iid gaussian noise of variance $\xi^2$  and the output layer by noise of $\sigma_\eta^2$, the noise covariance matrix is 
+Given the responses of the second layer $v_i(x) = \frac{1}{Z}\sum_{j}w_{ij}u_j(x)$  with $w_{ij} \sim \mathcal{N}(0,\frac{1}{L})$ and $u_j(x) = \exp({-(x-c_j)^2/2\sigma^2})$ . 
+$$
+r = \frac{1}{Z}\sum_j w_{ij }(u_{j}(x) + \xi_j)  + \eta_i = \frac{1}{Z}\sum_jw_{ij}u_j(x) + \sum_j w_{ij}\frac{\xi_j}{Z} +\eta_i
+$$
+
+To eliminate the factor Z in the output noise, is sufficient redefine $\tilde u (x) = \frac{u}{Z}$ , then the noise is no more multiplied by Z and we simply have $\xi^2$
+
+If the input layer is affected by iid gaussian noise of variance $\xi^2$  and the output layer by noise of $\sigma_\eta^2$, the noise covariance matrix is 
 $$
 \Sigma = \sigma_\eta^2 I + \frac{\xi^2}{Z^2} WW^T
 $$
@@ -18,7 +25,7 @@ $$
 $$
 which result in an approximation for the FI
 $$
-J(x) = J^{ind}(x) -\frac{\xi^2}{Z^2\tilde{\sigma}_\eta^4} u'^T(x)(W^TWW^TW - W^TW)u'(x)
+J(x) = J^{ind}(x) -\frac{\xi^2}{Z^4\tilde{\sigma}_\eta^4} u'^T(x)(W^TWW^TW - W^TW)u'(x)
 $$
 Also $W^TW$ follow a wishart distribution, but has rank N, mean $N/L *I$ and variance of the terms proportional to $N/L^2$
 
@@ -73,6 +80,8 @@ We have 12 + 32 terms of order $N^2$ $(\frac{N^2}{L^2} + 3\frac{N^2}{L^3} + 5\fr
 
 48 terms of order N which are not important since they scale like $N/L^3$ at most
 
+
+
 ### Just using the mean of the perturbation
 
 Using the fact that $\sum_j (u'_j(x))^2 \approx L\frac{\sqrt\pi}{\sigma}$, the mean of perturbation in Eq.5 therefore can be computed and gives
@@ -81,20 +90,11 @@ $$
 $$
 The fisher info therefore can be approximated as
 $$
-J^c \approx J^{i} - \delta J = \frac{N\sqrt\pi}{Z^2\tilde\sigma^2 \sigma} - \frac{\xi^2}{Z^2 \tilde\sigma^4}(\frac{N^2}{L} + \frac{N}{L})\frac{\sqrt{\pi}}{\sigma}
-$$
-and the correction are of order $\frac{N}{L}$ with respect to the case of independent noise.  Let's consider the limit of no output noise, $\tilde\sigma_\eta^2 -> \frac{\xi^2}{Z^2}$, the fisher info can be rewritten as
-$$
-J = \frac{N\sqrt{\pi}}{Z^2\sigma \tilde\sigma_\eta^2}(1 - Z^2\frac{N}{L}) 
-$$
-Therefore the corrections in the error can be rewritten as
-$$
-\varepsilon^2 \approx \frac{1}{J} \approx \varepsilon^{ind} (1+Z^2\frac{N}{L})
+J^c \approx J^{i} - \delta J = \frac{N\sqrt\pi}{Z^2\tilde\sigma^2 \sigma} - \frac{\xi^2}{Z^4 \tilde\sigma^4}(\frac{N^2}{L} + \frac{N}{L})\frac{\sqrt{\pi}}{\sigma}
 $$
 It is interesting to see the difference between this special types of correlation and the one induced by a random matrix with the same statistical structure, but uncorrelated with the synaptic weights. Instead of W, we can consider another wishart matrix but not made by the same W. For example, consider $B = XX^T$ where X is a matrix whose column are random gaussian vectors of variance $\frac{1}{L}$ . We can make the same considerations and arrive to rewrite (5)
 $$
 J(x) = J^{ind}(x) -\frac{\xi^2}{Z^2\tilde{\sigma}_\eta^4} u'^T(x)(W^TXX^TW - W^TW)u'(x)
-				
 $$
 In this case one should compute the mean of the matrix
 $$
@@ -106,4 +106,37 @@ $$
 $$
 and the perturbation has therefore 0 mean.
 
-Did some simulations more. Apparently the approximation is good if N<<L and input noise is comparable to output noise. Nevertheless, random covariance amtrix results in  a increase of the fisher information, even if the mean of the correction is 0.
+
+
+It is possible go also to further order of expansion, useful to understand  the effect of a random covariance matrix. (4) can be extended as 
+$$
+\Sigma^{-1} \approx \frac{1}{\tilde{\sigma}_\eta^2} I - \frac{1}{\tilde\sigma_\eta^4}\delta\Sigma + \frac{1}{\tilde\sigma_\eta^6} \delta \Sigma^2
+$$
+and inserting in the fisher info we obtain for the second order term
+$$
+W^T(W^TW - I)^2W = A^3 - 2 A^2 + A
+$$
+the entries of $A^3 = \sum_{jj'}^L\sum_{ii'i"^N}W_{im}W_{ij'}W_{i'j'}W_{i'j}W_{i"j}W_{i"n} = (\frac{N^3}{L^3} + 3\frac{N^2}{L^3} + 3\frac{N^2}{L^2} + 4\frac{N}{L^3} + 3\frac{N}{L^2} + \frac{N}{L} )\delta_{mn}$  and therefore the  mean of second order term is 
+$$
+<\delta J(x)^2> = \frac{\xi^4}{Z^6 \tilde\sigma_\eta^6}(\frac{N^2}{L^2} + \frac{N^3}{L^3} + 3\frac{N^2}{L^3}+ \frac{N}{L^2} + 4\frac{N}{L^3}) \delta_{mn}
+$$
+In the case of uncorrelated noise covariance matrix,  the second order term gives also a positive effect  resulting in 
+$$
+<\delta J(x)^2> = \frac{\xi^4}{Z^6 \tilde\sigma_\eta^6}(\frac{N^2}{L^2} + \frac{N}{L^3}) \delta_{mn}
+$$
+
+The fisher information correction therefore is, for the synaptic-noise covariance matrix (using just the higher order terms for each correction)
+$$
+<J(x)>_W = J^i (1-\frac{\xi^2}{Z^2\tilde\sigma^2}\frac{N}{L} + \frac{\xi^4}{Z^4\tilde\sigma^4}\frac{N}{L} - ...)
+$$
+
+$$
+\frac{\xi^2}{Z^2\tilde\sigma^2} = \frac{1}{1+\frac{Z^2}{\xi^2}\sigma_\eta^2}
+$$
+
+
+
+while, in the case of random covariance matrix
+$$
+<J(x)>_W = J^i (1 + \frac{\xi^4}{Z^4\tilde\sigma^4}\frac{N}{L} - ...)
+$$
