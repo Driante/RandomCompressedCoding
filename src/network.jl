@@ -9,7 +9,7 @@ ntest = 500; x_min,x_max=0,1;
 test_point(x_min,x_max) = range(x_min,x_max,length = ntest)
 Δx = x_max-x_min;x_test=test_point(x_min,x_max)
 
-## Construct structure of Feedforward Network
+## Construct structure of Feedforward Network with random weights
 
 mutable struct Network
     #1st layer: number of neurons, Gain, tuning width, vector of centers, tuning function

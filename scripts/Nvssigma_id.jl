@@ -38,8 +38,8 @@ function Nvsσ(N::Int64,σVec::Array{Float64},η::Float64; nets = 4,circ=0,MC=0)
 end
 
 L=500
-NVec = 10:5:60;σVec = collect(1.:2:50.)/L;
-#η = 0.5:0.5:0.6;
+NVec = 10:5:60;σVec = collect(1.:5:50.)/L;
+#η = 0.5:0.5:0.6
 ηVec = 0.1:0.1:1.5; NVec = Int.(round.(10 .^(1:0.1:2.1)))
 circ=0
 ε= [[@time Nvsσ(N,σVec,η,circ=0,MC=1) for N=NVec] for η = ηVec]
