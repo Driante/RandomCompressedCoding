@@ -4,21 +4,43 @@ quickactivate(@__DIR__,"Random_coding")
 include(srcdir("network.jl"))
 include(srcdir("decoder.jl"))
 
-function compare_decoders(n)
-    n = Network(N,L,σi,rxrnorm=0);
-    W = n.W
-    for σi = σVec
-        n2 = Network(N,L,σi,f1=n.f1,rxrnorm=0);
-        n2.W = W
-        data_trn,data_tst = iidgaussian_dataset(n2,η,onehot=true);
-        λ_id,b_id = ideal_decoder_iidgaussian(n2,η,x_test)
-        ce_id,mse_id = ideal_loss(n2,η,x_test,data_tst);
-
-        prob_decoder,history_prob = train_prob_decoder((data_trn,data_tst),epochs=50);
-
-        mlp_decoder,history_mlp = train_mlp_decoder((data_trn,data_tst),epochs=50,M=M);
-        push!(mseVec,mse_id)
-        push!(probhVec,history_prob)
-        push!(mlphVec,history_mlp)
-        @info "σ = $σi"
+function Mcomparison(data,MVec::AbstractArray;nepochs=50)
+    data_trn,data_tst = [data...]
+    mlp_decoders= []
+    for M = MVec
+        @info "M = $M"
+        d = Dict()
+        d[:dec],d[:hist] = train_mlp_decoder((data_trn,data_tst),epochs = nepochs,M=M);
+        push!(mlp_decoders,d)
     end
+    return mlp_decoders
+end
+
+function analyze_decoder(η::AbstractFloat,W::AbstractArray,σVec::AbstractArray,MVec::AbstractArray)
+    #Find optimal σ for  agiven network with the noise level η
+    N,L = size(W);
+    dvsσ = Array{Dict}(undef,length(σVec));
+    Threads.@threads for (i,σi) = collect(enumerate( σVec))
+        @info "σ = $σi"
+        n = Network(N,L,σi,rxrnorm=0);
+        n.W = W
+        decoders = Dict()
+        data_trn,data_tst = iidgaussian_dataset(n,η,onehot=true);
+        decoders[:ideal_decoder] = ideal_decoder_iidgaussian(n,η,x_test)
+        ~,decoders[:mse_id] = ideal_loss(n,η,x_test,data_tst);
+        decoders[:prob_decoder],decoders[:history_prob] = train_prob_decoder((data_trn,data_tst),epochs=50);
+        decoders[:mlp_decoders] = Mcomparison((data_trn,data_tst),MVec)
+        dvsσ[i] = decoders
+    end
+    return dvsσ
+end
+
+N,L =25,500;
+η = 0.5
+σVec = (1:3:45)/L;
+MVec = Int.(round.(10 .^range(log10(2),log10(500),length=15)))
+W = sqrt(1/L)*randn(N,L);
+dvsσ = analyze_decoder(η,W,σVec,MVec)
+name = savename("relu_decoder" , (@dict N  L η),"jld")
+data = Dict("σVec" => σVec ,"MVec" => MVec, "W" => W,"dvsσ" => dvsσ)
+safesave(datadir("sims/iidnoise/MLPdec",name) ,data)
