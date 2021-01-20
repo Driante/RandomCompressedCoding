@@ -7,7 +7,7 @@ include(srcdir("network.jl"))
 
 ##Create dataset of noisy responses
 
-function iidgaussian_dataset(n::Network,η ::Float64; ntrn=30000,ntst = 8000,bsize=50,onehot=true)
+function iidgaussian_dataset(n::Network,η ::Float64; ntrn=50000,ntst = 10000,bsize=50,onehot=true)
     #Generate a dataset of noisy response with iid gaussian noise of variance η, with their associated
     #true stimulus. If onehot is true, the stimulus is given as onehot vector
     #Return a DataLoader object iterating over minibatches of bsize.
@@ -121,7 +121,7 @@ function train_mlp_decoder(data; mlp_decoder = nothing, kws...)
     trn_step = 0
     for epoch = 1:args.epochs
         @info "Epoch $(epoch)"
-        progress = Progress(length(data))
+        progress = Progress(length(data_trn))
         for d in data_trn
             l, back = Flux.pullback(ps) do
                 mse_loss(mlp_decoder,d...) + args.λ* sum(x->sum(x.^2), ps)
