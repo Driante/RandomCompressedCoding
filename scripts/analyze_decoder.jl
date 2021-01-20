@@ -1,16 +1,17 @@
 using DrWatson
 quickactivate(@__DIR__,"Random_coding")
+using JLD2
 #Strutcture and function for 1D model and ML-MSE inference
 include(srcdir("network.jl"))
 include(srcdir("decoder.jl"))
 
-function Mcomparison(data,MVec::AbstractArray;nepochs=50)
+function Mcomparison(data,MVec::AbstractArray;nepochs=100,ηl=1e-3)
     data_trn,data_tst = [data...]
     mlp_decoders= []
     for M = MVec
         @info "M = $M"
         d = Dict()
-        d[:dec],d[:hist] = train_mlp_decoder((data_trn,data_tst),epochs = nepochs,M=M);
+        d[:dec],d[:hist] = train_mlp_decoder((data_trn,data_tst),epochs = nepochs,M=M,η =ηl);
         push!(mlp_decoders,d)
     end
     return mlp_decoders
@@ -28,19 +29,19 @@ function analyze_decoder(η::AbstractFloat,W::AbstractArray,σVec::AbstractArray
         data_trn,data_tst = iidgaussian_dataset(n,η,onehot=true);
         decoders[:ideal_decoder] = ideal_decoder_iidgaussian(n,η,x_test)
         ~,decoders[:mse_id] = ideal_loss(n,η,x_test,data_tst);
-        decoders[:prob_decoder],decoders[:history_prob] = train_prob_decoder((data_trn,data_tst),epochs=50);
+        decoders[:prob_decoder],decoders[:history_prob] = train_prob_decoder((data_trn,data_tst),epochs=100);
         decoders[:mlp_decoders] = Mcomparison((data_trn,data_tst),MVec)
         dvsσ[i] = decoders
     end
     return dvsσ
 end
 
-N,L =25,500;
+N,L =35,500;
 η = 0.5
 σVec = (1:3:45)/L;
-MVec = Int.(round.(10 .^range(log10(2),log10(500),length=15)))
+MVec = Int.(round.(10 .^range(log10(2),log10(500),length=18)))
 W = sqrt(1/L)*randn(N,L);
 dvsσ = analyze_decoder(η,W,σVec,MVec)
-name = savename("relu_decoder" , (@dict N  L η),"jld")
+name = savename("relu_decoder" , (@dict N  L η),"jld2")
 data = Dict("σVec" => σVec ,"MVec" => MVec, "W" => W,"dvsσ" => dvsσ)
 safesave(datadir("sims/iidnoise/MLPdec",name) ,data)
