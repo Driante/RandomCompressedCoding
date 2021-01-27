@@ -113,7 +113,7 @@ function train_mlp_decoder(data; mlp_decoder = nothing, kws...)
     data_trn,data_tst = data[1],data[2]
     args = Args(; kws...)
     if isnothing(mlp_decoder)
-        mlp_decoder = Chain(Dense(N,args.M,relu),Dense(args.M,1,linear))     #Decoder is a MLP with hidden layer of size M
+        mlp_decoder = Chain(Dense(N,args.M,relu),Dense(args.M,identity))     #Decoder is a MLP with hidden layer of size M
     end
     opt = ADAM(args.η)
     ps = Flux.params(mlp_decoder);
