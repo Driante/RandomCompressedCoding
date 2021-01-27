@@ -11,6 +11,7 @@ function Mcomparison(data,MVec::AbstractArray;nepochs=100,ηl=1e-3)
     for M = MVec
         @info "M = $M"
         d = Dict()
+        #my_dec = Chain(Dense(N,M,sigmoid),Dense(M,1,sigmoid))
         d[:dec],d[:hist] = train_mlp_decoder((data_trn,data_tst),epochs = nepochs,M=M,η =ηl);
         push!(mlp_decoders,d)
     end
@@ -36,7 +37,7 @@ function analyze_decoder(η::AbstractFloat,W::AbstractArray,σVec::AbstractArray
     return dvsσ
 end
 
-N,L =35,500;
+N,L =30,500;
 η = 0.5
 σVec = (1:3:45)/L;
 MVec = Int.(round.(10 .^range(log10(2),log10(500),length=18)))
