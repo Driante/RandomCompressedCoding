@@ -37,18 +37,20 @@ function analyze_decoder(η::AbstractFloat,W::AbstractArray,σVec::AbstractArray
     return dvsσ
 end
 
-N,L =35,500;
-NVec = 30:5:80
+L = 500;
+NVec = 30:10:80
 η = 0.5
 σVec = (5:3:50)/L;
 MVec = Int.(round.(10 .^range(log10(2),log10(500),length=15)))[3:12]
-dvsσVec = []
-for N=NVec
+dvsσVec = [];
+WVec =  []
+for N = NVec
     W = sqrt(1/L)*randn(N,L);
     dvsσ = analyze_decoder(η,W,σVec,MVec)
     push!(dvsσVec,dvsσ)
+    push!(WVec,W)
 end
-Nmin,Nmax = first(Nmin,Nmax)
+Nmin,Nmax = first(NVec),last(NVec)
 name = savename("relu_lin_decoder" , (@dict Nmin Nmax  L η),"jld2")
-data = Dict("σVec" => σVec ,"MVec" => MVec, "W" => W,"dvsσ" => dvsσ)
+data = Dict("σVec" => σVec ,"MVec" => MVec, "W" => WVec,"dvsσ" => dvsσVec)
 safesave(datadir("sims/iidnoise/MLPdec",name) ,data)
