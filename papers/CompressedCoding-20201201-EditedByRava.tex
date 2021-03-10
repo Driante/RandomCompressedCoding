@@ -1,0 +1,2192 @@
+%% Language and font encodings
+%% Sets page size and margins
+%% Useful packages
+% Recommended
+% Trang-Anh's comments
+%Rava's comment
+% Mirko's comments
+
+\documentclass[a4paper]{article}%
+\usepackage{eurosym}
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{subcaption}
+\usepackage{caption}
+\usepackage{graphicx}
+\usepackage[a4paper,top=3cm,bottom=2cm,left=2cm,right=2cm,marginparwidth=1.75cm]%
+{geometry}
+\usepackage{amsfonts}
+\usepackage{natbib}
+\usepackage{csquotes}
+\usepackage{amsmath,bm}
+\usepackage{svg}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage[english]{fancyref}
+\usepackage{authblk}
+\usepackage[colorinlistoftodos]{todonotes}
+\usepackage[colorlinks=true, allcolors=blue]{hyperref}%
+\usepackage{amsmath}%
+\setcounter{MaxMatrixCols}{30}%
+\usepackage{amssymb}
+%TCIDATA{OutputFilter=latex2.dll}
+%TCIDATA{Version=5.50.0.2960}
+%TCIDATA{LastRevised=Sunday, January 31, 2021 21:29:44}
+%TCIDATA{<META NAME="GraphicsSave" CONTENT="32">}
+%TCIDATA{<META NAME="SaveForMode" CONTENT="1">}
+%TCIDATA{BibliographyScheme=BibTeX}
+%BeginMSIPreambleData
+\providecommand{\U}[1]{\protect\rule{.1in}{.1in}}
+%EndMSIPreambleData
+\DeclareCaptionLabelFormat{adja-page}{\hrulefill\\#1 #2 \emph{(previous page)}}
+\bibliographystyle{neuron}
+\def\TA#1{\textcolor{blue}{#1}}
+\def\RA#1{\textcolor{red}{#1}}
+\definecolor{Mirko}{HTML}{117A65}
+\def\MP#1{\textcolor{Mirko}{#1}}
+\newcommand{\norm}[1]{\left\lVert#1\right\rVert}
+\DeclareMathOperator*{\argmin}{arg\,min}
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator\erf{erf}
+\DeclareMathOperator\erfc{erfc}
+\affil[1]{Laboratoire de Physique de l'Ecole Normale Sup\'erieure, ENS, Universit\'e PSL, CNRS, Sorbonne Universit\'e, Universit\'e de Paris, Paris}
+\affil[2]{Department of Applied Science and Technology (DISAT), Politecnico di Torino,
+Corso Duca degli Abruzzi 24, Torino}
+\affil[3]{Racah Institute of Physics, Hebrew University of Jerusalem, Jerusalem}
+\affil[4]{Edmond and Lily Safra Center for Brain Sciences, Hebrew University of Jerusalem, Jerusalem}
+\affil[5]{Institute of Molecular and Clinical Ophthalmology Basel, Basel}
+\affil[6]{Faculty of Science, University of Basel, Basel}
+\begin{document}
+
+\title{Random Compressed Coding with Neurons}
+\author{Simone Blanco Malerba
+\and Mirko Pieropan
+\and Yoram Burak
+\and Rava da Silveira}
+\maketitle
+
+\begin{abstract}
+The brain encode the information about sensory world through the joint
+activity of neural populations. Classically, the mean response of neurons to
+parameters of sensory stimuli has been described through simple, unimodal or
+monotonic, smooth `tuning curves'. Nevertheless, interesting coding properties
+emerge when considering complex response profiles. As an example, grid cells,
+with their spatially periodic responses, generate a precise combinatorial
+code, which allows them to represent a large range of locations with high
+accuracy, outperforming other spatial codes with unimodal tuning curves. Is
+periodicity necessary for enhanced coding, or similar properties emerge in
+other coding schemes? To address this question, we consider a simple circuit
+that produces complex but unstructured tuning curves, namely, a feedforward
+neural network with random connectivity, in which information is compressed
+from a first layer to a second one of smaller size. These irregular tuning
+curves represent richer \^{a}\euro\U{2dc}sensors\^{a}\euro\U{2122} of the
+stimulus (as compared to unimodal tuning curves), but may result in ambiguous
+coding which can yield catastrophic errors. Efficient coding implies an
+optimal point that specifies the spatial scale of tuning curve irregularities,
+as a function of the compression of the information between network layers and
+of the magnitude of noise affecting neural responses. By revisiting data from
+monkey motor cortex, we show how the tuning curves found in this area can be
+viewed as an instantiation of this `compressed coding' scheme.
+
+\end{abstract}
+
+\textbf{[The affiliation of Mirko should also be affiliation 1 (the
+affiliation that appears should be the one in which the work was done); then,
+on Mirko's name, add an asterisk, and as a footnate his current address
+(Torino).]}
+
+\bigskip
+
+\section{Introduction}
+
+Neurons convey information about the physical world by modulating their
+response as a function of parameters of sensory stimuli. Classically, the mean
+response, often referred to as `tuning curve' when plotted as a function of a
+given sensory parameter, is described as smooth, simple monotonic or unimodal
+function
+\cite{Hubel1959ReceptiveCortex,Georgopoulos1982OnCortex,Dayan2001TheoreticalSystems}
+\textbf{[check referemces and possibly add some, like maybe
+\cite{Hartley2014SpaceCognition,Mathis2012OptimalOf} and/or
+\cite{Taube1990Head-directionAnalysis}]}. In any instance, the deviation from
+the mean response --- the `neural noise' --- may lead to ambiguity in the
+identity or strength of the encoded stimulus, and the coding performance of a
+population of neurons as a whole is dictated by form of the tuning curves and
+the joint neural noise. In the study of population codes, `efficient coding'
+has served as a theoretical organizing principle that posits that tuning
+curves are organized in such as way as to achieve the most accurate coding
+possible given a constraint on (or cost of) the neural resources engaged
+\textbf{[cite also the older/first paper by Barlow]}
+\cite{Barlow2013PossibleMessages}. The latter are often defined as a `dynamic
+range', such as the mean or maximum response, or its variance
+\cite{Harel2020OptimalConstraints} \textbf{[why cite such a recent paper? no
+classical paper?]}.
+
+In order to tackle this constrained optimization problem in practice, tuning
+curves are parametrized, and the corresponding parameters are optimized. Here
+is the point at which the simplicity of the form of tuning curves matters, as
+it generally results in a small set of parameters. A large body of literature
+addresses this constrained optimization problem, in particular in the
+perceptual domain; for example, many studies model tuning curves as Gaussian
+or other bell-shaped functions, and obtain the values of their means and
+variances that minimize the pereceptual error committed when information is
+decoded from the activity of a population of model neurons
+\cite{Zhang1999NeuronalBroaden,Deneve1999ReadingObservers,Pouget1999NarrowCode,Yaeli2010Error-basedNeurons,Fiscella2015VisualNeurons}
+\textbf{[also cite the Ganguli and Simoncelli papers here, and others]}. In
+the resulting optimal populations, the coding error typically scales like
+$1/\sqrt{N}$, where $N$ is the number of model neurons, in the case of
+independent neurons
+\cite{Seung1993SimpleCodes,Berens2011ReassessingFunctions,Kim2020SuperlinearCodes}
+\textbf{[we should discuss these references to make sure they are the best
+suited]}. This behavior can be intuited simply based on the observation that
+the `signal' in the neural population grows like $N$ while the noise grows
+like $\sqrt{N}$, yielding an increasing signal-to-noise ratio that increases
+in proportion to the square root of the population size.
+
+Real neurons, however, can come with much more complex tuning curves than
+simple Gaussian or bell-shaped ones. The most salient example is offered by
+grid cells in enthorinal cortex
+\cite{Hafting2005MicrostructureCortex,Killian2012ACortex} \textbf{[check and
+add references]}, which respond as a periodic function of spatial coordinates
+and hence display multi-modal tuning curves, but a number of other examples
+have also been noted \textbf{[add references: monkey motor neurons; Nachum's
+places cells?; others?]}. It was noted early on that such richer tuning curves
+can give rise to greatly enhanced codes. Given the periodicity of their tuning
+curves, and provided the neural population includes several modules made up of
+cells with different periodicities \cite{Fiete2008WhatLocation,Wei2015ACells},
+grid cells can represent spatial location with a precision that decays
+exponentially (rather than algebraically, as above) in the number of neurons
+\cite{Sreenivasan2011GridComputation,Mathis2012ResolutionNeurons}. Thus, the
+richer structure of individual tuning curves can be traded for a strong boost
+in the efficiency of the population code.
+
+Here, we ask whether highly efficient codes must rely on finely-tuned
+properties such as the tuning curves' periodicity or the arrangement of
+different modules in the population, or, by contrast, can arise more
+generically and robustly in populations of neurons with complex tuning curves.
+We approach the question by studying the benchmark case of a random code;
+specifically, a population code that relies on irregular tuning curves that
+emerge from a simple, feedforward, shallow network with random synaptic
+weights. The input input layer in the network is made up of a large array of
+`sensory' neurons with classical, bell-shaped tuning curves; these neurons
+projects to a small array of `representation' neurons with complex tuning
+curves. We show that a highy efficient population code, in which the coding
+error is suppressed exponentially with the number of neurons in the
+population, obtains robustly and is effective even in the presence of large
+noise. Here it is not sufficient to consider a `typical error': efficiency
+results from the compression of the stimulus space in a layer of neurons of
+comparatively small size; the price to pay for this compression is the
+emergence of two qualitatively distinct types of error---`local errors', when
+the encoding confuses the true stimulus with a nearby stimulus, and `global
+(or catastrophic) errors', when the identity of the true stimulus is lost
+altogether. The efficient coding problem then translates into a trade-off
+between these two types of errors. In turn, this trade-off yields an optimal
+width of the tuning curves in the `sensory layer': when stimuls information is
+compressed into a `representation layer', tuning curves in the sensory layers
+have to be sufficiently wide as to prevent a prohibitive rate of global errors.
+
+We first develop the theory for a one-dimensional input (e.g., spatial
+location along a line or angle), then generalize it to higher-dimensional
+inputs. The latter case is more subtle because the sensoty layer itself can be
+arranged in a number of ways (while still operating with simple, classical
+tuning curves). This allows us to apply our model to data from mokey motor
+cortex, where cells display complex tuning curves. We fit our model to the
+data and discuss the merit of a complex `representation code'. Overall, our
+approach can be viewed as an application of the efficient coding principle to
+downstream (`representation') processing, as opposed to the more common
+applications to peripheral (sensory) processing. Our study extends earlier
+theoretical work on grid cells and other `finely designed' codes by proposing
+that efficient compression of information can occur robustly even in the case
+of a random network. Our analysis is based on considering the geometric
+properties of neural activity in a downstream layer and how these vary with
+network parameters.
+
+\section{Results}
+
+\todo{Too many formulas for this section?} We organize the discussion of our
+results as follows. First, we present, in geometric terms, the qualitative
+difference between a code that uses simple, bell-shaped tuning curves and one
+that uese more complex forms. Second, we introduce a simple model of a
+shallow, feedforward netwok of neurons that can interpolate between simple and
+complex tuning curves depending on the values of its parameters. Third, we
+characterize the accuracy of the neural code in the limiting case of maximally
+irregular tuning curves. Fourth, we extend the discussion to the more general,
+in which an optimal code is obtained from a trade-off between local and global
+errors. All the above is does for the case of a one-dimensional input space.
+In a fifth suspection, we generalize our approach to the case of a
+multi-dimensional stimulus. This then allows us to apply our model to
+recordings of motor neurons in monkey, and to analyze the nature of population
+coding in that system. Finally, we extend our model to include an additional
+source of noise---`input noise' in the sensory layer, in addition to the
+`output nosie' present in the representation layer; input noise gives rise to
+correlated noise downstream, and we analyze its impact on the population code.
+
+\subsection{The geometry of neural coding with simple vs. complex tuning
+curves}
+
+A neural code is a mapping that associates given stimuli to a probability
+distribution of spiking patterns; in particular, the code maps any given
+stimulus to a mean population activity. In the case of a continuous,
+one-dimensional stimulus space, the latter is mapped into a curve in the
+$N$-dimensional spave of the population activity, whose shape is dictated by
+the form of the tuning curves of individual neurons. As an illustration, we
+compare the cases of three neurons responding according to bell-shaped (here,
+Gaussian) tuning curves vs. periodic (grid-cells-like) tuning curves with
+three different periods (Fig. \ref{Fig:1}A, where we assume that the stimulus
+space is periodic, so that the mean response curve is closed). Simple tuning
+curves generate a smooth curve, implying that similar stimuli stimuli are
+mapped to nearby responses; by contrast, more complex tuning curves give rise
+to a serpentine shape. The latter makes better use of the space of possible
+population responses than the former, and hence can be expected to yield
+higher-resolution coding. Indeed, when the population response is corrupted by
+noise of a given magnitude, it will elicit a smaller \textit{local} error in
+the case of complex tuning than in the case of simple tuning: by `stretching'
+the mean response curve, complex tuning afford the code with higher
+resolution. But this is not the entire story. In the case of a winding and
+twisting mean response curve, it happens that two distant stimuli are mapped
+to nearby activity patterns, and, in the presence of noise, this geometry
+gives rise to \textit{global} (or catastrophic). This enhanced resolution of
+the neural code associated with the accurence of global errors was also noted
+in the context of grid cell coding \cite{Sreenivasan2011GridComputation}.
+Because of this trade-off, whether a simple or complex coring scheme is
+preferable becomes a quanitative question, wihc depends upon the details of
+the structure of the encoding. We explore this quantitative question in the
+remainder of this section.
+
+\subsection{Shallow feedforward neural network as a benchmark for efficient
+coding}
+
+\textbf{[If we use `sensory neurons' and `representation neurons' to talk
+about the first and second layers respectively, we should add these labels on
+the figure, so that this nomenclature will be visually obvious.]}
+
+In order to address the problem mathematically and numerically, we examine the
+simplest possible model that generates features complex tuning curves, namely
+a two-layer feedforward model. An important aspect of the model is that it
+does not rely on any finely-tuned architecture or parameter tuning: compex
+tuning curves emerge solely because of the variability in synaptic weights;
+thus, the model can be thought of as a benchmark for the analysis of
+population coding in the presence of complex tuning curves. The architecture
+of the model network and the symbols associated with its various parts are
+illustrated in Fig. \ref{Fig:1}B. In the first layer, a large population of
+$L$ \textit{sensory} neurons encode a one-dimensional stimulus, $x$, into a
+high-dimensional representation. Throughout, we assume that $x$ takes values
+between zero and one, without loss of generality. (If the input covered an
+arbitrary range, say $R$, then the coding error would be expressed in
+proportion to $R$. In other words, one cannot talk independently of the range
+and of the resolution of a code. We set the range to unity in order to avoid
+any ambiguity.) Sensory neurons come with classical tuning curves: the mean
+firing rate of neuron $j$ in in response to stimulus $x$ is given by a
+Gaussian with center $c_{j}$ (the preferred stimulus of that neurons) and
+width $\sigma$:
+\begin{equation}
+u_{j}\left(  x\right)  =\frac{1}{Z}\exp\left(  -\frac{\left(  x-c_{j}\right)
+^{2}}{2\sigma^{2}}\right)  .\label{tuning-curve-layer1}%
+\end{equation}
+Following a long line of models, we assume that the preferred stimuli in the
+population are evenly spaced, so that $c_{j}=j/L$. As a result, the response
+vector for a stimulus $x_{0}$, $\mathbf{u}\left(  x_{0}\right)  $, can be
+represented as a Gaussian `bump' of activity centered at $x_{0}$.
+
+Complex tuning curves appear in the second layer containing $N$
+`representation' neurons; we shall be interested in instances with $N\ll L$,
+in which efficient coding results in compression of teh stimulus information
+from a high-dimensional to a low-dimensional representation. Each
+representation neuron receives random synapses from each of the sensory
+neurons; specifically, the elements of the all-to-all synaptic matrix,
+$\mathbf{W}$, are i.i.d. Gaussian random weights with vanishing mean and
+variance equal to $1/L$ ($W_{ij}\sim\mathcal{N}\left(  0,1/L\right)  $). In
+the simple, linear case that we consider, the mean response of neuron $i$ in
+the second layer is this given by
+\begin{equation}
+v_{i}\left(  x\right)  =\sum_{j=1}^{L}W_{ij}u_{j}\left(  x\right)  .
+\end{equation}
+Since the weights, $W_{ij}$, correspond to a given realization of a random
+process, they generate tuning curves, $v_{i}\left(  x\right)  $, with
+irregular profiles. The parameter $\sigma$ is important in that it controls
+the smoothness of the tuning curves in the second layer: it defines the width
+of $u_{j}$, which in turns dictates the correlation between the values of the
+tuning curve $v_{i}$ for two different stimuli. By the same token, the
+amplitude of the variations of $v_{i}$ with $x$ depends upon the value of
+$\sigma$. For a legitimate comparison of population coding for different
+networks, we fix this amplitudeto a constant,%
+\begin{equation}
+\int_{0}^{1}dx\left[  v_{i}\left(  x\right)  -\int_{0}^{1}dx^{\prime}%
+v_{i}\left(  x^{\prime}\right)  \right]  ^{2}=\text{ constant}%
+,\label{resource-limitation}%
+\end{equation}
+by choosing the value of the prefactor in Eq. (\ref{tuning-curve-layer1}),
+$1/Z$. This constraint corresponds to the usual constraint of `resource
+limitation' in efficient coding models \textbf{[cite the book of Abbott and
+Dayan (if it says anything about efficient coding?), and the book of Zhaoping
+Li]}; it amounts to setting a maximum to the variance of the output over the
+stumulus space, as is commonly assumed in analyses of efficient coding in
+sensory systems \textbf{[cite the book of Zhaoping Li]}.
+
+Returning to our geometric picture, we observe that, by changing the value of
+$\sigma$, we can interpolate between simple and complex tuning curves in the
+second layer (Fig. \ref{Fig:1}C). In the limiting case of large $\sigma$,
+representation neurons come with smooth tuning curves akin to classical ones;
+in the other limiting case of small $\sigma$, the mean resonse curve becomes
+infinitely tangled. Thus, as the value of $\sigma$ is decreased, the mean
+responses curve `stretched out' and winds in such a ways as to fit within the
+allowed space of population response defined by Eq. (\ref{resource-limitation}%
+). A longer mean response curve fills the space of population responses more
+efficiently and represents the stimulus at a higher resolution, but its twists
+and turns result in a greater susceptibility to noise.
+
+To complete the definition of the model, we specify the nature of the noise in
+the neural response. We assume that neuron $i$ in the second layer is affected
+by noise, which we denote $z_{i}$, such that its response at each trial is
+given by $r_{i}=v_{i}\left(  x\right)  +z_{i}$. For the sake of simplicity, we
+use Gaussian noise with vanishing mean and variance equal to $\eta^{2}$. In
+most of our analyses, we suppose that responses in the first layer are
+noiseless and that the noise in the second layer is uncorrelated among
+neurons; in Sec.\ref{SuSe:In}, however, we relax these assumptions, and
+discuss the interesting implications of noisy sensory neurons and correlated
+noise in representation neurons. (Our motivation for considering noiseless
+sensory neurons is that we are primarily interested in analyzing the
+compression of the representation of information between the first and the
+second layer of neurons. By contrast, noise in sensory neurons affects the
+fidelity of encoding in the first layer.) We quantify the performance of the
+code in the second layer through the mean squared error (MSE) in the stimulus
+estimate as obtained from an ideal decoder. The use of an ideal decoder is an
+abstract device that allows us to focus in the uncertainty inherent to
+\textit{encoding} (rather than to imperfections in \textit{decoding}); it is
+nevertheless possible to obtain a close approximation to an ideal decoder in a
+simple neural network with biologically plausible operations, as we show in
+Sec.\ref{Se:Me}.
+
+\subsection{Compressed coding in the limiting case of narrow sensory tuning}
+
+\textbf{[I suggest that we leave the discussion of the literature on tuning
+curves and how our work connects to it for the Discussion section }While the
+coding properties of a population of neurons with unimodal tuning curves have
+been largely addressed in the literature
+\cite{Zhang1999NeuronalBroaden,Montemurro2006OptimalVariables,Yaeli2010Error-basedNeurons}%
+]
+
+It is instructive to study coding in our model in the limiting case of narrow
+tuning in the sensory layer, with $\sigma\ll1$ ($\sigma\rightarrow0$), because
+this limit yields the most irregular tuning curves in the representation layer
+of our network (Fig. \ref{Fig:1}C). As we will see, this limiting case also
+correspond to that of a completely uncorrelated, random code, for which a
+mathematical analysis simplifies. When the value of $\sigma$ is much smaller
+than $1/L$, each sensory neurons responds only if the stimulus coincides with
+its preferred stimulus; stimulus values that lie in between the preferred
+stimuli if successive sensory neurons in the first layer do not elicit any
+activity in the system. We can thus consider that any stimulus of interest is
+effectively chosen in a discrete set of $L$ stimulus with values $x_{j}=j/L$ ,
+with $j=1,\ldots,L$.
+
+Each of these stimulis elicits a mean response
+\begin{equation}
+v_{i}(x_{j})=W_{ij}\sim\mathcal{N}(0,1)\label{uncorrelated-tuning-curve}%
+\end{equation}
+in neuron $i$ of the second layer. Geometrically, this corresponds to mapping
+$L$ stimulus values to a set of uncorrelated, random locations in the space of
+populations activity that correspond to the mean responses (as illustrated in
+Fig.\ref{Fig:2}A for a two-neuron population). In any given trial, the
+response of the representation layer is corrupted by noise that takes it away
+from the corresponding mean response (Fig.\ref{Fig:2}A). The ideal decoder
+(here, `ideal' means that it minimises the mean error) interprets a
+single-trial response as being elicited by the stimulus associated to the
+nearest possible mean response (Fig.\ref{Fig:2}A). The outcome of this
+procedure can be twofold: either the correct or an incorrect stimulus is
+decoded; in the latter case, because the possible mean responses are arranged
+randomly in the space of population activity (Fig.\ref{Fig:2}A and Eq.
+(\ref{uncorrelated-tuning-curve})), errors of any magnitude are equiprobable.
+As a result, in a model with narrow sensory tuning curves which result in a
+second-layer representation that does not preserve distances among inputs, the
+error committed by a decoder is either vanishing or, typically, on the order
+of the input range (set to unity here). The mean error can then simply be
+equated to the probability with which the ideal decoded makes a mistake
+
+In Methods, we provide a derivation of this quantity, which is obtained as
+\textbf{[we can leave the discussion about avergaing over }$W$\textbf{, etc,
+for the Methods]}%
+\begin{equation}
+P_{\text{error}}\approx\frac{L}{\sqrt{2\pi N}}\exp\left(  -{\log}\left(
+{1+\frac{1}{2\eta^{2}}}\right)  {\frac{N}{2}}\right)  .\label{Eq:PGE}%
+\end{equation}
+The main dependence to note, here, is the exponentially strong suppression as
+a function of the number of neurons in the second layer (Fig. \ref{Fig:2}B).
+By contrast, the propability of error scales merely linearly with the size of
+the stimulus space, $L$, as is expected in a limit of small probability of
+error. This result implies that it is possible to compress information highly
+efficiently in a comparatively small representation layer ($N\ll L$) even
+though the code is completely random. The price to pay for this randomness is
+that any given error is `catastrophic' (on the order of $L$), but these large
+errors happen prohibitively rarely. It is also worth noting that the rate of
+expenential suppression depends on the variance of the noise, $\eta^{2}$, or,
+more precisely, on the single-neuron signal-to-noise ratio (since we have set
+the dynamic range of a neuron to unity, Eq. (\ref{resource-limitation})).
+Interestingly, even when this signal-to-noise ration becomes small, the
+exponential suppression of the probability of error remains valid with a rate
+of $\mathcal{O}\left(  1\right)  $ \textbf{[I have several remarks and
+questions, here:}
+
+\begin{enumerate}
+\item \textbf{We should be able to see that }$P_{\text{error}}\rightarrow
+0$\textbf{\ when }$\eta^{2}\rightarrow\infty$\textbf{, but this is not the
+case here. Is the above equation correct?\ Or have you somewhere in the
+calculation made an assumption that would not be correct with }$\eta
+^{2}\rightarrow\infty$\textbf{? We should talk about this, because I don't
+understand well the connection with a hard noise (instead of Gaussian), in
+which case }$\eta^{2}$ \textbf{`cannot be' larger than} $1$.
+
+\item \textbf{You say \textquotedblleft The scaling rate is given by the noise
+variance, and it approaches the value of }$-\frac{1}{4\eta^{2}}$\textbf{\ as
+the variance of the noise becomes comparable to the variance of the responses
+(Fig. \ref{Fig:2}C).\textquotedblright\ but I don't see this. If
+\textquotedblleft the variance of the noise becomes comparable to the variance
+of the responses\textquotedblright\ then }$\eta^{2}\approx1$\textbf{, and the
+rate of the expnentional is roughly }$3/4$\textbf{.}
+
+\item \textbf{\ \textquotedblleft Signal-to-Noise Ratio, which in neural
+systems can be very small \cite{Softky1993TheEPSPs}.\textquotedblright\ I
+think we should skip this reference/renark, because there is a huge
+literature, and we don't want to enter teh discussion of exactly how large or
+small is this signal-to-noise ratio in real neurons.]}
+\end{enumerate}
+
+The ability of our network to achieve low error even when the signal-to-noise
+ratio of its individual units is small, provided $N$ is sufficiently large, is
+akin to a phenomenon sometimes referred to as the `bless \textbf{[blessing?
+`bless' is a verb]} of dimensionality' in machine learning
+\cite{Donoho2000High-dimensionalDimensionality} \textbf{[We should discuss
+this. Also, should this be here or in the Discussion?]}.
+
+\subsection{Compressed coding with broad tuning curves: trade-off between
+local and global errors}
+
+As we saw in the previous section, in the case of infinitely narrow tuning
+curves the coding of a stimulus in a given trial is either perfect or
+indeterminate; that is, any error is a global error, on the order of the
+entire stimulus range. In the more general case of sensory neurons with
+arbitraty tuning width, the picture is more complicated: in addition to
+\textit{global} errors which results from the winding and twisting of the mean
+response curve, the population code is also susceptible to \textit{local}
+errors (Fig. \ref{Fig:3}A). This is because broad tuning curves in the sensory
+layer partly preserve distances: locally, nearby stimuli are associated with
+nearby points on the mean response curve (Fig. \ref{Fig:3}A); as a result, the
+coding of any given stimulus is susceptible to local errors due to the
+response noise. As the tuning width in the sensory layer, $\sigma$, decreases,
+two changes occur in the mean response curves: it becomes longer (it
+`stretches out') and it becomes more windy (Fig. \ref{Fig:1}C). Stretching
+increases the local resolution of the code (because it allows for two nearby
+stimuli to be mapped to two more distant points in the space of population
+activity), while windiness increases the probability of global errors. This
+trade-off is apparent when we plot the histogram of coding-error magnitudes as
+a function of $\sigma$:\ for larger values of $\sigma$, global errors are less
+frequent, but local errors are boosted (Fig. \ref{Fig:3}B). Also noticeable,
+here is that the large-error tails of the histograms are flat, consistent with
+the observation that global errors of all sizes are equiprobable.
+
+For a more quantitative understanding, we carried out an approximate
+calculation, in which (\textit{i}) we approximated the mean response curve by
+a linear function locally and (\textit{ii}) considered that the distance
+between two segments of the curve containing the mean response to two stimuli
+distant by more than $\sigma$ is sampled randomly. Using these two
+assumptions, we obtained the MSE as a sum of two terms (see Methods for
+mathematical details), as
+\begin{equation}
+\left\langle \varepsilon^{2}\right\rangle _{W}\approx\left\langle
+\varepsilon_{l}^{2}\right\rangle _{W}+\left\langle \varepsilon_{g}%
+^{2}\right\rangle _{W}\approx\frac{2\sigma^{2}\eta^{2}}{N}+\frac{1}%
+{\sigma\sqrt{2\pi N}}\bar{\varepsilon}_{g}\exp\left(  {-\log}\left(
+{1+\frac{1}{2\eta^{2}}}\right)  \frac{N}{2}\right)  ,\label{Eq:LvsG}%
+\end{equation}
+where $\bar{\varepsilon}_{g}$ is a term of $\mathcal{O}\left(  1\right)  $
+that depends upon the choice of stimulus boundary conditions (see Methods).
+This expression quantifies the MSE for a `typical' network, obtained by
+averaging over possible choces of synaptic weights, as indicated by the
+brakets $\left\langle \cdot\right\rangle _{W}$. The first term on the
+right-hand-side of Eq. (\ref{Eq:LvsG}) represents the contribution of local
+errors, while the second term corresponds to global errors (Fig.
+\ref{Fig:3}C). Their form can be intuited as follows. The variance of local
+errors is proportional to $\sigma^{2}$ and inversely proportional to $N$, as
+in classical models of population coding with neurons with bell-shaped tuning
+curves (see, e.g., \cite{Seung1993SimpleCodes} \textbf{[or better
+reference?]}). Furthermore, decreasing $\sigma$ stretches out the mean
+response curve, which increases the local resolution of the code and explains
+the factor $\sigma^{2}$ in Eq. (\ref{Eq:LvsG}). (The form of this first term
+can also be understood as the inverse of the Fisher information
+\cite{Seung1993SimpleCodes} \textbf{[or better reference?]}, which bounds the
+variance of the error.) The second term on the right-hand-side of Eq.
+(\ref{Eq:LvsG}) is obtained as an extension of Eq. (\ref{Eq:PGE}): instead of
+considering the probability that two mean response points are placed nearby,
+we consider the probability that two segents of the mean response curve with
+size $\sigma$ each fall nearby. There are $1/\sigma$ such segments (since we
+have set the stimulus range to unity), and this explains why the factor $L$ in
+Eq. (\ref{Eq:PGE}) is replaced by a facor $1/\sigma$ in Eq. (\ref{Eq:LvsG}).
+\textbf{[We should discuss brief again about this: it is slightly confusing
+that all that matters is the probability that two segments are nearby. One
+would have also expected that the fact that `there are }$\sigma$\textbf{
+different stimulu' in each segment should have boosted the probability fo
+global error by an additional facor of }$\sigma$\textbf{.]} Importantly, the
+two terms in Eq. (\ref{Eq:LvsG}) are modulated differently by the two
+parameters $N$ and $\sigma$. Depending upon their values, either local or
+global error dominate (Fig. \ref{Fig:3}C). [In rereading this, I think that
+the flow would be better if we Figs. 4A and B inside Fig. 3, and Fig. 3D
+inside Fig. 4. Like this, Fig. 3 would be for general values of parameters,
+and Fig. 4 would be for the optimal values. Also, I think it works out better
+in the text.] We explored numerically the dependence of the MSE upon the
+parameters $N$ and $\sigma$ (see Methods for details). The non-trivial
+dependence is illustrated by the observations that the MSE error may decrease
+or increase as a function of $\sigma$, around a given value of $\sigma$,
+depending upon the value of $N$ (Fig. \ref{Fig:3}D \textbf{[currently Fig.
+\ref{Fig:4}A]}). Furthermore, the strong (exponential) reduction in MSE with
+increasing $N$ occurs only up to a crossover value depending on $\sigma$ (Fig.
+\ref{Fig:3}E \textbf{[currently Fig. \ref{Fig:4}B]}); beyond this value,
+global errors disappear, and the error suppression is shallower (hyperbolic in
+$N$, due to improved local resolution). For small values of $\sigma$, the
+crossover values of $N$ are larger and occur at lower values of the MSE.
+
+As is apparent from Figs. \ref{Fig:3}C and \ref{Fig:3}D \textbf{[currently
+Fig. \ref{Fig:4}A], }for any value of $N$ there exists a specific value of
+$\sigma=\sigma^{\ast}\left(  N\right)  $ that balances the two contributions
+to the MSE such as to minimize it. This optimal width can be thought as the
+one that stretches out the mean response curve as much as possible to increase
+local accuracy but at the same time to avoid catastrophic errors. This optimum
+is obtained from Eq. (\ref{Eq:LvsG}) which agrees closely with results from
+numerical simulations, in which we computed the MSE using a Monte Carlo method
+and a network implementation of the ideal decoder (Fig. \ref{Fig:4}A
+\textbf{[currently Fig. \ref{Fig:3}D]}, see Methods for details). The MSE is
+asymmetric about the optimal width, $\sigma^{\ast}$: smaller values of
+$\sigma$ cause a rapid increase of the error due to an increased probability
+of global errors, while larger values of $\sigma$ mainly harm the code's local
+accuracy, resulting in a milder effect. From Eq. (\ref{Eq:LvsG}), we obtain
+the dependence of the optimal width upon the population size as
+\begin{equation}
+\sigma^{\ast}\approx\left(  \frac{\bar{\varepsilon}_{g}}{4\eta^{2}}\sqrt
+{\frac{N}{2\pi}}\right)  ^{1/3}\exp\left(  {-\log\left(  {1+\frac{1}{2\eta
+^{2}}}\right)  \frac{N}{6}}\right)  ,\label{Sigma_opt}%
+\end{equation}
+and the optimal MSE as a function of $N,$as %
+
+\begin{equation}
+\left\langle \varepsilon^{2}(\sigma^{\ast})\right\rangle _{W}\approx
+\eta\left(  \frac{\bar{\varepsilon}_{g}^{2}}{2\pi N^{2}}\right)  ^{1/3}%
+\exp\left(  {-\log\left(  {1+\frac{1}{2\eta^{2}}}\right)  \frac{N}{3}}\right)
+.\label{MSE_opt}%
+\end{equation}
+\textbf{[This equation looks wrong to me:\ how come it's }$\eta$\textbf{ and
+not }$\eta^{2}$\textbf{ in front?]} Both these analytical results agree
+closely with numerical simulations (Figs. \ref{Fig:4}B \textbf{[currently Fig.
+\ref{Fig:4}C] }and C \textbf{[currently Fig. \ref{Fig:4}D]}). Equation
+(\ref{MSE_opt}) and Fig. \ref{Fig:4}C \textbf{[currently Fig. \ref{Fig:4}D]}
+show that the optimal MSE is suppressed exponentially with the number of
+representation neurons in the second layer. Thus, highly efficient compression
+of information and coding also occurs when tuning curves in the sensory layer
+are not infintely narrow. The rate of this scaling depends upon the noise
+variance, $\eta^{2}$; in Figs. \ref{Fig:4}D and E \textbf{[currently Figs.
+\ref{Fig:4}E and F]}, we illustrate the dependence of $\sigma^{\ast}$ and
+$\left\langle \varepsilon^{2}(\sigma^{\ast})\right\rangle _{W}$ upon $N$ and
+$\eta^{2}$.
+
+\textbf{[\textquotedblleft Due to the lower bound imposed by the spacing of
+the preferred positions in the first layer, the optimal }$\sigma^{\ast}%
+$\textbf{ saturates at the finite value imposed by the spacing of first layer
+neurons }$\sim1/L$\textbf{.\textquotedblright\ I would remove this. Or maybe
+you have a better formulation?]}
+
+\subsection{Compressed coding of multi-dimensional stimuli}
+
+Real-world stimuli are multi-dimensional. Our model can be extended to the
+case of higher-dimensional stimuli, but particular attention should be given
+to the nature of encoding in the first layer---because sensory neurons can be
+sensitive to one or several dimensions of the stimuli. At one extreme, a
+sensory cell can be sensitive to all dimensions of the stimulus; for example,
+place cells can respond as a function of the two- or three-dimensional spatial
+location. Visual cells constitute another example of multi-dimensional
+sensitivity, as they respond to several features of the visual world; for
+example, retinal direction-selective cells are sensitive to the direction of
+motion, but also to speed and contrast. At the other extreme, sensory neurons
+may be tuned to a single stimulus dimension, and insensitive to others. We
+will refer to the two extreme coding schemes as \textit{conjunctive} and
+\textit{pure}, following Ref. \cite{Finkelstein2018OptimalBats} in which they
+are explored in the context of head-direction neurons in bat. The authors
+conclude that the relative advantage of a pure coding scheme---with neurons
+that encode a single head-direction angle---with respect to a conjunctive
+coding scheme---with neurons that encode two head-direction anglse---depends
+on specific contingencies, such as the decoding time window or the population
+size. Indeed, in a conjuctive coding scheme individual neurons carry more
+information, but the population as a whole needs to include sufficiently many
+neurons to cover the (multi-dimensional) stimulus space---a constraint that is
+exponential in the number of dimensions.
+
+We generalized our model to include the possibility of multi-dimensional
+stimuli (see Methods for details). Figure \ref{Fig:5}A illustrates the
+dependence of the MSE as a function of the width of the (possibly
+multi-dimensional) tuning curves in the sensory layer (insets). \textbf{[}%
+\textquotedblleft both models have a corresponding in the recent literature
+\cite{Bouchacourt2019AMemory,Lalazar2016TuningConnectivity}, and they show a
+qualitative difference in the balance between local and global
+errors.\textquotedblright\ \textbf{This breaks the flow, and it is not clear
+why you talk about this here and not in Discussion. We should either move it
+there, or you shoudl reformulate and expand, to make clear why it is stated
+here.]}
+
+\bigskip
+
+\textbf{[You should completely rework the next paragraph:}
+
+\begin{itemize}
+\item \textbf{It is very difficult to read/understand for a naive reader.}
+
+\item \textbf{The flow is not clear; it goes back and forth between different
+pieces of the argument.}
+
+\item \textbf{Nothing here refers to a three-dimensional case, even though you
+announce this at the begining; you even talk about }$K$\textbf{ again at the
+end of the paragraph! You should formulate the argument generally. (We will
+specify to three dimensions in the next. If teh figures are for three
+dimensions, then you can just state that.)}
+
+\item \textbf{You should make this absolutely crystal clear.}
+
+\item \textbf{You should avoid overly long paragraph.}
+
+\item \textbf{At the end, you should say what we gained by generalizing the
+model to several stimulus dimensions.  }
+
+\item \textbf{Importantly, also, the figure panels should appear in the SAME
+order here, in the text, as in the figure.}
+
+\item \textbf{Emphasize the non-trivial dependencies in Fig. 5B.} 
+
+\item \textbf{See also my smaller comments, in the text:}
+\end{itemize}
+
+The 3-dimensional case is of particular interest, since it allows us to make a
+connection with a real neural circuit in the following section; we briefly
+discuss the results for this case, referring to \ref{Se:Me} for details and
+the general case of $K$ dimensions. For both pure and conjunctive coding
+scheme, the behavior of the error is \textbf{the same [no, similar]} of the
+1-dimensional case, with an optimal tuning width which \textbf{decreases
+increasing [terrible formulation]} the population size (Fig. \ref{Fig:5}%
+A,C,D). In order to appreciate the difference between the two cases, we
+\textbf{looked [bad word, too colloquial]} at the \textbf{error ratio between
+them [bad formulation]} \textbf{in function [as a function]} of the population
+size and tuning width (Fig. \ref{Fig:5}B). Notably, \textbf{a parity of neuron
+in the first layer [impossible to understand and wrong grammar]}, the
+\textbf{conjunctive population put a stronger limit on the lower }$\sigma
+$\textbf{ that can be reached [unclear statement and unclear where it comes
+from]}, \textbf{due to the difficulty of covering the stimulus space [too
+vague]}. Indeed, below a critical $\sigma$, the \textbf{stimulus is encoded
+only in the tails of the Gaussian tuning curves in the conjunctive population,
+and some stimuli will produce no response in the first and, obviously, in the
+second layer [again, too vague---this is what you would say orally in a talk
+or in a discussion, not in a paper]}. As a consequence, the error increases,
+independently from the number of neurons of the second layer; \textbf{the pure
+population, instead, will suffer this problem at much lower value of the
+tuning width [again, vague, unclear why]}. A \textbf{pure code is therefore
+more advantageous when }$\sigma$\textbf{ is very low; the optimal }%
+$\sigma^{\ast}$\textbf{ saturates at a certain value in the conjunctive case,
+while still continues to decrease in the pure one (Fig. \ref{Fig:5}D). [it
+will not be clear to the vaive reader what allows you to make this
+statement---again, you cannot count on the reader to read your mind!]}
+\textbf{Pure selectivity is also advantageous in the low }$N$\textbf{ regime,
+since the multiplicative factor of the exponential scaling is lower in this
+case (see \ref{Se:Me}), [same]} even if \textbf{this is not a very interesting
+regime, since the error is large [terrible side comment: throughout, we
+assumed a regime where the error is small; either drop this or emphasize that
+it is a very differet regime from what we did before---don't qualify as
+uninteresting, it is different]}. As soon as $N$ is sufficiently large, the
+advantages of the conjunctive code emerge. The local error of the conjunctive
+population is lower than the one of pure population, as already showed in
+\cite{Finkelstein2018OptimalBats}, and \textbf{this feature is preserved in
+the second layer. Moreover, the global error scales more slowly in the pure
+case, where each dimension is encoded separately and the variance along each
+dimension is }$1/K$\textbf{ of the total one. This will make a conjunctive
+population more efficient in the low }$\sigma$\textbf{ region, when the pure
+one is heavily affected by global errors. As a result, both the optimal width,
+}$\sigma^{\ast}$\textbf{, and the error }$\varepsilon(\sigma^{\ast})$\textbf{
+are lower in the conjunctive case (Fig. \ref{Fig:5}D,E). In the conjunctive
+case the optimal error will stop decreasing exponentially (it will still
+decrease linearly) after that the lower bound for the optimal width is
+reached, and at larger population sizes and lower widths, the pure case will
+ultimately be more advantageous. [again, all this is very unclear---a logical
+flow is absent, and it's painful to read]}
+
+\subsection{Compressed coding in monkey motor cortex}
+
+Neurons in the primary motor cortex (M1) of monkey are sensitive to space- and
+movement-related parameters. We consider here spatial tuning the kind of which
+appears in recordings carried out in a `static task'. The monkey is cued to
+remain motionless during a certain delay, with a hand located at one of a
+number of preselected positions defined by a three-dimensional vector,
+$\mathbf{x}=\{x_{1},x_{2},x_{3}\}$; in such a task, M1 neurons exhibit
+hand-location-dependent tuning curves
+\cite{Wang2007MotorReaching,Lalazar2016TuningConnectivity} \textbf{[are these
+the best citations for this point?]}. It has been customary to model these
+tuning curves as varying linearly with a combination of the spatial
+coordinates of the hand,
+\begin{equation}
+v_{i}(\mathbf{x})=a_{i}+b_{1,i}x_{1}+c_{2,i}x_{2}+d_{3,i}x_{3}=v_{i}%
+(\mathbf{x})=a_{i}+\mathbf{P}_{i}\cdot\mathbf{x},\label{Eq:CosTun}%
+\end{equation}
+where $\mathbf{P}_{i}$, sometimes called `preferred vector' or `positional
+gradient' [correct?] is a vector pointing along the direction of maximal
+sensitivity \cite{Wang2007MotorReaching}. A recent study
+\cite{Lalazar2016TuningConnectivity} observed, however, that a model of tuning
+curves that include a form of irregularity yields an appreciably superior fit
+to the simple linear beahvior in Eq.(\ref{Eq:CosTun}). The more elaborate
+models bears similarity with our model of irregular tuning curves, and this
+naturally leads us to ask about potential coding advantages that a more
+complex coding scheme may have in M1.
+
+To be more specific, one can interpret here the first layer in our network to
+represent neurons in the parietal reach area and the premotor area, which
+display localized tuning properties \cite{Andersen1985EncodingNeurons}. These
+neurons project to a smaller population of M1 neurons which display extended
+and irregular tuning profiles. In order to fit our model to the M1 recordings
+\cite{Lalazar2016TuningConnectivity}, we considered the arrangement of stimuli
+used in the experiment, namely 27 spatial locations arranged in a
+$3\times3\times3$ grid in a 40 cm-high cube.\textbf{ [}\textquotedblleft in
+the original paper the weights are uniformly distributed and the random sum is
+passed through a threshold non linearity to enforce positivity of the firing
+rates. The linear population is obtained sampling the principal directions on
+the unit sphere and constraining the firing rate range of the neurons to be
+the same of the irregular ones.\textquotedblright\ \textbf{Instead of this,
+you should explain in a few simple sentences how you fitted OUR model; at the
+end of these sentences, refer to Methods for details. You should also say
+something about the noise, not only about the tuning curves. Then, in Methods,
+we can compare our model/fit to their's.] }With a neural response model in
+hand, we can evaluate the coding performance; to do so, we consider a finer,
+$21\times21\times21$ grid of spatial locations as our test stimuli. We
+quantify the merit of a compressed code making use of irregular tuning curves
+by computing the MSE, $\varepsilon_{\text{irr}}^{2}$, and comparing the latter
+with the corresponding quantity in a coding scheme with smooth tuning curves
+as defined in Eq.(\ref{Eq:CosTun}), $\varepsilon_{\text{lin}}^{2}$. We plot
+our results in terms of the `mean percent improvement', $\Delta\varepsilon
+\equiv\left(  \varepsilon_{\text{lin}}-\varepsilon_{\text{irr}}\right)
+/\varepsilon_{\text{lin}}$ \textbf{[it is more usual to use }$\varepsilon
+_{\text{lin}}^{2}$\textbf{ instead of }$\varepsilon_{\text{lin}}$\textbf{;
+what is the reason you took the root?]}. $\Delta\varepsilon$ is positive when
+irregularities favor coding, and at most equal to one (in the extreme case in
+which irregularities allow for error-free coding).
+
+Plotting $\Delta\varepsilon$ as a function of $N$ and $\sigma$, we note the
+existence of a crossover value of $N$, $N^{\ast}$. When $N<N^{\ast}$, small
+values of $\sigma$ induce prohibitively frequent global errors in teh
+compressed (irregular) coding scheme, and linear tuning curves are more
+efficient. For $N>N^{\ast}$, however, irregularities are always advantageous,
+and the more so the smaller the value of $\sigma$. Because global errors are
+supressed exponentially with $N$, $N^{\ast}$ typically takes a moderate value
+(which depends upon the magnitude of the noise); the larger the noise, the
+larger $N^{\ast}$ \textbf{[correct?]} (data not shown).
+
+\bigskip
+
+\textbf{[See my remark above. This should come earlier, when we describe in
+simple terms how the fit was done. The description you give below is
+problematic:\ it is not sufficient to understand what you did or what the
+motivations for this kind of fitting were, but it is also not simple and
+conceptual enough to understand the gist of it. Rework the description of the
+fits, and move it above.}
+
+\textquotedblleft Then, we used the real data to analyse the coding properties
+of the model in a biologically relevant region of parameters space. We tuned
+$\sigma$ to match the distribution of one summary statistics (the same used in
+the paper of \cite{Lalazar2016TuningConnectivity} to fit their model) of the
+data , preprocessing the data such that the tuning curves have 0 mean and unit
+variance, consistently with our model (see Methods). Our aim was not to fit
+perfectly the data (see \cite{Arakaki2019InferringCurvesc} for the problem of
+fitting such an implicit generative models), but to obtain a plausible level
+of irregularities. Despite being simpler, our model, at a non trivial
+$\sigma_{f}$, was able to capture the distribution of the `complexity measure'
+(a measure of the discrete derivative of the response profiles, see Sec.
+\ref{Se:Me}) across the population at a level comparable to the original
+model, which had one parameter more. We also considered another summary
+statistic considered in the original paper, namely the distribution of the
+goodness of fit with a linear model, and we obtained results similar to the
+original model.\textquotedblright\textbf{]}
+
+\bigskip
+
+\textbf{[Currently, Fig. \ref{Fig:6}B does not fit in the flow at all, and is
+not motivated. You have to find a way to discuss it in a way that flows with
+the rest; I don't know where and how it should be placed/discussed---it
+requires some thought.}
+
+\textquotedblleft We analyzed the coding performance of the `fitted' model in
+function of the population size, for different single-neuron noise magnitude
+(Fig. \ref{Fig:6}B). We chose high levels of noise variance because the data
+themselves showed a large trial to trial variability.\textquotedblright%
+\textbf{]}
+
+\bigskip
+
+\textbf{[Same remark for Fig. \ref{Fig:6}C as above for Fig. \ref{Fig:6}B.}
+
+With respect to a linear population, two regions are distinguishable in the
+$N-\eta^{2}$ plane (Fig. \ref{Fig:6}C). For small populations and high levels
+of noise, a smoother code is preferable, since the irregular one is affected
+by global errors; after a critical population size, that increases with higher
+noise variance, the irregular model performs better.\textbf{]}
+
+\bigskip
+
+For a realistic comparison with M1 cells, we had to extract from the data an
+accurate noise model for individual neural response. \textbf{[}%
+\textquotedblleft The recorded cells exhibited noise incompatible with simple
+models commonly used, such as a Poisson model; therefore, we decided to
+extract a mean noise variance for each neuron, and pre-assign this value to
+each neuron in simulations.\textquotedblright\ T\textbf{his is confusing:\ }
+
+\begin{enumerate}
+\item \textbf{You say that it doesn't fit Poisson, but there are a million
+other distributions which could be tested.}
+
+\item \textbf{When you say that it does not fit Poisson, it implies that it
+does not fit the mean-dependence of the noise. But then you say you only
+consider ONE\ noise variance.}
+
+\item \textbf{\textquotedblleft mean noise variance\textquotedblright\ is
+incomprehensible---mean over what?}
+
+\item \textbf{\textquotedblleft pre-assign this value to each neuron in
+simulations\textquotedblright\ is unclear---simply assigning a variance does
+not specify the noise model. Also, \textquotedblleft pre-\textquotedblright%
+\ is unnecessary.}
+\end{enumerate}
+
+\textbf{\noindent You should rework this.]}
+
+The distribution of noise variances in the population is heterogeneous (Fig.
+\ref{Fig:6}D, insect). For each value of $N$, we sampled eight different pools
+of $N$ neurons from the population, and we averaged $\Delta\varepsilon$ over
+pools for a given $N$. We found, as expected, that the relative merit of
+compressed coding (with irregular tuning curves) grows with the population;
+interestingly, when compressed coding becomes advantageous ($\Delta
+\varepsilon>0$ in Fig. \ref{Fig:6}D), the MSE error is still appreciable
+\textbf{[but we don't see this in the plot!\ We should add the curve of the
+MSE in the same plot]}. This means that even though local and global errors
+are balanced, both occur with non-negligible likelihood. $\Delta\varepsilon$
+continues to grow with $N$ until until global errors are suppressed; beyond
+this crossover value, $\Delta\varepsilon$ saturates because in both coding
+scheme (with irregular and linear tuning curves) are dominated by the local
+error. Interestingly, this crossover occurs for $N\approx100$, which coincides
+with the order of magnitude of the number of neurons that control individual
+muscles in this specific task, as estimated from decoding EMG signals from
+individual muscles from subsets of M1 neurons
+\cite{Lalazar2016TuningConnectivity}. In general, given the tuning width of
+neurons in the first layer, $\sigma$, compressed coding with irregular tuning
+curves is advantageous when the second layer is larger than a crossover size,
+$N^{\ast}(\sigma)$ \textbf{[I wonder whether we should not remove this last
+sentence, as it is quite redundant with earlier parts]}.
+
+\subsection{Compressed coding with noisy sensory neurons}
+
+\label{SuSe:In}
+
+Until now, we have considered the presence of response noise only in
+second-layer neurons. In this case, as long as sensory neurons are tiling the
+stimulus space (i.e., unless there are regions in stimulus space that leave
+sensory neurons structly unresponsive), stimuli are perfectly encoded in the
+activity of the first layer, and the MSE in the second layer can be made
+arbitrarily small for sufficiently large \thinspace$N$. \textbf{[}%
+\textquotedblleft(what is called 'tiling property' in
+\cite{Ganguli2014EfficientPopulations,Wei2013TheE}. This scaling have been
+computed numerically in \cite{Berens2011ReassessingFunctions}, and it is
+inversely proportinional to the population size, $\sigma\sim\frac{1}{L}%
+$.\textquotedblright\ \textbf{Do we really need all this?\ Let's discuss.]} If
+sensory neurons are also noisy, then their represent stimuli only up to some
+degree of precision. More imprtantly, because of the (non-sparse) projection
+from the first to the second layer of neurons, independent noise in sensory
+neurons induces correlated noise in representation neurons. If the independent
+noise in sensory neurons is Gaussian with variance equal to $\xi^{2}$, then
+the covariance of the noise in the second layer becomes $\Sigma=\eta
+^{2}\mathbf{I}+\xi^{2}\mathbf{WW^{T}}$. Thus, sensory noise affects the nature
+of the `representation noise', and it is natural to ask how this changes the
+population coding properties.
+
+\textbf{[I think we can remove all this:} \textquotedblleft shared connections
+add a non-diagonal part to the noise covariance matrix which result in the so
+called `information-limiting' correlations
+\cite{Moreno-Bote2014Information-limitingCorrelations}. In
+\cite{Pernice2018InterpretationCircuits} the effect of this type of
+correlations in a two layer feedforward network with layers of equal size is
+explored.\textquotedblright\textbf{]}
+
+As we shall show, in the compression regime ($N\ll L$) on which we focus, the
+kind of correlations generated by sensory noise have a negligible effect on
+the coding performance. Obviously, the introduction of sensory noise degrades
+coding, so the comparison of the noisy and noiseless systems is not very
+telling. Instead, we compare population coding in the presence of the full
+covariance matrix, $\Sigma$, and in the presence of a variance-match, diagonal
+covariance, $\Sigma_{\text{ind}}=(\eta^{2}+\xi^{2})\mathbf{I}$. The latter
+corresponds to a network with noiseless sensory neurons, but enhanced
+inpdependent noise in representation neurons, with variance $\tilde{\eta}%
+^{2}\equiv\eta^{2}+\xi^{2}$. In order to compare our numerical results to
+analytical ones (see below), in our analyses we  consider cases with $\xi
+^{2}\ll\eta^{2}$\textbf{ [why didn't you look at numerics with larger }%
+$\xi^{2}$\textbf{?]}. In numerical studies, we observe, first, that the MSE
+depends only weakly on the noise correlations, as a function of $\sigma$ (Fig.
+\ref{Fig:8}A) and $N$ (Fig. \ref{Fig:8}B); the impact of correlations grows
+with $N$, but at a limited rate (Fig. \ref{Fig:8}B) \textbf{[This part is very
+problematic: when presented like this, it is not clear why Fig. \ref{Fig:8}A
+and B are drawn like this and presented in thsi order. In your draft, you
+never discussed Fig. \ref{Fig:8}A!]} This behavior obtains because noise
+correlations affect primarily local errors, not global errors. \textbf{[}Noise
+correlations shrink the volume of the `cloud' of possible noisy responses, and
+this should reduce the probability of global errors. Nevertheless, given the
+random magnitude of this kind of errors and the fact that they are present
+only at low values of $N$, this effect is very difficult to see systematically
+in numerical simulations. \textbf{I don't find this clear. Can you clarify
+WHY\ global errors are unchanged. (Somehow, here, you say that they ARE
+changed, but that you can't detect it with numerics, which doesn't make
+sense.)]} Local errors can be either suppressed or enhanced by correlated
+noise [cite my review with Fred Rieke].
+
+We can show analytically that, here, the local error is enhanced; from a
+perturbative expansion of the inverse covariance matrix (see Methods for
+details), we obtained that the local contributions to the MSE in orders of
+$\xi^{2}/\tilde{\eta}^{2}$, as \textbf{[is it correct that BOTH\ prefactors
+are }$N/L$\textbf{?]}in case of input noise is given by
+\begin{equation}
+\varepsilon_{l}^{2}=\varepsilon_{l,\text{ind}}^{2}\left(  1+\frac{N}{L}%
+\frac{\xi^{2}}{\tilde{\eta}^{2}}-\frac{N}{L}\frac{\xi^{4}}{\tilde{\eta}^{4}%
+}+\ldots\right)  ,\label{Eq:IN}%
+\end{equation}
+where $\varepsilon_{l,\text{ind}}^{2}$ is the corresponding quantity
+calculated for the reduced covariance matric $\Sigma_{\text{ind}}$ rather than
+the full covariance matrix $\Sigma$. From Eq. (\ref{Eq:IN}), it appears that
+the effect of noise correlations on the MSE is deleterious but scales only
+weakly with $N/L\ll1$. We checked this behavior numerically (Fig.
+\ref{Fig:8}B), and found a good match with the analytical result. We also
+compared the impact of different values of $\xi^{2}$, while keeping the
+effective noise variance, $\tilde{\eta}^{2}$, fixed (i.e., varying the
+relative contribution of input and output noise). Both Eq. (\ref{Eq:IN}) and
+(Fig. \ref{Fig:8}C) indicate that there exist a regime in which increasing
+$\xi^{2}$ in fact mitigates the deletarious effect of the correlated noise
+(this is seen in Eq. (\ref{Eq:IN}) as a partial cancelation of the second- and
+fourth-order terms).
+
+Finally, we ask whether the imact of the noise correlation resulted
+specifically from the form with which sensory noise invests it. To answer this
+question, we examine a network with noiseless sensory neurons, but in which
+representation neurons exhibit correlated Gaussian noise, with a covariance
+matrix that has the same statistic as those of $\Sigma$, but in which the form
+of correlations is not inherited from the network structure through the
+synaptic matrix $\mathbf{W}$; specifically, we consider a random covariance
+matrix, $\Sigma_{\text{rand}}=\tilde{\eta}^{2}\mathbf{I}+\xi^{2}%
+\mathbf{XX^{T}}$, where $X_{ij}\sim\mathcal{N}(0,1/L)$. In this case, noise
+correlations \textit{suppress} the MSE as compared to the independent case
+(with $\Sigma_{\text{ind}}$), because the `cloud' of possible noisy responses
+is reoriented randomly with respect to the manifold of mean responses.
+Analytically, the analog of Eq. (\ref{Eq:IN}) for the case of covariance
+matrix given by $\Sigma_{\text{ind}}$ is similar, but skips the lowest-order,
+deleterious term:
+\begin{equation}
+\varepsilon_{l,\text{rand}}^{2}\approx\varepsilon_{l,\text{ind}}^{2}\left(
+1-\frac{N}{L}\frac{\xi^{4}}{\tilde{\eta}^{4}}\right)  .\label{Eq:Rand}%
+\end{equation}
+This result, as well as numerical simulations (Fig. \ref{Fig:8}C), demonstrate
+that generically coding is improved by random noise correlations, and that
+this imporvement increases with $N$ and with $\xi^{2}$. In sum, noise
+correlations in representation neurons are deleterious if they are inherited
+the noise in sensory neurons---yet, the effect is quantitatively modest.
+
+\section{Discussion}
+
+We analyzed the coding properties of a population of neurons going beyond
+classical models of tuning curves, by describing their irregular response
+profiles as the result of an unstructured connectivity. In function of the
+spatial scale of the irregularities, governed by the first layer tuning
+properties, this network interpolates between a locally accurate coding
+scheme, but prone to catastrophic errors, and a smoother one, more robust to
+noise. By extending the model to handle multi-dimensional stimuli, we explored
+more possible criteria for the relative advantage of `pure' and `conjunctive`
+selectivity, recently discussed in
+\cite{Finkelstein2018OptimalBats,Harel2020OptimalConstraints}.
+
+In particular, one instance of this model for 3-dimensional stimuli, may
+explain the large degree of irregularity found in tuning curves of monkey
+motor cortex \cite{Lalazar2016TuningConnectivity}. We illustrated the
+advantage of such irregularities in coding performance, through the comparison
+of a neural population generated by our model, fitted to experimental data,
+and one with an homogeneous, smooth description of tuning curves
+\cite{Wang2007MotorReaching}. \todo{I would like to discuss with
+someone more expert in recurrent neural networks this analogy, to see if
+effectively the limited capacity can be explained through global errors}
+Another plausible instantiation of our model is in the context of working
+memory. \cite{Bouchacourt2019AMemory} proposed and analyzed a model in which
+external inputs, represented by Gaussian `bumps' of activities in a sensory
+layer (very similar to our network of `pure' cells), are maintained when
+stimuli are removed thanks to (recurrent) random interactions with an
+unstructured layer. The tuning curves obtained in this layer closely resemble
+the complex ones obtained in our model. In this context, the randomness of the
+connections allows the flexibility of the working memory (any input can be
+maintained), but also limits its capacity (performance decreases when multiple
+stimuli have to be maintained).
+
+\textbf{Combinatorial codes and randomness.} At the optimal network
+configuration, the error decreases exponentially fast with the number of
+neurons, similarly to what found in grid cells
+\cite{Sreenivasan2011GridComputation}; using their proposed definition, the
+random coding scheme of neurons in the second layer is an `exponentially
+strong population code'. This is somehow not surprising;
+\cite{Shannon1949CommunicationNoise} proposed an interpretation of any
+communication system as a map between points in the space of \emph{messages}
+(stimuli in our case) to points in the space of \emph{signals} (patterns of
+neural activity), which are sent to the receiver. By `filling' the space of
+signals with this map, meaning that many available signals actually have a
+correspondance to one encoded message, the dynamic range of the coding scheme
+increases. Nevertheless, this `signal space filling` map has to be such that
+the noise does not create large scale ambiguities in the messages represented
+(\emph{threshold effect}, global errors in our case). Astonishingly it was
+showed that, in Gaussian channels and with discrete messages, a random
+association between the space of messages and the space of signal was able to
+achieve optimal transmission capacity. Moreover, the existence in the brain of
+distributed codes with high (exponential) capacity, and without any evident
+structure, has been showed in the context of discrete stimuli
+\cite{Abbott1996RepresentationalMonkeys}. Population of neurons in cortex show
+a great diversity in the response to face stimuli, and this allows a
+population of $N$ neurons to encode exponentially many faces. We extended
+these ideas to continuous stimuli. This introduces a notion of magnitude of
+errors, not present in the context of discrete stimuli, where the task is
+simply to discriminate between two different stimuli. This give rise to the
+trade-off between local and global errors, constraining the smoothness of the
+random code.
+
+\textbf{Population coding and geometry of neural responses.} Previous studies
+considered the coding properties of neural populations characterized by
+homogeneous, translational invariant tuning curves, sometimes with noise in
+the parameters describing them
+\cite{Shamir2006ImplicationsCoding,Fiscella2015VisualNeurons}. Even in more
+recent studies
+\cite{Ganguli2014EfficientPopulations,Yerxa2020EfficientStimuli}, which
+analyzed the influence of the prior over stimuli on the optimal arrangement of
+tuning functions, an homogeneous population of neurons is firstly defined and
+then warped accordingly. In this paper, we illustrated the enhanced coding
+properties of neurons with more complex and heterogeneous tuning curves. More
+generally, our approach can be viewed as a step towards the so-called `neural
+populations doctrine' \cite{Saxena2019TowardsDoctrine}: the study of the joint
+activity of the population reveals more than the analysis of single neurons
+selectivity, indicating that neural populations are more than simply the sum
+of their parts. Within this view, a central object of study is the geometry
+described by their joint activity (Fig. \ref{Fig:1}A,C), in function of
+external stimuli, and its implications for coding
+\cite{Kobak2019State-dependentCortex}. As an example,
+\cite{Fusi2016WhyCognition} illustrated a possible computational advatnage of
+neurons which are sensitive, in a complex fashion, to multiple stimulus
+parameters, a feature which is called `mixed selectivity'
+\cite{Rigotti2013TheTasks}. In these neurons, the evoked neural
+representations are high-dimensional, and therefore more `readable' with
+simple methods (like linear decoders). Random connectivity has been proposed
+as a method for generating this mixed selectivity
+\cite{Barak2013FromDiscrimination,Lindsay2017HebbianCortex}, and when
+considering multi-dimensional stimuli, the tuning curves that we obtain in the
+second layer are compatible with this framework.
+
+In recent work, \cite{Stringer2019High-dimensionalCortex} showed that the
+manifold evoked by the joint neural activity of neurons in V1 had a
+fractal-like structure, with progressively less coding resources employed to
+encode finer details of the stimulus. Such an arrangement was suggested to
+balance the accuracy, given by fine scale irregularities, and the
+noise-robustness, given by smoother manifolds. In our work, by tuning $\sigma$
+, we effectively vary the `intrinsic dimensionality' of the coding manifold,
+intended as the minimum number of coordinates needed to describe it (varying
+between $\sim N$ in case of random responses and $\sim2$ in case of
+single-loop manifold). The kind of manifold generated by our network are
+compatible with the definition of `random Gaussian manifolds'
+\cite{Gao2017AMeasurement,Lahiri2016RandomManifolds}. This type of manifolds
+are of theoretical interest, because they saturate the upper bound on the
+intrinsic dimensionality, given the `smoothness' constraints (which can be
+measured experimentally, as the autocorrelation length of responses
+variability in function of stimulus parameters). Thanks to this property, they
+can be used as null model to quantify the dimensionality of neural
+trajectories in experimental data.
+
+\textbf{Criteria for faithful coding and decoders.} In order to compute the
+optimal coding properties of the network, we used the error in the stimulus
+estimate as obtained from an ideal decoder. The use of this loss function is
+justified in information theory \cite{Cover2005ElementsTheory} and
+neuroscience \cite{Dayan2001TheoreticalSystems, Salinas1994VectorRates}.
+Nevertheless, due to the difficulty in treating analytically the MSE, several
+studies treated the Fisher information, which, according to the Cramer-Rao
+inequality, sets a lower bound to the variance of an unbiased estimator. Even
+when considering other information theory related quantities, like the mutual
+information, approximations involving the Fisher information are used
+\cite{Brunel1998MutualCoding,Wei2016MutualCoding,Huang2019ApproximationsCoding}%
+. Nevertheless, Fisher information is a local quantity, which fails in keeping
+into account global errors, which are relevant in this scheme; therefore its
+use, in this context, may lead to wrong conclusions about the optimal coding
+parameters
+\cite{Bethge2002OptimalFails,Berens2011ReassessingFunctions,Yaeli2010Error-basedNeurons}%
+.
+
+In our work, a strong assumption is made regarding the decoder: it is supposed
+to know the mean responses and the noise variance. The log posterior of a
+stimulus, given a response, is computed through a linear filter of the
+response (with weights given by the tuning curves), plus a bias term (also
+dependent from the tuning curves). By applying an exponential non linearity,
+we can use this quantity to compute the average of stimuli weighted by their
+posterior distribution, obtaining therefore the Minimum-MSE. All the implied
+operations, linear filtering, non linearity and normalization, have been
+assumed as canonical computations in neural circuits
+\cite{Deneve1999ReadingObservers,Carandini2012NormalizationComputation,Kouh2008AOperations}%
+. The form of this decoder is very similar to the Population Vector, with the
+difference that stimuli are weighted not according to a `preferred position',
+but according to the response of one layer, which computes their posterior
+distribution. For this similarity, \cite{Ganguli2014EfficientPopulations}
+called a similar type of decoder `Bayesian Population Vector'. Finally, we
+notice that with respect to their setting, we had to add a bias term to the
+linear filtering, due to the employed noise model (see also
+\cite{Ma2006BayesianCodes,Jazayeri2006OptimalPopulations}). Although
+ubiquitous in the literature, it is not clear how this ideal decoder can be
+learnt. If the decoder is learnt in a supervised setting with noisy responses,
+the presence of global errors, where similar patterns of activity correspond
+to different labels, will probably have an impact on the learning process.
+Therefore, beyond criteria for optimal encoding, global errors and small scale
+irregularities will also affect the `learnability' of the underlying map
+between stimuli and neural responses.
+
+\textbf{Compressed sensing.} Random connectivity has been proposed in problems
+of \emph{expansion} of dense neural patterns
+\cite{Babadi2014SparsenessRepresentations,Barak2013FromDiscrimination,Lindsay2017HebbianCortex,Maoz2020LearningCircuits,Litwin-Kumar2017OptimalConnectivity}
+as a method to generate high-dimensional, sparse representations, which
+facilitate the readout in downstream areas. Nevertheless, random connectivity
+has been showed to possess good properties also in terms of \emph{compression}
+of high dimensional, sparse signals. In this paper, we considered the problem
+of transmission of a low-dimensional variable, $x$, encoded in a
+high-dimensional representation, the activity of $L$ neurons, using a small
+number of `measurements', the firing rate of $N$ neurons. This framework
+closely resemble the one of Compressed Sensing
+\cite{Donoho2006CompressedSensing}. One of the key result in this field is
+that, given a high ($L$)-dimensional signal, which is $K$ -sparse in some
+basis (meaning that is possible to write it as a vector with only $K$
+components different from $0$), it is possible to reconstruct it using a
+number of noisy `measurements' (linear projections) which scales only
+logarithmically with the dimensionality, $N > O(K \log{(L/K)}$ . Importantly,
+this result can be achieved with random measurements matrices
+\cite{Candes2006Near-optimalStrategies}. Within our framework , we obtain a
+similar result inverting the Eq.(\ref{Eq:PGE}) to compute the minimal number
+of random projections, $N$, such that it is possible to decode the $L$ stimuli
+with a given error probability. This number grows only logarithmically with
+the number of stimuli. Nevertheless, there are some relevant differences. In
+Compressed Sensing the task is to reconstruct the high-dimensional vector,
+measuring the goodness of reconstruction as the distance between the original
+signal and the reconstructed one. We are not interested in the reconstruction
+of the high-dimensional pattern of activity of the first layer, but rather in
+obtaining a `close estimate` of the low dimensional variable which evoked it.
+This complicates the loss function, which presents the two contributions.
+
+Compressed sensing attracted a lot of attention in the neuroscience field
+\cite{Ganguli2012CompressedAnalysis}; the brain has to store and transmit
+information, either from high-dimensional external stimuli or by processing
+high-dimensional neural activity. Often, this is complicate by converging
+pathways, or `bottlenecks', where small populations have to process the
+activity of larger ones; compressed sensing offers a framework to study this
+type of processes. For example, it has been applied to study the coding
+properties of olfactory neurons. Few hundreds of neurons can encode the
+information about thousands of odors, taking advantage of the fact that odors
+are sparse combinations of molecules; this selectivity has no evident
+structure, and models with random connectivity successfully explained some
+response features found in the olfactory system
+\cite{Stettler2009RepresentationsCortex,Zhang2016ASystem,Qin2019OptimalActivity}%
+.
+
+The connectivity structure and its underlying function are deeply linked.
+Connectivity data allowed to build precisely constrained models
+\cite{Litwin-Kumar2019ConstrainingDiagrams} and to elucidate the mechanisms
+underlying specific functions \cite{Kim2014Space-timeRetina}. From the
+theoretical point of view, artificial neural network after training embed the
+structure of the task they are trained for in the connectivity structure
+\cite{Farrell2020AutoencoderConnectomes}; it is therefore unlikely that all
+synapses in the brain are randomly distributed. Nevertheless, the
+computational power and flexibility of neural networks with random
+connectivity, together with the large complexity of the brain, suggest that
+there may be some neural circuits which are `unstructured'. In this paper we
+showed how random connectivity give rises to complex tuning curves with
+interesting coding properties. More generally, we proposed a new angle on
+efficient population coding beyond classical models with simple, structured
+tuning curves, including the large diversity and richness of biological systems.
+
+\section{Methods}
+
+\label{Se:Me} Throughout the paper, bold letters denote vectors $\mathbf{r} =
+\{r_{1},r_{2},...,r_{N} \}$, $\left\|  \mathbf{r} \right\| _{2}^{2} = \sum_{i}
+r_{i}^{2}$ represents the $L_{2}$ norm, capital bold letters $\mathbf{W}$
+denote matrices. Numerical simulations and data analysis were done using Julia
+language \cite{Bezanson2017Julia:Computing}.
+
+\subsection{Model description: 1-dimensional stimulus}
+
+\textbf{Random Feedforward Network.} We considered a two layer architecture. A
+1-dimensional stimulus, $x$ is encoded by a sensory layer of $L$ neurons,
+indexed by $j$, with Gaussian tuning curves centered on a preferred stimulus
+$c_{j}$. This layer projects onto a layer of $N$ neurons ($N<L$) with normally
+distributed random weights: \footnote{In the following, all the computations
+are done for a 1-dimensional linear stimulus encoded by Gaussian tuning
+curves. At the same time, we will often assume translational invariance; this
+will unavoidably introduce edge effects. A more rigorous way would be to
+consider a circular stimulus and von Mises tuning curves in the first layer:
+\[
+u_{j}(x) = \frac{1}{Z} exp(\mathcal{K} cos(2\pi(x-c_{j}))).
+\]
+This complicates the form of the correlation function and it would require a
+modification of the error function. Anyway, we considered regimes where
+$\mathcal{K}$ is large and the von Mises function can be approximated locally
+as a Gaussian with width $\sigma^{2} = \frac{1}{\mathcal{K}}$. In the regimes
+of $\sigma$ considered in the simulations, and considering that $L$ is very
+large, the edge effects are small and simulations with circular stimulus did
+not change qualitatively the results.}
+\begin{equation}%
+\begin{split}
+u_{j}(x)  & = \frac{1}{Z} \exp\Big(-\frac{(x-c_{j})^{2}}{2 \sigma^{2}%
+}\Big) \qquad j = 1,...,L,\\
+v_{i}(x)  & =\sum_{j=1}^{L} W_{ij} u_{j}(x) \qquad i =1,...,N,\\
+W_{ij}  &  \sim\mathcal{N}(0,\frac{1}{L}).
+\end{split}
+\label{Eq:RFFN}%
+\end{equation}
+Without loss of generality, we can restrict the stimulus space to be
+$x\in[0,1]$. In this way, the `dynamic range' , defined as the ration between
+the range of stimuli and the accuracy, is simply the inverse of the error. We
+considered stimuli to be uniformly distributed (flat prior), and,
+consequently, an uniform arrangement of neurons' preferred positions in the
+stimulus space, $c_{j} = \frac{j}{L}$. \newline\newline\textbf{Constraints.}
+$Z$ is a normalization constant; for different widths, we chose to constrain
+the variance of responses of second layer neurons across all stimuli, $R$. For
+each neuron, this quantity depends from the specific realization of the
+synaptic weights, therefore we imposed the constraint on average. Namely:
+\begin{equation}%
+\begin{split}
+R & = \Big\langle \int_{0}^{1} dx \Big(v_{i}(x) - \int_{0}^{1} dx v_{i}(x)
+\Big)^{2} \Big\rangle_{W}\\
+& =\Big \langle \int_{0}^{1} dx \Big(\sum_{j} W_{ij} u_{j}(x) - \big(\int%
+_{0}^{1} dx \sum_{j} W_{ij} u_{j}(x) \big)^{2} \Big)^{2} \Big\rangle_{W}\\
+& = \Big\langle \sum_{jj^{\prime}} W_{ij} W_{ij^{\prime}}\int_{0}^{1} dx
+u_{j}(x)u_{j^{\prime}}(x)\Big\rangle_{W} +\Big\langle \sum_{jj^{\prime}}%
+W_{ij}W_{ij^{\prime}}\int_{0}^{1} dx u_{j}(x) \int_{0}^{1} dx u_{j^{\prime}%
+}(x)\Big \rangle_{W}.\\
+\end{split}
+\end{equation}
+where $\langle\dots\rangle_{W}$ denotes the mean over the synaptic weights. We
+used the approximation $\int_{0}^{1} dx \exp\Big(-\frac{(x-c_{j})^{2}}{2
+\sigma^{2}}\Big) \approx\sqrt{2\pi\sigma^{2}}$, which is valid if $c_{j}$ is
+sufficiently far from the borders and $\sigma$ is small (this will introduce
+some edge effects, negligible in the regime of $\sigma$ and $L$ we
+considered). Using also the fact that weights are statistically independents
+and have zero mean, $\langle W_{ij}W_{ij^{\prime}} \rangle= \frac{1}{L}%
+\delta_{jj^{\prime}}$ , we obtain the condition on $Z$ :
+\begin{equation}
+Z^{2} = \frac{\sqrt{\pi\sigma^{2}} - 2\pi\sigma^{2}}{R}.
+\end{equation}
+In the following, we will often use an approximation for small widths: $Z^{2}
+\approx\frac{\sqrt{\pi\sigma^{2}}}{R}$. Finally, note that we could have
+simply re-scaled the variance of the synaptic weights, but we preferred to
+keep separated this two contributions. \newline\newline\textbf{Gaussian
+Processes analogy.} If we assume that the spacing between preferred positions
+is small, we can approximate the sum in Eq.(\ref{Eq:RFFN}) with a convolution
+integral of a random noise process (the synaptic weights) with a smoothing
+kernel (the tuning curves of first layer neurons)\footnote{This is a delicate
+integral to treat, as it is not properly defined. One should pass through Ito
+integration and Ito isometry properties to define this object rigourously.}:
+\[
+v_{i}(x) =\sum_{j=1}^{L} W_{ij}u_{j}(x) \approx L \int_{0}^{1} dc_{j}
+u(c_{j}-x) W_{i}(c_{j}).
+\]
+This gives rise to a Gaussian process, as described in
+\cite{Higdon2002SpaceConvolutionsb,Rasmussen2004GaussianLearning}. Computing
+the covariance function is straightforward:
+\begin{equation}%
+\begin{split}
+\langle v_{i}(x)v_{i}(x^{\prime}) \rangle_{i}  & = \Big\langle \sum_{j}
+W_{ij}W_{ij^{\prime}} u_{j}(x)u_{j^{\prime}}(x^{\prime}) \Big\rangle_{i} =
+\frac{1}{Z^{2}} \sum_{j} \frac{1}{L}\delta_{jj^{\prime}}\exp\Big(-\frac
+{(x-c_{j})^{2}}{2\sigma^{2}} \Big) \exp\Big(-\frac{(x^{\prime}-c_{j^{\prime}%
+})^{2}}{2\sigma^{2}}\Big)\\
+& \approx\frac{1}{Z^{2} } \int dc_{j} \exp\Big(-\frac{(x-c_{j})^{2} +
+(x^{\prime}-c_{j})^{2}}{2\sigma^{2}}\Big).
+\end{split}
+\end{equation}
+Assuming translational invariance across all stimulus space, we obtain that
+the tuning curves are described by samples from a 1-dimensional Gaussian
+process with 0 mean and Gaussian kernel with correlation length $\sqrt
+{2}\sigma$:
+\begin{equation}%
+\begin{split}
+\langle v _{i} (x )\rangle & =0\\
+K(x,x^{\prime}) = \langle v_{i}(x)v_{i}(x + \Delta x )\rangle & \approx
+\frac{\sqrt{\pi\sigma^{2}}}{Z^{2}} e^{-\frac{\Delta x^{2}}{4 \sigma^{2}}}.
+\end{split}
+\end{equation}
+This network maps the 1-dimensional stimulus space $[0,1]$ onto a
+1-dimensional manifold embedded in the $N$ dimensional space of neurons'
+activity. The coordinates of this manifold are described by $N$ independents
+samples of the aforementioned Gaussian process. This corresponds to the
+definition of "Random Gaussian Manifold" proposed in
+\cite{Lahiri2016RandomManifolds,Gao2017AMeasurement}. \newline\newline
+
+\subsection{Coding - decoding process}
+
+\textbf{Noise Model.} We considered an isotropic Gaussian model for the noise
+affecting second layer neurons. At each trial, the vector of responses to a
+given stimulus $x$ is given by
+\begin{equation}
+\mathbf{r} = \mathbf{v}(x) + \mathbf{z },\label{Eq:r}%
+\end{equation}
+where $\mathbf{z}$ is a noise vector of independent Gaussian entries with a
+fixed variance, $\mathbf{z} \sim\mathcal{N}(0,\eta^{2}\mathbf{I})$. The
+likelihood of a response vector given a stimulus (for a fixed realization of
+the synaptic weights) can be written as
+\begin{equation}
+p(\mathbf{r}|x) = \frac{1}{(2\pi\eta^{2})^{N/2}} \exp\Big(- \frac{\left\|
+\mathbf{r}-\mathbf{v}(x)\right\| _{2}^{2}}{2\eta^{2}} \Big).\label{Eq:L}%
+\end{equation}
+The error will be governed by the Signal to Noise Ratio ($SNR= \frac{R}%
+{\eta^{2}}$); we set the variance of the responses $R=1$ and we varied
+$\eta^{2}$ to explore different noise regimes. The noise model can be extended
+to include correlations in the noise affecting different neurons. Denoting
+with $\Sigma$ the full noise covariance matrix, the likelihood of the neural
+response in second layer neurons can be written as a multivariate gaussian
+distribution,
+\begin{equation}
+p(\mathbf{r}|x) = \frac{1}{(2\pi)^{N/2}(\text{det}(\Sigma)^{1/2}}
+\exp\Big(-(\mathbf{r} - \mathbf{v}(x))^{T}\Sigma^{-1}(\mathbf{r} -
+\mathbf{v}(x)) \Big).\label{Eq:LIn}%
+\end{equation}
+\newline\newline\textbf{Loss function and decoder.} We used the Mean Squared
+Error (MSE) in stimulus estimate as loss function to measure the coding
+properties of the neural population. An estimator (or decoder), $\hat
+{x}(\mathbf{r})$, is a function that takes in input a noisy response and
+output an estimate of the stimulus that evoked it. Given a decoder, the MSE is
+defined as
+\begin{equation}
+\varepsilon^{2} = \int dx \int d\mathbf{r} p(\mathbf{r}|x) (\hat{x}%
+(\mathbf{r}) -x)^{2}.\label{Eq:MSE}%
+\end{equation}
+We will consider the MSE averaged over network realizations, $\langle
+\varepsilon^{2}\rangle_{W}$; in order to show a quantity which has the same
+measurements units of the stimulus, we often plotted the Root-MSE
+$\varepsilon= \sqrt{\langle\varepsilon^{2}\rangle_{W}}$. This quantity is
+generally hard to compute, even knowing a closed form for the estimator. In
+numerical simulations we computed this integral with standard Monte Carlo
+method. At each step we extracted a set of $L$ stimuli (one for each preferred
+position of the first layer neurons) from the uniform distribution and we
+generated the noisy responses. We then passed the noisy responses through an
+ideal decoder (see below) and we updated the error estimate. We iterated this
+process until when the MSE estimate was within a tolerance of $10^{-7}$ in the
+last 50 steps, after 100 steps of relaxation.
+
+The estimator which minimizes the MSE is called Minimal Mean Squared Error
+estimator (MMSE), and it is given by the average of the posterior
+distribution. Using Bayes theorem, we obtain that the posterior is simply
+proportional to the likelihood due to the choice of uniform prior, and the
+MMSE estimator can be written as
+\begin{equation}
+\hat{x}_{MMSE} = \int_{0}^{1} dx p(x| \mathbf{r}) x = \frac{\int_{0}^{1} dx x
+p(\mathbf{r}|x)}{\int_{0}^{1} dx p(\mathbf{r}|x)}.
+\end{equation}
+This function can be approximated by a simple neural network. Discretizing the
+stimulus space in $M$ values, $x_{m} = \frac{m}{M}$, and substituting the
+expression for the likelihood, Eq.(\ref{Eq:L}), we can approximate the
+integrals as discrete sums
+\begin{equation}%
+\begin{split}
+\hat{x}  & = \frac{\sum_{m} x_{m} p(\mathbf{r}|x_{m})}{\sum_{m} p(\mathbf{r}%
+|x_{m})} = \frac{\sum_{m} x_{m} \exp{\Big(-\frac{\sum_{i} r_{i}^{2} +
+v_{i}^{2}(x_{m}) - 2v_{i}(x_{m})r_{i}}{2\eta^{2}}}\Big)}{\sum_{m}
+\exp{\Big(-\frac{\sum_{i} r_{i}^{2} + v_{i}^{2}(x_{m}) - 2v_{i}(x_{m})r_{i}%
+}{2\eta^{2}}}\Big)}\\
+&  = \frac{\sum_{m} x_{m} \exp{\Big(\frac{\sum_{i} 2v_{i}(x_{m})r_{i}%
+-v_{i}^{2}(x_{m}) }{2\eta^{2}}}\Big)}{\sum_{m} \exp{\Big(\frac{\sum_{i}
+2v_{i}(x_{m})r_{i}-v_{i}^{2}(x_{m}) }{2\eta^{2}}}\Big)},
+\end{split}
+\end{equation}
+where we removed $\sum_{i} r_{i}^{2} $, common to both numerator and
+denominator. A layer of $M$ neurons can compute the likelihood function for
+different stimuli $x_{m}$. Calling $\mathbf{\lambda}$ the connectivity matrix
+between the $N$ neurons of the output layer and the $M$ neurons of the
+decoder, its entries are proportional to the true responses to the preferred
+stimulus of the decoder neurons: $\lambda_{mi} = \frac{v_{i}(x_{m})}{\eta^{2}%
+}$. The sum is passed through an exponential non linearity with the addition
+of a bias term $b_{m} = \sum_{i} \frac{v_{i}(x_{m})^{2}}{2\eta^{2}}$ , to
+obtain the output of a single neuron $h_{m} = \exp{\Big(\sum_{i} \lambda
+_{mi}r_{i} - b_{m}\Big)}$. This layer could implement a winner-take-all
+dynamics to output the maximum a posteriori (MAP) estimator:
+\begin{equation}
+\hat{x} = \argmin_{x} \left\| \mathbf{r}-\mathbf{v}(x)\right\| _{2}^{2} =
+\argmax_{x_{m}}h_{m}.\label{Eq:ML}%
+\end{equation}
+Alternatively, the output of each neuron can be weighted according to its
+preferred stimulus (with the addition of a divisive normalization ) to obtain
+the MMSE estimator
+\begin{equation}
+\hat{x} = \frac{\sum_{m} x_{m} h_{m}}{\sum_{m} h_{m}}.\label{Eq:Dec}%
+\end{equation}
+In numerical simulations, we adopted for the decoder the same discretization
+of the stimulus of the first layer, using $M=L$ and spacing uniformly the
+preferred stimuli $x_{m}$. Note that the decoder is ideal, since it is assumed
+to know the true responses and the variance of the noise. The same decoder can
+be extended to decode responses of neurons with different noise variances
+(Fig. \ref{Fig:6}D), with the following modifications $\lambda_{mi} =
+v_{i}(x_{m})/(2\eta_{i}^{2})$, $b_{m} = \sum_{i} v_{i}(x_{m})^{2}/(2\eta
+_{i}^{2})$.
+
+Similarly, also a non-diagonal noise covariance matrix $\Sigma$ can be
+treated, with the difference that the decoding weights and biases are now
+correlated: $\mathbf{\lambda}_{m} = \mathbf{v}^{T}(x_{m})\Sigma^{-1}$, $b_{m}
+= \mathbf{v}^{T}(x_{m})\Sigma^{-1}\mathbf{v}(x_{m})$, where $\lambda_{m}$
+denotes the $m$-th row of $\lambda$. In order to estimate the scaling of the
+error, in the following sections we will often use the MAP estimator, since it
+has an easier geometrical interpretation (minimal distance). In the main text
+we showed results for the optimal decoder (MMSE), but the performances for the
+two are very similar. \newline\newline
+
+\subsection{Errors' computation}
+
+\textbf{Narrow tuning curves.} If $\sigma\rightarrow0$, the first layer
+neurons respond only to their preferred stimulus. For this extreme case, we
+suppose that the stimulus can assume only $L$ discrete values, $x_{j} =
+\frac{j}{L}$. The responses of the second layer neurons are given by
+$v_{i}(x_{j}) = W_{ij}$, with $W_{ij} \sim\mathcal{N}(0,1) $, and are
+uncorrelated for different stimuli. Let's denote with $p_{e}(\mathbf{r}|x) =
+p(\mathbf{r}|x)\Theta(|\hat{x}-x|)$ the (conditioned) probability density
+function that the noise will produce an error, where we introduced the
+Heaviside function $\Theta(x) = 1$ only if $x>0$ (and 0 otherwise). We notice
+that, taking the average over the synaptic weights, the magnitude of the error
+is uncorrelated with its probability and no more depends on the specific
+realization of the noise $\mathbf{r}$. The average MSE can be rewritten as%
+
+\begin{equation}%
+\begin{split}
+\langle\varepsilon^{2} \rangle_{W} \approx & \ \frac{1}{L}\sum_{x} \int
+d\mathbf{r} \langle p_{e}(\mathbf{r}|x)\rangle_{W} \langle(\hat{x}(\mathbf{r})
+-x )^{2}\rangle_{W}\\
+& =\langle P(\varepsilon)\rangle_{W} \langle\frac{1}{L}\sum_{x} (\hat
+{x}-x)^{2}\rangle_{W},\label{Eq:PE}%
+\end{split}
+\end{equation}
+where $\langle P(\varepsilon)\rangle_{W} = \langle\int d\mathbf{r}
+p_{e}(\mathbf{r}|x)\rangle_{W}$ is the average probability that, given a
+stimulus, the noise will cause an error in its estimate; despite the notation,
+it does not depend from the specific value of $x$. This formula has an
+intuitive interpretation: the average MSE is the mean probability of having an
+error on a stimulus multiplied the mean error magnitude. Let's suppose now to
+estimate the stimulus through a ML decoder, Eq.(\ref{Eq:ML}): we will obtain
+an error if there exists at least one $x^{\prime}$ such that $\left\|
+\mathbf{r}-\mathbf{v}(x^{\prime}) \right\| _{2}^{2} < \left\|  \mathbf{r}%
+-\mathbf{v}(x)\right\| _{2}^{2}$. Since, averaging over the synaptic weights,
+all $x^{\prime}$ have the same probability to cause such an error, the average
+size of the squared error will be%
+
+\begin{equation}
+\left\langle \frac{1}{L}\sum_{x} (\hat{x}-x)^{2}\right\rangle _{W} =\frac
+{1}{L^{2}}\sum_{j=1}^{L} \sum_{j^{\prime}=1}^{L} \left( \frac{j^{\prime}}%
+{L}-\frac{j}{L}\right) ^{2} \approx\frac{1}{6},
+\end{equation}
+where the last approximation holds for large $L$. The average probability of
+error can be expressed in terms of the probability of the complementary event
+\begin{equation}
+\langle P(\varepsilon)\rangle_{W} = 1 - \left\langle P\Big(\left\|
+\mathbf{r}-\mathbf{v}(x^{\prime})\right\| _{2}^{2} >\left\|  \mathbf{r}%
+-\mathbf{v}(x)\right\| _{2}^{2}) \quad\forall x^{\prime}\neq
+x\Big) \right\rangle _{W}.
+\end{equation}
+Averaging over different realizations of the synaptic matrix, the probability
+of not having an error on $x^{\prime}$are i.i.d for different $x^{\prime}$,
+and we can write
+\begin{equation}%
+\begin{split}
+\langle P(\varepsilon)\rangle_{W}  & = 1 - \left( 1 - \left\langle P\left(
+\left\|  \mathbf{r}-\mathbf{v}(x^{\prime})\right\| _{2}^{2} < \left\|
+\mathbf{r}-\mathbf{v}(x)\right\| _{2}^{2} \right) \right\rangle _{W}\right)
+^{L-1}\\
+&  \approx L \left\langle P\Big(\sum_{i} \big(v_{i}(x^{\prime}) -v_{i}%
+(x)\big)^{2} + z_{i}^{2} - 2\big(v_{i}(x)-v_{i}(x^{\prime})\big)z_{i} <
+\sum_{i} z_{i}^{2} \Big) \right\rangle _{W},
+\end{split}
+\end{equation}
+where we explicitly substituted Eq.(\ref{Eq:r}), we supposed that the average
+probability of having an error is small (much smaller than $\frac{1}{L}$), and
+we considered $L-1 \approx L$. With the specified distribution of synaptic
+weights, the average difference between the response of the same neuron to two
+different stimuli $\tilde{v_{i}} = v_{i}(x)-v_{i}(x^{\prime}) = W_{ij}%
+-W_{ij^{\prime}}$ is normally distributed with variance equal to 2. Finally,
+averaging also over the noise distribution, we obtain%
+
+\begin{equation}
+\langle P(\varepsilon)\rangle_{W} \approx L \int\prod_{i} d \tilde{v}_{i}
+\prod_{i} dz_{i} p(\tilde{v}_{i}) p(z_{i}) \Theta\left( -\sum_{i} \tilde
+{v}^{2}_{i} +2\sum_{i} \tilde{v}_{i} z_{i}\right) .
+\end{equation}
+
+
+We have to compute the probability that the quantity $\tilde{d} = \sum_{i}
+\tilde{v}_{i}^{2} - 2\tilde{v}_{i} z_{i}$ is less than 0, where $\tilde{v}_{i}
+\sim\mathcal{N}(0,2)$ and $z_{i} \sim\mathcal{N}(0,\eta^{2})$. We can notice
+that, fixing $\lambda= \sum_{i} \tilde{v}^{2}_{i}$, the conditioned quantity
+$\tilde{d}|\{\tilde{v}_{i}^{2}\} \sim\mathcal{N}(\lambda,4\lambda\eta^{2}) $
+is normally distributed. Therefore, using the definition of error function, we
+can rewrite the error probability as
+\begin{equation}%
+\begin{split}
+\langle P(\varepsilon)\rangle_{W}  & \approx L\int_{0}^{\infty}d\lambda
+p(\lambda) \int_{-\infty}^{0} d\tilde{d} p(\tilde{d}|\lambda)\\
+& = \frac{L}{2}\int_{0}^{\infty}d\lambda p(\lambda)
+\erfc{\Big(\sqrt{\frac{\lambda}{8\eta^2}}\Big)},
+\end{split}
+\end{equation}
+where $p(\lambda) = \frac{(\frac{\lambda}{2})^{\frac{N}{2}-1}exp(-\frac
+{\lambda}{4})}{2^{\frac{N}{2}+1} \Gamma(N/2)}$ is the probability density
+function of a Chi-squared distribution.
+
+Computing this integral, we obtain
+\begin{equation}%
+\begin{split}
+\langle P(\varepsilon)\rangle_{W}  & \approx L \frac{(\frac{\eta^{2}}%
+{2})^{\frac{N}{2}}\Gamma(N)}{\Gamma(\frac{N}{2})} {}_{2}\tilde{F}_{1}(\frac
+{N}{2},\frac{1+N}{2},\frac{2+N}{2},-2\eta^{2})\\
+& =L \frac{(\frac{\eta^{2}}{2})^{\frac{N}{2}}\Gamma(N)}{\Gamma(\frac{N}%
+{2})\Gamma(\frac{2+N}{2})}\sum_{n=0}^{\infty}\frac{(\frac{N}{2})_{n}
+(\frac{N+1}{2})_{n}}{(\frac{N+2}{2})_{n} n!} (-2\eta^{2})^{n},
+\end{split}
+\end{equation}
+where ${}_{2}\tilde{F}_{1}(a,b,c,x)$ is the regularized 2F1 Hypergeometric
+function and we substituted its definition. The Pochammer symbol is also
+defined through Gamma functions $(x)_{n} = \frac{\Gamma(x+n)}{\Gamma(x)}$.
+Simplifying and using the identity $\sum_{n=0}^{\infty}\frac{(x)_{n}}{n!}
+a^{n} = (1-a)^{-x}$, we obtain the final expression for the error probability
+\begin{equation}%
+\begin{split}
+\langle P(\varepsilon)\rangle_{W}  & \approx L (\frac{\eta^{2}}{2})^{\frac
+{N}{2}} \frac{\Gamma(N)}{\Gamma^{2}(\frac{N}{2}) \frac{N}{2} (1+2\eta
+^{2})^{\frac{N+1}{2}}}\\
+& \approx L \frac{1}{\sqrt{2\pi N}} \exp{\Big(-\frac{N}{2} \log(\frac
+{1+2\eta^{2}}{2\eta^{2}})\Big)},
+\end{split}
+\label{Eq:GE}%
+\end{equation}
+where in the last step we used the Stirling approximation for the Gamma
+function. \newline\newline\textbf{Broad tuning curves.} As soon as $\sigma>
+0$, we allow for continuous stimuli and the resulting manifold in the activity
+space is smooth. In this case, the noise can also produce small scale local
+errors: we therefore split the error in two contributions, local and global.
+Since our system has a natural correlation length, we defined as global an
+error when the difference between the stimulus and its estimate is greater
+than $\sigma$ : $|\hat{x}(\mathbf{r}) - x |> \sigma$. This definition is a bit
+tricky, since for very large $\sigma$ all the errors will be local. Anyway, we
+are interested in the case where $\sigma$ is relatively small, and what
+matters is that global errors are of the order of the size of the stimulus
+space. We rewrite the average error as
+\begin{equation}
+\langle\varepsilon^{2} \rangle_{W}= \langle\varepsilon_{l}^{2} +
+\varepsilon_{g}^{2} \rangle_{W}= \langle\int dx d\mathbf{r} p_{l}%
+(\mathbf{r}|x)\big(\hat{x}(\mathbf{r}) -x \big)^{2}\rangle_{W} + \langle\int
+dx d\mathbf{r}p_{g}(\mathbf{r}|x) \big(\hat{x}(\mathbf{r}) -x \big)^{2}%
+\rangle_{W},
+\end{equation}
+where with $p_{l/g}(\mathbf{r}|x) = p(\mathbf{r}|x) \Theta\big(\pm(\sigma-
+|\hat{x}(\mathbf{r})-x|)\big)$ we denoted the probability density function
+that, given $x$, the noise will cause a local/global error. It holds the
+following normalization $\int d\mathbf{r} p_{l}(\mathbf{r}|x) + p_{g}%
+(\mathbf{r}|x)=1$. \newline\newline\textbf{Local error.} A ML decoder will
+output the stimulus corresponding to the closest point of the manifold, which
+in case of local error will correspond to the projection of the noise vector
+onto the manifold. Expanding linearly the response around $x$, we obtain
+\begin{equation}
+\left\|  \mathbf{r}\cdot\hat{\mathbf{v^{\prime}}}(x)\right\| _{2}^{2}
+=\left\|  \mathbf{v}(x+\Delta x)-\mathbf{v}(x)\right\| _{2}^{2} \approx\left\|
+\mathbf{v^{\prime}}(x)\right\| _{2}^{2}\Delta x^{2},
+\end{equation}
+where $\hat{\mathbf{v^{\prime}}}(x)$ is the normalized vector in the direction
+of the derivative of the tuning curves. Clearly, $\Delta x^{2} = \big(\hat
+{x}(\mathbf{r})-x\big)^{2} = \frac{\left\|  \mathbf{r}\cdot\hat
+{\mathbf{v^{\prime}}}(x)\right\| _{2}^{2}}{\left\| \mathbf{v^{\prime}%
+}(x)\right\| _{2}^{2}}$ will be the resulting error. The probability of global
+error will be exponentially small in $N$, as we will show, and we can consider
+the whole Gaussian likelihood function Eq.(\ref{Eq:L}) for $p_{l}%
+(\mathbf{r}|x)$. Since the noise is isotropic, when integrating over it the
+average magnitude of the projection onto a fixed unit vector will be simply
+the variance, and we can write the local error as
+\begin{equation}
+\langle\varepsilon_{l}^{2}\rangle_{W} = \langle\int dx \frac{\eta^{2}%
+}{\left\|  \mathbf{v^{\prime}}(x)\right\| _{2}^{2}}\rangle_{W}.
+\end{equation}
+Computing the derivative of the tuning curves we obtain
+\begin{equation}%
+\begin{split}
+\left\|  \mathbf{v^{\prime}}(x)\right\| _{2}^{2}  & = \frac{1}{Z^{2}} \sum_{i}
+\sum_{jj^{\prime}} W_{ij}W_{ij^{\prime}}\frac{(x-c_{j})(x-c_{j^{\prime}}%
+)}{\sigma^{4}} \exp\Big(-\frac{(x-c_{j})^{2}+(x-c_{j^{\prime}})^{2}}%
+{2\sigma^{2}}\Big)\\
+&  \approx\frac{\sum_{j}\exp\Big(-\frac{(x-c_{j})^{2}}{\sigma^{2}}%
+\Big) }{Z^{2}\sigma^{4}}\approx\frac{N \sqrt{\pi\sigma^{2}}}{2 Z^{2}\sigma
+^{2}},
+\end{split}
+\label{Eq:tcd}%
+\end{equation}
+where we took the average over the weights $\langle\sum_{i=1}^{N}
+W_{ij}W_{ij^{\prime}}\rangle_{W} = \frac{N}{L} \delta_{jj^{\prime}}$
+\footnote{Note that we are approximating the average of the inverse with the
+inverse of the average, but as soon as N is not too small the two quantities
+are very similar.} and we substituted the sum with an integral $\sum_{j}
+\approx\frac{1}{L}\int dc_{j}$ (ignoring edge effects when $x$ is not far from
+the borders). Considering the limit of small $\sigma$ for $Z^{2}$, we finally
+obtain the local error
+\begin{equation}
+\langle\varepsilon_{l}^{2}\rangle_{W} \approx\frac{2\sigma^{2}\eta^{2}}{N}.
+\end{equation}
+Note that this quantity corresponds to the inverse of the linear FI, as
+predicted by the CRAO bound. \newline\newline\textbf{Global error.} We defined
+an error as global when the estimate of the stimulus is further than $\sigma$
+from the true value. In this case, we can make the same reasoning of the
+uncorrelated case, noticing that once we obtain an error of this kind, its
+average magnitude is uncorrelated with its probability and independent from
+the noise magnitude $\mathbf{r}$. Therefore we can write, similarly to
+Eq.(\ref{Eq:PE}), the expression for the global error
+\begin{equation}
+\langle\varepsilon^{2}_{g}\rangle_{W} = \langle P(\varepsilon)\rangle_{W}
+\langle\int dx (\hat{x}-x)^{2}\rangle_{W}.
+\end{equation}
+We can assume that in such a case the estimate will be uniformly distributed
+in the interval $\hat{x} \not \in [x-\sigma,x+\sigma]$, and obtain for the
+average magnitude of global error
+\begin{equation}
+\bar{\varepsilon}_{g} = \int dx \int d \hat{x} p(\hat{x}) (\hat{x}-x)^{2}
+\approx\frac{1}{6} + O(\sigma),
+\end{equation}
+where we underlined the fact that is a term of order 1 plus corrections of
+order $\sigma$. Finally, we have to compute the probability that, given a
+stimulus $x$, the error will be global. This quantity again will not depend
+from the specific choice of the stimulus. Computing this probability
+rigorously is hard, due to the correlations between nearby responses.
+Nevertheless, we know that at a distance of $\sim\sigma$ the responses to two
+stimuli are uncorrelated. We can therefore imagine to divide the manifold into
+$\frac{1}{\sigma}$ discrete correlation 'clusters' of responses: we will have
+a global error when the estimate of the stimulus belong to a cluster other
+than the true response. We computed the probability of having an error with
+uncorrelated responses in the previous section, Eq.(\ref{Eq:GE}). We simply
+have to substitute to $L$ the actual number of uncorrelated clusters $\frac
+{1}{\sigma}$, obtaining for the global error
+\begin{equation}
+\langle\varepsilon_{g}^{2}\rangle_{W} \approx\frac{\bar{\varepsilon}_{g}%
+}{\sigma\sqrt{2\pi N}} \exp{\Big(-\frac{N}{2} \log(\frac{1+2\eta^{2}}%
+{2\eta^{2}})\Big)}.
+\end{equation}
+\newline\newline\textbf{Input noise.} We considered the case in which the
+first layer responses are affected by i.i.d Gaussian noise $\mathbf{\tilde
+u}(x) = \mathbf{u}(x) + \mathbf{z^{u}} $, with $\mathbf{z^{u}} \sim
+\mathcal{N}(0,\xi^{2}\mathbf{I})$. This results in a multivariate Gaussian
+distribution for the responses of the second layer, Eq.(\ref{Eq:LIn}), with
+covariance matrix $\Sigma= \eta^{2} \mathbf{I} + \xi^{2} \mathbf{W}%
+\mathbf{W}^{T}.$ The matrix $\mathbf{W}\mathbf{W}^{T}$ follow the well known
+Wishart distribution \cite{Livan2017IntroductionPractice}, with mean
+$\mathbf{I}$ and fluctuations of the terms of order $\frac{1}{L}$. Therefore
+the covariance matrix can be rewritten as the sum of the identity plus a
+perturbation
+\begin{equation}
+\Sigma= \tilde\eta^{2} \mathbf{I} + \xi^{2}(\mathbf{WW^{T} -I}),
+\end{equation}
+introducing an effective noise variance, which is the sum of input and output
+noise variance $\tilde\eta^{2} = \eta^{2} + \xi^{2} $. In order to obtain an
+estimate of the effects of input noise on the local error, we consider the FI
+as a lower bound to the MSE; the linear FI is computed as
+\begin{equation}
+J(x) = \mathbf{v^{\prime}}(x)^{T} \Sigma^{-1}\mathbf{v^{\prime}}(x),
+\end{equation}
+where, again, $\mathbf{v^{\prime}}(x)$ denotes the derivative of the tuning
+curve with respect to the stimulus variable. If the perturbation is small, we
+can approximate the inverse of the correlation matrix at the second order
+\newline$\Sigma^{-1} \approx\frac{1}{\tilde\eta^{2}} \mathbf{I} - \frac
+{\xi^{2}}{\tilde\eta^{4}} (\mathbf{W}\mathbf{W}^{T}-I) + \frac{\xi^{4}}%
+{\tilde\eta^{6}}(\mathbf{WW^{T}}-\mathbf{I})^{2} $, and write the FI as:%
+
+\begin{equation}%
+\begin{split}
+J(x)  & = J^{ind}(x) - \delta J(x)\\
+& = \frac{\sum_{i} v^{\prime2}_{i}(x)}{\tilde\eta^{2}} -\frac{\xi^{2}}%
+{\tilde\eta^{4}} \mathbf{u^{\prime}}^{T}(x) (\mathbf{A}^{2} - \mathbf{A}%
+)\mathbf{u^{\prime}}(x) + \frac{\xi^{4}}{\tilde\eta^{6}}\mathbf{u^{\prime}%
+}^{T}(x) (\mathbf{A}^{3} - 2\mathbf{A}^{2} + \mathbf{A})\mathbf{u^{\prime}%
+}(x),
+\end{split}
+\end{equation}
+where $\mathbf{A=W^{T}W}$ and we used the matrix notation $\mathbf{v}(x) =
+\mathbf{Wu}(x)$. We recognize in the first term $J^{ind}(x)$ the FI in the
+case of second layer responses affected by i.i.d. Gaussian noise. All the
+correction terms to the FI are related to the moments of the matrix
+$\mathbf{A} = \mathbf{W^{T}W}$. Since all the entries are Gaussian, it is
+possible to compute their mean through Isserlis' \textcolor{Mirko}{Wick?}
+theorem. Using the fact that $E[W_{ij}W_{mn}] = \frac{1}{L}\delta_{im}%
+\delta_{jn}$, we obtain:
+\begin{equation}%
+\begin{split}
+E[A_{mn}] = E[\sum_{j=1}{N}W_{jm}W_{jn}]  & = \frac{N}{L}\delta_{mn}\\
+E[(A^{2})_{mn}] = E[\sum_{i=1}^{L} \sum_{j=1,j^{\prime}=1}^{N} W_{jm}%
+W_{ji}W_{j^{\prime}i}W_{j^{\prime}n}]  & = (\frac{N}{L} + \frac{N^{2}}{L^{2}}
++ \frac{N}{L^{2}})\delta_{mn}\\
+E[(A^{3})_{mn}] = E[\sum_{i=1,i^{\prime}=1}^{L} \sum_{j=1,j^{\prime
+}=1,j^{\prime\prime}=1}^{N} W_{jm}W_{ji}W_{j^{\prime}i}W_{j^{\prime}i^{\prime
+}}W_{j^{\prime\prime}i^{\prime}}W_{j^{\prime\prime}n}]  & = (\frac{N^{3}%
+}{L^{3}} + 3\frac{N^{2}}{L^{3}} + 3\frac{N^{2}}{L^{2}} + 4\frac{N}{L^{3}} +
+3\frac{N}{L^{2}} + \frac{N}{L} )\delta_{mn}%
+\end{split}
+\end{equation}
+As a result, the mean of the perturbation term (using just the higher powers
+of $\frac{N}{L}$)
+\begin{equation}
+\langle\delta J(x)\rangle_{W} = \frac{\xi^{2}}{\tilde\eta^{4}}\frac{N^{2}%
+}{L^{2}} \mathbf{u^{\prime}}(x)^{T} \mathbf{I} \mathbf{u^{\prime}}(x) -
+\frac{\xi^{4}}{\tilde\eta^{6}} \frac{N}{L} \mathbf{u^{\prime}}(x)^{T}
+\mathbf{I} \mathbf{u^{\prime}}(x).
+\end{equation}
+Substituting the sum over the indices with an integral, similarly to what we
+have done in Eq.(\ref{Eq:tcd}), we obtain the mean FI
+\begin{equation}
+\langle J(x)\rangle_{W} \approx\frac{N \sqrt{\pi\sigma^{2}}}{2 Z^{2}
+\sigma^{2}\tilde\eta^{2}}(1 -\frac{N}{L}\frac{\xi^{2}}{\tilde\eta^{2}} +
+\frac{N}{L}\frac{\xi^{4}}{\tilde\eta^{4}}),
+\end{equation}
+and consequently an approximation to the MSE
+\begin{equation}
+\langle\varepsilon^{2}\rangle_{W} \approx\frac{1}{\langle J(x)\rangle_{W}}
+\approx\varepsilon_{l,i}^{2} (1+\frac{N}{L}\frac{\xi^{2}}{\tilde\eta^{2}}-
+\frac{N}{L}\frac{\xi^{4}}{\tilde\eta^{4}}).
+\end{equation}
+Similar computations can be done assuming a covariance matrix with the same
+statistic, but not related to the synaptic weights. For example, assuming
+$\Sigma_{rand} = \eta^{2} I + \xi^{2} \mathbf{X}\mathbf{X}^{T}$ with $X_{ij}
+\sim\mathcal{N}(0,\frac{1}{L})$ similarly to $W$, but with uncorrelated
+entries $E[X_{ij}W_{mn}] = 0$. In this case we have no more first order
+corrections, and the FI increases,
+\begin{equation}
+\langle J(x)\rangle_{W,X} \approx\frac{N \sqrt{\pi\sigma^{2}}}{2 Z^{2}
+\sigma^{2}\tilde\eta^{2}}(1 + \frac{N}{L}\frac{\xi^{4}}{\tilde\eta^{4}}).
+\end{equation}
+
+
+\subsection{Extension to multidimensional stimuli}
+
+A straightforward generalization is to consider a stimulus $\mathbf{x}
+\in[0,1]^{K}$ encoded by a first layer of $M$ neurons. We considered the
+scalar error $\varepsilon^{2} = \sum_{k} \varepsilon_{k}^{2}$ as loss
+function. Similarly to the previous case, the local error along each dimension
+is computed expanding linearly the tuning curves%
+
+\begin{equation}
+\left\|  \mathbf{v}(\mathbf{x} + \Delta x_{k}) - \mathbf{v}(\mathbf{x}%
+)\right\| _{2}^{2} \approx\left\|  \frac{\partial}{\partial x_{k}}%
+\mathbf{v}(\mathbf{x})\right\| _{2}^{2} (\Delta x_{k})^{2}.
+\end{equation}
+In an analogous manner, we consider global every error such that $\left\|
+\hat{\mathbf{x}}-\mathbf{x}\right\| _{2}^{2} > \sigma$. \newline%
+\newline\textbf{Pure case.} In the case the first layer is made up by pure
+cells, neurons are sensitive to only one stimulus dimension. We assumed their
+tuning curves to be 1D Gaussian functions \newline$u_{j_{k}}(\mathbf{x}) =
+\frac{1}{Z_{p}} \exp\Big(-\frac{(x_{k} - c_{j_{k}})^{2}}{2\sigma^{2}}\Big)$
+with preferred positions arranged uniformly along each dimension, $c_{j_{k}} =
+\frac{j_{k}}{L} \text{ for } j_{k}=1,...,L $ and $L=M/K$. The second layer
+tuning curves are given by the linear superposition of uncorrelated Gaussian
+processes along each dimension $v_{i}^{p}(\mathbf{x}) = \sum_{k} \sum_{j_{k}%
+}W_{ij_{k}} u_{j_{k}}(\mathbf{x}).$ Using the same constraint as before, we
+obtain $Z_{p}^{2} = (\pi\sigma^{2})^{1/2} - 2\pi\sigma^{2}$. In this case each
+dimension is encoded separately. The tuning curves along one dimension change
+only by translation $v_{i}(x_{1} + \Delta x_{1}) = c + v_{i}(x_{1})$, and
+therefore the local error along each dimension is independent. The squared
+norm of the derivative along one dimension is reduced by a factor of $K$ (the
+derivative along each dimension will act only on $1/K$ terms), and
+consequently the local error along each dimension is
+\begin{equation}
+\langle\varepsilon_{l,p,k}^{2}\rangle_{W} = \frac{2 K Z_{p}^{2} \sigma^{2}
+\eta^{2}}{N (\pi\sigma^{2})^{1/2}} \approx\frac{2 K \sigma^{2} \eta^{2}}{N}.
+\end{equation}
+Also the probability of having a global error is independent along each
+dimension. We can approximate the total probability of having a global error
+as the sum of probabilities along each dimension $P(\varepsilon_{g}) =
+\sum_{k} P(\varepsilon_{g,k})$. Since in this case tuning curves are described
+by a superposition of uncorrelated Gaussian processes and each dimension
+contributes equally to the variance, we obtain for the global error in the
+pure case
+\begin{equation}
+\langle\varepsilon_{g,p} ^{2} \rangle_{W} \approx\frac{K\bar{\varepsilon}_{g}%
+}{\sigma\sqrt{2\pi N}} \exp{\Big(-\frac{N}{2K} \log(\frac{1+2\eta^{2}}%
+{2\eta^{2}})\Big)}%
+\end{equation}
+where the average magnitude of global error, $\bar{\varepsilon}_{g}$, is again
+a term of order 1. \newline\newline\textbf{Conjunctive case.} In the
+conjunctive case the first layer neurons' responses are given by
+multidimensional Gaussian functions $u_{j}(\mathbf{x}) =\frac{1}{Z_{c}}
+\exp{\Big(-\frac{\left\|  \mathbf{x}-\mathbf{c}_{j}\right\| _{2}^{2}}%
+{2\sigma^{2}}\Big)}$ with preferred positions arranged on a K dimensional
+square grid of side $1/L$ with $L = M^{1/3}$. The tuning curves of the second
+layer neurons $v^{c}_{i}(\mathbf{x}) = \sum_{j} W_{ij} u_{j}(\mathbf{x})$ are
+multidimensional Gaussian processes with K-dimensional covariance function
+$<v(\mathbf{x})v(\mathbf{x} + \Delta\mathbf{x}) > = \frac{1}{Z_{c}^{2}}
+\exp{\Big(-\frac{\left\| \Delta\mathbf{x}\right\| _{2}^{2}}{2\sigma^{2}}%
+\Big)}$. The normalization term is given by $Z_{c}^{2} = (\pi\sigma^{2})^{K/2}
+- (2\pi\sigma^{2})^{K}$ (note that increasing the dimensionality of the
+stimulus, the edge effects become more relevant). In this case the derivative
+along one dimension will act on all the terms of the random sum, and the
+resulting local error is given by
+\begin{equation}
+\varepsilon_{l,c,k}^{2} = \frac{2Z_{c}^{2} \sigma^{2} \eta^{2}}{N(\pi
+\sigma)^{K/2}} \approx\frac{2\sigma^{2} \eta^{2}}{N}%
+\end{equation}
+To compute the global error we simply extend the reasoning about uncorrelated
+clusters. Since stimuli evoke a correlated response within a radius of
+$\sim\sigma$, the number of uncorrelated clusters scale as $\frac{1}%
+{\sigma^{K}}$, and the global error is given by
+\begin{equation}
+\varepsilon_{g,c}^{2} \approx\frac{\bar{\varepsilon}_{g}}{\sigma^{K}\sqrt{2\pi
+N}} \exp{\Big(-\frac{N}{2} \log(\frac{1+2\eta^{2}}{2\eta^{2}})\Big)}.
+\end{equation}
+
+
+\subsection{Data analysis and model fitting}
+
+The detailed data description is reported in
+\cite{Lalazar2016TuningConnectivity}. It consists in $N\sim500$ neurons'
+responses (firing rates) recorded during an arm posture "hold" task at 27
+different positions (and with 2 hand orientation, up and down) arranged on a
+virtual cube of size 40x40x40 cm. The response of each neuron for each
+position is recorded for several trials ($\sim$ 10 trials per position) and
+the tuning curves are computed averaging over trials. We considered the tuning
+curves just in function of the position, ignoring the difference in hand
+orientation. We chose to analyze just "tuned neurons", cells responding with
+at least 5 spikes/s at more than two positions. We mean-centered and
+standardized the tuning curves to have variance =1. In order to measure the
+level of irregularity of one tuning curve in a non parametric form, the
+authors of \cite{Lalazar2016TuningConnectivity} decided to introduce a
+complexity measure. For each neuron, it is defined as the standard deviation
+of the discrete derivative between the response at one target and its response
+at the closest target
+\begin{equation}
+c(D_{min})_{i} = std\Bigl(\frac{\left\|  r(x) - r(x+\Delta x)\right\|  }%
+{\sqrt{\left\|  \Delta x\right\|  ^{2}}} s.t. \left\|  \Delta x\right\|
+_{2}^{2} < D_{min}\Bigr).
+\end{equation}
+In the data, the $D_{min}$ is imposed by the experiment and is equal to 35.
+This limitation, inherent to the data themselves, prevent us from capturing
+high frequency components due to aliasing phenomena.
+
+The irregular population was constructed with a 3D model with a first layer of
+conjunctive cells. To be faithful with the paper and to avoid loss of coverage
+and boundary effects, we used $M= 100^{3}$, tiling a 100 by 100 by 100 cube
+with a grid of side 2. For the connectivity matrix $\mathbf{W}$ we used a
+sparse random matrix (sparsity = 0.1) with Gaussian entries. The tuning curves
+were normalized one by one to have variance equal to 1. The only tunable
+parameter of this model is $\sigma$ (similarly to the simplest model in the
+original paper). To find $\sigma_{f}$, we generated the responses of the model
+to the same 27 stimuli of the real data. We then computed the distribution of
+the complexity measure (in a.u.) at different $\sigma$ and we picked
+$\sigma_{f}$ such that the Kolmogorov-Smirnov distance between the
+distribution of the model and the one of the data is minimal, Fig.
+\ref{Fig:7}a. At this optimal $\sigma$, the two distributions are very
+similar, even if real data show a broader distribution of values in both
+directions; for comparison, a linear model suffers an heavy underestimate of
+the complexity values across all the populations, Fig. \ref{Fig:7}b.
+
+The other summary statistic used in the paper is the distribution of $R^{2}$
+values resulting from the fit with the linear model of Eq.(\ref{Eq:CosTun}),
+\begin{equation}
+R^{2}_{i} = 1- \frac{RSS}{TSS} = 1-\frac{\sum_{x} (r_{l}(\mathbf{x}) -
+r(\mathbf{x}))^{2}}{\sum_{x} r(\mathbf{x})^{2}},
+\end{equation}
+where $r(\mathbf{x})$ is the response at stimulus $\mathbf{x}$ and
+$r_{l}(\mathbf{x})$ is the response predicted by the linear model. For the
+sake of completeness, we computed the K-S distance between the model and the
+data also for this measure, Fig. \ref{Fig:7}a, red line. The difference in the
+two distributions simply decreases with $\sigma$. The model at $\sigma_{f}$
+underestimate the linear components of the tuning curves, Fig. \ref{Fig:7}c.
+Nevertheless, this is expected since our model has no non linearity, which
+potentially increases the illusion of linear tuning. It is worth noticing that
+in the original paper the simpler model (with threshold non linearity) still
+underestimates the distribution of $R^{2}$ values and only the complexity
+measure was considered in the fitting procedure. The authors obtained a good
+agreement only considering a more complicate model with more parameters
+(namely, different thresholds for each neuron and different widths in the
+first layer).
+
+For numerical simulations in Fig. \ref{Fig:6}, the tuning curves were computed
+at a much finer scale than the data (cubic grid of 21 by 21 by 21 points). As
+expected, the tuning curves show a broad range of behavior with respect to the
+linear fit, that goes from very linear to very irregular, Fig. \ref{Fig:7}d-f.
+The linear population for the comparisons was constructed sampling the
+preferred positions ($(a_{1},a_{2},a_{3})$ ) uniformly in the unit sphere and
+using Eq.(\ref{Eq:CosTun}) to generate the responses. Again, the dynamic range
+(variance of responses) was constrained to be =1.
+
+For Fig. \ref{Fig:6}d we extracted the noise from the data, assigning to each
+neuron a noise variance in the following way. For a single neuron, we computed
+its dynamic range as the variance of the responses across all possible
+stimuli: $\text{Var}(r) = \langle r^{2} \rangle_{x} - \langle r\rangle^{2}%
+_{x}$. Then, we computed the mean variance of the trial to trial variability
+across all stimuli: $\text{Var}(\eta) = \langle\text{Var}(r(x))\rangle_{x}$.
+Since our tuning curves in the simulations have a dynamic range =1, we
+assigned to neuron $i$ a variance of the noise equal to $\sigma_{\eta_{i}}^{2}
+= \frac{\text{Var}(\eta_{i})}{\text{Var}(r_{i})}$. The decoding error for a
+population size of $N$ neurons was computed averaging over 8 independent pools
+of $N$ neurons, each one associated with its noise variance. Also the decoder,
+Eq.(\ref{Eq:Dec}), was modified to keep into account each neuron's noise
+variance. In principle, the noise may be dependent from the mean. To control
+for this effect, we also preprocessed the data with a variance stabilizing
+transformation (substituting $r(\mathbf{x}) $ with $\sqrt{r(\mathbf{x})}$,
+\cite{SRJ1999TheStatistics}). The distribution of the noise variance across
+neurons does not vary substantially. The data are publicly available at https://osf.io/u57df/.
+
+\section{Acknowledgements}
+
+\bibliographystyle{plain}
+\bibliography{references}
+\newpage\begin{figure}[ptb]
+\centering
+\missingfigure[figwidth=\textwidth]{figure1.pdf}\caption{\textbf{Geometrical
+approach to coding and random feedforward neural network.}(\textbf{A}) Top:
+mean response of populations of neurons encoding a 1-dimensional stimulus.
+Left: population of neurons with Gaussian, translationally invariant tuning
+curves. Right: population of neurons with periodic tuning curves. Grid cells
+tuning curves are not sinusoidal, but periodic Gaussian `bumps' of activity.
+Nevertheless, for the sake of illustration, we plotted three sinusoids with
+three different periods. Bottom: the joint activity of the neural population,
+in function of the stimulus value (color-coded according to the legend),
+describe a 1-dimensional manifold in a N-dimensional space. We a 3-dimensional
+subspace, corresponding to the responses of the highlighted neurons. Unimodal
+tuning curves (left) evoke a single-loop manifold, which preserves the
+distance between stimuli in the evoked responses. Instead, periodic tuning
+curves (right) evoke a more complex manifold, and it can happen that two
+distant stimuli are mapped to nearby points in the activity space. At the same
+time, the activity space is more `filled'. (\textbf{B}) Feedforward neural
+network. An array of $L$ cells with Gaussian tuning curves (one highlighted in
+purple) encodes a 1-dimensional stimulus into an high dimensional
+representation. These tuning curves determine the response of the population
+for a given stimulus, $x_{0}$ (black dots). This layer projects onto a smaller
+layer of $N$ cells with an all-to-all random connectivity matrix $\mathbf{W},$
+generating irregular responses. We plotted the tuning curves of three sample
+neurons, highlighting their response to the specific stimulus $x_{0}$.
+(\textbf{C}) Example of joint activity in function of stimulus value
+(color-coded according to previous legend) of three sample neurons of the
+second layer, for increasing $\sigma$. When $\sigma\rightarrow0$ (left),
+neurons generates uncorrelated random responses to different stimuli,
+generating a spiky manifold made up by broken segments. As $\sigma$ grows,
+irregularities are smoothed out, and nearby stimuli evoke increasingly
+correlated responses. By decreasing the complexity of the manifold, we
+ultimately recover the scenario of unimodal tuning curves, with a single-loop
+manifold (right).}%
+\label{Fig:1}%
+\end{figure}\clearpage
+\begin{figure}[ptb]
+\centering
+\missingfigure[figwidth=\textwidth]{figure2.pdf}\caption{\textbf{Error
+probability for discontinuous random responses.} (\textbf{A}) Joint response
+of two neurons to $L=50$ stimuli, color coded according to the previous
+legend. Noise is represented as a cloud of possible responses (in grey) around
+the mean one. We have an error when the noisy response $\mathbf{r}$ happens to
+be closer to a point representing another stimulus $\hat{x}$ than the true one
+$x_{0}$. Since responses are uncorrelated, that point may represent a distant
+stimulus. (\textbf{B}) Theoretical (solid curves) and numerical (dots) results
+for the probability of error in function of the population size for different
+numbers of discrete stimuli encoded with uncorrelated random responses
+($\eta^{2}=0.5$, averaged over 8 network realizations, shaded region
+corresponds to 1 s.d.). The error probability scales exponentially with the
+number of neurons, with a multiplicative constant given by the number of
+stimuli. The high variance is due to the difficulty in estimating
+probabilities when they are very low. (\textbf{C}) Theoretical (solid curves)
+and numerical (dots) results for the probability of error in function of the
+population size for $L=500$ discrete stimuli, for different noise magnitudes,
+averaged over 8 network realizations (shaded region corresponds to 1 s.d.).
+The noise magnitude rules the rate of scaling of the error probability.}%
+\label{Fig:2}%
+\end{figure}
+
+\clearpage
+
+
+\begin{figure}[ptb]
+\centering
+\missingfigure[figwidth=\textwidth]{figure3.pdf}\caption{ \textbf{Trade-off
+between local and global errors.} In all simulations, $L=500$ and $\eta^{2} =
+0.5$. (\textbf{A}) Different types of error in a complex neural manifold
+(joint response of two neurons, stimulus value color coded according to
+previous legend). $\mathbf{r}^{I}$ and $\mathbf{r}^{II}$ are two possible
+noisy responses to the same stimulus, extracted from the Gaussian cloud
+surrounding the mean response, $\mathbf{v}(x_{0})$. An ideal decoder will
+output the stimulus corresponding to the closest point of the manifold.
+$\mathbf{r}^{I}$ will cause a local error, falling on a point of the manifold
+that represents a similar stimulus, $\hat{x}^{I}$. $\mathbf{r}^{II}$ ,
+instead, happens to be closer to a point of the manifold which represents a
+stimulus quite far from the true one, $\hat{x}^{II}$, causing a catastrophic
+error. (\textbf{B}) Normalized histogram of absolute errors, $\Delta x =
+|\hat{x}-x|$, made by an ideal decoder, for different values of $\sigma$
+($N=25$). We tested the response to $10^{7}$ stimuli, uniformly spaced between
+$[0,1]$. The histogram is obtained averaging over 8 different realizations of
+the connectivity matrix. For a better visualization, we considered a stimulus
+with periodic boundary conditions, such that all global errors magnitudes have
+the same probability. Contributions of the two types of error change changing
+$\sigma$. For small $\sigma$, coding is very precise locally (fast drop of the
+purple curve for small errors), but we have a great number of global errors
+(tail of the distribution is quite high). Vice versa, smoother codes (green
+curves) yield to poor local accuracy (larger local errors), but an high noise
+robustness (very few large scale errors). (\textbf{C}) Theoretical prediction
+for the two contributions to the MSE (log scale) in function of $\sigma$
+($N=30$). The magnitude of local errors increases with larger widths (solid
+curve), while the number of global errors decreases (dashed curve).
+(\textbf{D}) Root-MSE (log scale) in function of $\sigma$: comparison between
+numerical simulations (solid curve) and theoretical prediction of
+Eq.(\ref{Eq:LvsG}) (dots). Numerical results are obtained averaging over 8
+network realizations, shaded region corresponds to 1 s.d..}%
+\label{Fig:3}%
+\end{figure}\clearpage
+\begin{figure}[p]
+\centering
+\missingfigure[figwidth=\textwidth]{figure4.pdf}\caption{ \textbf{Numerical
+results for the scaling of error in a feedforward network with random
+weights.} In all simulations $L=500$, and results are averaged over 4 network
+realizations. In (\textbf{A-D}) $\eta^{2} =0.5$. (\textbf{A}) Error (Root-MSE,
+log scale) in function of $\sigma$ for different population sizes $N$
+(increasing from violet to yellow). The optimal error is attained at an
+optimal $\sigma^{*}(N)$ , which decreases increasing $N$. (\textbf{B}) Same
+data, but the error is showed in function of $N$, for a fixed value of
+$\sigma$. The error at first decreases exponentially fast until global errors
+are suppressed, then the local errors are linearly reduced. Decreasing
+$\sigma$, we increase the $N$ at which the transition happen, but also the
+error at this critical value. (\textbf{C}) The mean optimal $\sigma^{*}$
+decreases exponentially fast with the number of neurons, saturating the lower
+bound imposed by the finite number of neurons of the first layer. Simulations
+(dots) show a good agreement with the theory (solid line). Shaded region
+corresponds to 1 s.d. (\textbf{D}) As a consequence, the optimal error,
+$\varepsilon(\sigma^{*})$, which is quadratic in $\sigma$, is also suppressed
+exponentially fast in $N$. As before, simulations (dots) are well predicted by
+the theory (solid curve). (\textbf{E,F}) Optimal width and error in function
+of the joint value $N-\eta^{2}$. The color code is in log scale, such that is
+possible to appreciate the exponential scaling. }%
+\label{Fig:4}%
+\end{figure}\clearpage
+\begin{figure}[p]
+\missingfigure[figwidth=\textwidth]{figure5.pdf}\caption{\textbf{Numerical
+results for the case of 3D stimulus, for conjunctive and pure populations in
+the first layer.} In all simulations $M=3375$ and $\eta^{2} =1$.
+\emph{continue to next page}}%
+\end{figure}\begin{figure}[t]
+\captionsetup{labelformat=adja-page} \ContinuedFloat
+\caption[Figure]{ (\textbf{A}) Root-MSE in function of $\sigma$ for different
+population sizes $N$ (increasing from violet to yellow), when the first layer
+is made by conjunctive (left) or pure (right) cells, averaged over 4 network
+realizations. An optimal $\sigma$, decreasing with $N$, allows the balance
+between local and global errors, similarly to the 1-dimensional case. In the
+conjunctive case the rapid increase of the error below $\sigma=0.05$ is due to
+the loss of coverage and is independent from $N$. Insects: examples of
+2-dimensional sections of tuning curves in the two cases, color denotes firing
+rate, from low (blue) to high(yellow). In the pure case, the grid organization
+is somehow preserved in the tuning curves of the second layer, while it is
+completely lost in the conjunctive case. (\textbf{B}) Mean ratio between the
+error in the two cases, $\varepsilon_{c}/\varepsilon_{p}$, in function of
+$\sigma$ and population size. Yellow (violet) region indicates an
+outperformance of the pure (conjunctive) population. For a better
+visualization, the yellow region indicates all the values greater than 2. This
+region, at low values of $\sigma$ and basically independently from the
+population size, is characterized by a better coverage of the pure population.
+Values greater than 1 are also typical of the low N region, due to the
+prefactor of the global error being lower in the pure case. As soon as $N$ is
+sufficiently high and $\sigma$ allows a good stimulus space coverage, the
+conjunctive case outperforms the pure case. This effect is stronger in the low
+$\sigma$ region, due to the slow scaling of the global errors in the pure
+case. Increasing $\sigma$, the ratio saturate at the value given by the ratio
+of the local errors only. (\textbf{C,D}) Optimal tuning width in function of
+population size and relative error, for pure (blue) and conjunctive (red)
+population in the first layer. Shaded region corresponds to 1 s.d. The global
+error decreases much slower in the pure population, as one can see from both
+the optimal width and the error being larger and with a smaller slope. At very
+low population sizes, it is possible to see the difference in the prefactor,
+that makes a pure code slightly better. At $N\sim75$ the optimal width for the
+conjunctive case saturates, due to the loss of coverage. The relative error
+stops decreasing exponentially and starts decreasing only linearly, while the
+pure population does not suffer this problem (it will do at lower widths).
+Ultimately, since the optimal width will continue to decrease in the pure
+population, the error will become lower than the conjunctive case.}%
+\label{Fig:5}%
+\end{figure}\clearpage
+\begin{figure}[ptb]
+\centering
+\missingfigure[figwidth=\textwidth]{figure6.pdf}\caption{\textbf{Linear vs
+irregular tuning.} (\textbf{A}) MPI of the irregular population (averaged over
+4 different pools of a given size) compared to the linear one, color coded
+according to the legend, in function of population size and tuning width. The
+black line indicates the critical values of $N-\sigma$ at which they perform
+equally. In the region below (violet) the global errors affect the irregular
+population, rendering a smoother code more efficient. Increasing $N$,
+therefore reducing global errors, the irregularities improve the local
+accuracy of the code (yellow region). This advantage is stronger for lower
+$\sigma$. (\textbf{B}) Root-MSE in function of the population size for the
+data-fitted model, for different levels of noise variance (averaged over 4
+different pools). The scaling is exponential for low values of $N$ and then
+becomes linear after a critical size, which increases with the noise
+magnitude. (\textbf{C}) Mean- MPI (over 8 different pools of a given size) of
+an irregular population, generated with the data-fitted model, compared to the
+linear one, in function of the pair $N-\eta^{2}$. At small population sizes
+the irregular tuning produces global error and smoother tuning curves perform
+better (violet region, $\Delta\varepsilon<0 $ ). Increasing $N$, the global
+error are suppressed and irregularities improve the local accuracy. The
+critical $N$ at which the transition happens increases with the noise
+variance. (\textbf{D} Same quantity in function of population size (8
+different pools of neurons), for a noise model extracted from data.Shaded
+region represents 1 s.d. A noise variance is assigned to each neuron,
+obtaining a very heterogeneous distribution of noise in the population, showed
+in the insect. For low levels of $N$, linear tuning produces better results.
+At $N\sim40$, the higher local accuracy weights more than the global errors,
+and the irregular code starts to perform better. The improvement saturates at
+a finite value of $\sim0.4$ when the number of neurons is $N\sim100$, when
+global errors are fully suppressed. }%
+\label{Fig:6}%
+\end{figure}\clearpage
+\begin{figure}[ptb]
+\centering
+\missingfigure[figwidth=\textwidth]{figure7.pdf}\caption{\textbf{Effects of
+correlated noise on compressed coding.} (\textbf{A}) Root-MSE in function of
+$\sigma$ in case of correlated noise due to shared connectivity and diagonal
+noise with effective variance $\tilde\eta^{2}$, averaged over 8 realizations
+of the synaptic matrix. $N=70$, $\tilde\eta^{2} = 0.5$ and the contribution of
+input noise is small, $\xi^{2} = 0.05$. (\textbf{B}) Error ratio (MSE) between
+correlated noise due to input noise and diagonal noise with effective noise
+variance, in function of $N$, and theoretical prediction, Eq.(\ref{Eq:IN}).
+The noise variances are the same of the previous figure, $\sigma=0.045$,
+average over 8 realizations of synaptic matrix, shaded region indicating
+1.s.d. The goodness of the prediction increases with higher values of $N$,
+since in this regime the local errors are dominant. (\textbf{C}) Error ratio
+between correlated noise due to input noise and diagonal noise (filled lines),
+and error ratio between correlated noise with random covariance matrix and
+diagonal noise (dashed lines). Different colors denote different contributions
+coming from the off-diagonal terms $\xi^{2}$, increasing from violet to
+yellow, when the effective noise variance is kept fixed, $\tilde\eta^{2} =
+0.5$. When correlations come from shared connections, the ratio is positive
+since we have information-limiting correlations. Their effect are a non-linear
+function of $\frac{\xi^{2}}{\tilde\eta^{2}}$, due to the competition between
+the first order (positive) and second order (negative) corrections. With a
+random covariance matrix, correlations decrease the error.}%
+\label{Fig:8}%
+\end{figure}\clearpage
+\begin{figure}[ptb]
+\centering
+\missingfigure[figwidth=\textwidth]{figure8.pdf}\caption{ \textbf{Model
+fitting and tuning curves.} (\textbf{a}) Kolmogorov-Smirnov distance between
+the distributions of complexity measure (full line) and $R^{2}$ of fitting
+(dashed) across neurons from the data and the model at different $\sigma$.
+$\sigma_{f}$ is chosen to be the value at which the minimum of the distance
+between complexity distributions is attained, $\sigma_{f}\sim22$. (\textbf{b})
+Normalized histogram of the distribution of complexity measure (arbitrary
+units) across the neurons of the data (red), the irregular population at
+$\sigma_{f}$ (blue) and a linear population (green). The model is able to
+capture the bulk of the distribution of the real data much better than a
+linear model. Nevertheless, the data show a much broader distribution across
+the population. (\textbf{c}) Normalized histogram of the distribution of the
+$R^{2}$ of linear fit across neurons of the data and the irregular population
+at $\sigma_{f}$ (red). Both distributions are broad, but the data show a more
+consistent linear part. (\textbf{d-f}) Three examples of tuning curves of the
+irregular population at $\sigma_{f}$, showing a broad range of behavior with
+respect to the linear fit. The tuning curves are plotted in function of the
+projection of the stimulus (target position) onto a preferred position,
+obtained by the fit with Eq.(\ref{Eq:CosTun}) (green line). Some neurons are
+well described by the parametric function (d), some others show consistent
+deviations (e), while in others the linear behavior is absent (f). This is
+reflected in the broadness of the distribution of the $R^{2}$. }%
+\label{Fig:7}%
+\end{figure}
+
+
+\end{document}
