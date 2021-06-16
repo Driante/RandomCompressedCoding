@@ -20,6 +20,9 @@ function iidgaussian_dataset(n::Network,η ::Float64; ntrn=50000,ntst = 10000,bs
     if onehot
         x_trn = Flux.onehotbatch(x_trn,x_test);
         x_tst =  Flux.onehotbatch(x_tst,x_test);
+    else
+        x_trn = x_trn'
+        x_tst = x_tst'
     end
     data_trn = Flux.Data.DataLoader((r_trn,x_trn),batchsize = bsize);
     data_tst = Flux.Data.DataLoader((r_tst,x_tst),batchsize = bsize);
@@ -65,6 +68,7 @@ end
 #MSE for a decoder outputing a scalar estimate of the stimulus. True responses are given under the form of one-hot vectors.
 mse_loss(mlp_decoder,r,x) =  Flux.mse(mlp_decoder(r),Flux.onecold(x,x_test)')
 
+mse_loss2(mlp_decoder,r,x) = Flux.mse(mlp_decoder(r) ,x)
 ## Train decoder
 
 @with_kw mutable struct Args
@@ -124,19 +128,19 @@ function train_mlp_decoder(data; mlp_decoder = nothing, kws...)
     for epoch = 1:args.epochs
         @info "Epoch $(epoch)"
         progress = Progress(length(data_trn))
+        loss = 0
         for d in data_trn
             l, back = Flux.pullback(ps) do
-                mse_loss(mlp_decoder,d...) + args.λ* sum(x->sum(x.^2), ps)
+                mse_loss2(mlp_decoder,d...) + args.λ* sum(x->sum(x.^2), ps)
             end
             grad = back(1f0)
             Flux.Optimise.update!(opt, ps, grad)
             next!(progress; showvalues=[(:loss, l),(:epoch,epoch)])
-            if trn_step % args.verbose_freq == 0
-                push!(history[:mse_trn],l)
-            end
-            trn_step +=1
+            loss += l
         end
-        push!(history[:mse_tst],mean([mse_loss(mlp_decoder,dtt...) for dtt in data_tst]))
+        loss /= length(data_trn)
+        push!(history[:mse_trn],loss)
+        push!(history[:mse_tst],mean([mse_loss2(mlp_decoder,dtt...) for dtt in data_tst]))
     end
     return mlp_decoder,history
 end
