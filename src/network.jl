@@ -7,7 +7,8 @@ using Distributions,StatsBase , LinearAlgebra, MultivariateStats,Random,SparseAr
 
 ntest = 500; x_min,x_max=0,1;
 test_point(x_min,x_max) = range(x_min,x_max,length = ntest)
-Δx = x_max-x_min;x_test=test_point(x_min,x_max)
+Δx = x_max-x_min;
+x_test=test_point(x_min,x_max)
 
 ## Construct structure of Feedforward Network with random weights
 
@@ -34,8 +35,23 @@ function Network(N::Int64,L::Int64,σ::Float64; f1= gaussian ,f2 =identity,rxrno
     elseif f1==VonMises
         A =sqrt(1/( besseli(0,2*1/(2π*σ)^2) - (besseli(0,1/(2π*σ)^2))^2));
     end
-    cVec = [Δx*i/L for i=1:L]
+    #cVec = [Δx*i/L for i=1:L]
+    cVec =  collect(range(x_min,x_max,length=L))
     W = sqrt(1/L)*randn(N,L); Z = ones(N)
+    return Network(L,A,σ,cVec,f1,W,N,f2,Z,rxrnorm)
+end
+
+function Network(W::Array{Float64,2},σ::Float64; f1= gaussian ,f2 =identity,rxrnorm = 1)
+    #Defaul normalization is maintaining the average over the variance constant
+    N,L = size(W)
+    if f1==gaussian
+        A = sqrt(1/(sqrt(π)*σ - 2*π*σ^2));
+    elseif f1==VonMises
+        A =sqrt(1/( besseli(0,2*1/(2π*σ)^2) - (besseli(0,1/(2π*σ)^2))^2));
+    end
+    #cVec = [Δx*i/L for i=1:L]
+    cVec =  collect(range(x_min,x_max,length=L))
+    Z = ones(N)
     return Network(L,A,σ,cVec,f1,W,N,f2,Z,rxrnorm)
 end
 
