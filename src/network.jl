@@ -162,7 +162,8 @@ end
 
 
 function MSE_net_gon(n::Network,η::Float64;ntrial=50,MC=0,tol=1E-7,maxsteps=5000,boutsteps=100,convsteps=50)
-    #Mean square error with gaussian output noise of fixed variance. If MC ==1, compute it with Montecarlo method until convergence, otherwise fixed numbe of trials.
+    #Mean square error with gaussian output noise of fixed variance. If MC ==1, 
+    #compute it with Montecarlo method until convergence, otherwise fixed numbe of trials.
     N=n.N;
     x_test = test_point(x_min,x_max);
     #Precompute tuning curves. The readout weights will be related to V.
@@ -190,7 +191,7 @@ function MSE_net_gon(n::Network,η::Float64;ntrial=50,MC=0,tol=1E-7,maxsteps=500
             push!(ε,s/(t))
             #Condition for convergence: after a burnout period, take the average over the last 50 steps and check that is less than tol
             if t>boutsteps
-                if std(ε[t-convstep:t]) < tol ; break;end
+                if std(ε[t-convsteps:t]) < tol ; break;end
             end
             t +=1
         end
