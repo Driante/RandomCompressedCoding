@@ -10,6 +10,7 @@ notebooks
 _research
 papers
 Old_scripts
+.vscode
 
 ################################################################################
 #                                    Julia                                     #
