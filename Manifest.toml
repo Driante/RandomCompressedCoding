@@ -362,6 +362,12 @@ git-tree-sha1 = "e14907859a1d3aee73a019e7b3c98e9e7b8b5b3e"
 uuid = "d2c73de3-f751-5644-a686-071e5b155ba9"
 version = "0.57.3+0"
 
+[[GaussianDistributions]]
+deps = ["Distributions", "LinearAlgebra", "Random", "Statistics"]
+git-tree-sha1 = "e64d64fa3d7d69a0c7099b77d1cab82ebdbae4ac"
+uuid = "43dcc890-d446-5863-8d1a-14597580bb8d"
+version = "0.5.2"
+
 [[GeometryBasics]]
 deps = ["EarCut_jll", "IterTools", "LinearAlgebra", "StaticArrays", "StructArrays", "Tables"]
 git-tree-sha1 = "4136b8a5668341e58398bb472754bff4ba0456ff"

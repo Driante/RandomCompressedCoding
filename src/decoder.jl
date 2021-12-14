@@ -76,7 +76,7 @@ mse_loss2(mlp_decoder,r,x) = Flux.mse(mlp_decoder(r) ,x)
     η = 1e-2               # learning rate
     λ = 0.0f0              # regularization paramater
     epochs = 20             # number of epochs
-    M = 490               # latent dimension
+    M = 500                 # latent dimension
     verbose_freq = 10       # logging for every verbose_freq iterations
     opt = ADAM             #Optimizer
 end

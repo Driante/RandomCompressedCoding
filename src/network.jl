@@ -161,7 +161,8 @@ end
 ## Error computing functions: network implementation
 
 
-function MSE_net_gon(n::Network,η::Float64;ntrial=50,MC=0,tol=1E-7,maxsteps=5000,boutsteps=100,convsteps=50)
+function MSE_net_gon(n::Network,η::Float64;ntrial=50,MC=0,tol=1E-7,maxsteps=5000,
+    boutsteps=100,convsteps=50)
     #Mean square error with gaussian output noise of fixed variance. If MC ==1, 
     #compute it with Montecarlo method until convergence, otherwise fixed numbe of trials.
     N=n.N;
@@ -199,9 +200,11 @@ function MSE_net_gon(n::Network,η::Float64;ntrial=50,MC=0,tol=1E-7,maxsteps=500
     return ε
 end
 
-function MSE_net_ginoutn(n::Network,Σ::AbstractMatrix;ntrial=50,MC=0,tol=1E-8,Wrand=0,maxsteps=5000, boutsteps=100,convsteps=50)
+function MSE_net_ginoutn(n::Network,Σ::AbstractMatrix;ntrial=50,MC=0,tol=1E-8,
+    Wrand=0,maxsteps=5000, boutsteps=100,convsteps=50)
     #Mean square error with general covariance matrix
-    L,N=n.L,n.N;x_test = test_point(x_min,x_max);U,V = compute_tuning_curves(n,x_test);
+    L,N=n.L,n.N;x_test = test_point(x_min,x_max);
+    U,V = compute_tuning_curves(n,x_test);
     iΣ = inv(Σ);
     λ = V'*iΣ; b = diag(0.5*V'*iΣ*V)
     #Montecarlo extimate of the mse

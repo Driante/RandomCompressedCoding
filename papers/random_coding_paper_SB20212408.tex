@@ -1935,7 +1935,253 @@ normalized to have zero mean and unit variance.
 \section{Acknowledgements}
 \newpage
 
+\begin{figure}[ptb]
+\centering
+\includegraphics[width=\textwidth]{figure1.pdf}
+\caption{\textbf{Geometrical
+approach to coding, and the random feedforward neural network architecture.}(\textbf{A}) Top:
+mean responses of neural populations encoding a one-dimensional stimulus.
+Left: population of neurons with Gaussian, translationally invariant tuning
+curves. Right: population of neurons with periodic tuning curves. We note that grid cells are
+composed of periodic Gaussian activity bumps, and are thus not sinusoidal. 
+For the sake of illustration, we plotted three sinusoids with
+three different periods. Bottom: joint activity of the neural population,
+as a function of the stimulus value, colored according to the legend,
+corresponds to a one-dimensional curve in a N-dimensional space. We show a three-dimensional
+subspace, corresponding to the responses of the highlighted neurons. Unimodal
+tuning curves (left) evoke a single-loop curve, which preserves the
+distances between stimuli in the evoked responses. Instead, periodic tuning
+curves (right) evoke a more complex curve, and it can happen that two
+distant stimuli are mapped to nearby points in the activity space. At the same
+time, the curve is longer, and fills up a larger portion of the possible activity space. (\textbf{B}) Feedforward neural
+network. An array of  $L$  sensory neurons with Gaussian tuning curves (one highlighted in
+purple) encodes a one-dimensional stimulus into an high dimensional
+representation. These tuning curves determine the response of the population
+for a given stimulus, $x_{0}$ (dots). This layer projects onto a smaller
+layer of $N$ representation neurons with an all-to-all random connectivity matrix $\mathbf{W},$
+generating irregular responses. We plotted the tuning curves of three sample
+neurons, highlighting their response to the  stimulus $x_{0}$.
+(\textbf{C}) Example of joint activity as a function of the stimulus, colored according to the previous legend, shown for three sample neurons of the
+second layer, for increasing $\sigma$. When $\sigma\rightarrow0$ (left, $\sigma = 0.001$), 
+neurons generates uncorrelated random responses to different stimuli,
+generating a spiky curve made up by broken segments. As $\sigma$ grows ($\sigma = 0.015$, $\sigma=0.03$) 
+irregularities are smoothed out, and nearby stimuli evoke increasingly
+correlated responses. By decreasing the complexity of the curve, we
+ultimately recover the scenario of unimodal tuning curves (right, $\sigma = 0.15$).}
+\label{Fig:1}
+\end{figure}\clearpage
+\begin{figure}[ptb]
+\centering
+\includegraphics[width=\textwidth]{figure2.pdf}\caption{\textbf{Error
+probability for discontinuous random responses.} (\textbf{A}) Joint responses
+of two neurons to $L=50$ stimuli, colored according to the previous
+legend. Noise is represented as a cloud of possible responses (in grey) around
+the mean. An error occurs when the noisy response $\mathbf{r}$ happens to
+be closer to a point representing another stimulus $\hat{x}$ than the true one
+$x_{0}$. Since responses are uncorrelated, that point may represent a distant
+stimulus. (\textbf{B}) Theoretical (solid curves) and numerical results (circles)
+for the probability of error as a function of the population size, for different
+numbers of discrete stimuli encoded with uncorrelated random responses
+($\eta^{2}=0.5$, averaged over 8 network realizations, shaded region
+corresponds to 1 s.d.). The error probability scales exponentially with the
+number of neurons, with a multiplicative constant given by the number of
+stimuli. The high variance is due to the difficulty in estimating
+probabilities when they are very low. (\textbf{C}) Theoretical (solid curves)
+and numerical results (circles) for the probability of error as a function of the
+population size for $L=500$ discrete stimuli, for different noise magnitudes. Results are
+averaged over 8 network realizations, shaded region corresponds to 1 s.d.}
+\label{Fig:2}
+\end{figure}
 
+\clearpage
+
+
+\begin{figure}[ptb]
+\centering
+\includegraphics[width=\textwidth]{figure3.pdf}
+\caption{\textbf{Trade-off
+between local and global errors.} In all simulations, $L=500$ and $\eta^{2} =
+0.5$, $R=1$. 
+\emph{continue to next page}}
+\end{figure}
+\begin{figure}[t]
+\captionsetup{labelformat=adja-page} \ContinuedFloat
+\caption[Figure]{  (\textbf{A}) Different types of error in a complex curve of mean population activities
+(joint response of two neurons, colored according to
+previous legend). Here, $\mathbf{r}^{I}$ and $\mathbf{r}^{II}$ are two possible
+noisy responses to the same stimulus, extracted from the Gaussian cloud
+surrounding the mean response, $\mathbf{v}(x_{0})$. An ideal decoder will
+output the stimulus corresponding to the closest point of the curve.
+In one case, $\mathbf{r}^{I}$ will cause a local error, falling on a point of the curve
+that represents a similar stimulus, $\hat{x}^{I}$. Instead, $\mathbf{r}^{II}$ 
+ happens to be closer to a point of the curve which represents a
+stimulus quite far from the true one, $\hat{x}^{II}$, causing a global
+error. (\textbf{B}) Normalized histogram of absolute errors, $\Delta x =
+|\hat{x}-x|$, made by an ideal decoder, for different values of $\sigma$
+($N=25$). We tested the response to $10^{7}$ stimuli, uniformly spaced between
+$[0,1]$, and we averaged over 8 realizations of the connectivity matrix. For better visualization, we considered a stimulus
+with periodic boundary conditions, such that all global error magnitudes have
+the same probability. Contributions of the two types of error varies with
+$\sigma$. For small $\sigma$, coding is very precise locally (fast drop of the
+purple curve for small errors), but we have a great number of global errors
+(tail of the distribution is high). Vice versa, smoother codes (green
+curves) yield poor local accuracy (larger local errors), but high noise
+robustness (very few large scale errors). (\textbf{C}) Theoretical prediction
+for the two contributions to the MSE as a function of $\sigma$
+($N=30$). The magnitude of local errors increases with larger widths (solid
+curve), while the number of global errors decreases (dashed curve).
+(\textbf{D}) RMSE  as a function of $\sigma$: comparison between
+numerical simulations (solid curve) and theoretical prediction of
+Eq.(\ref{Eq:LvsG}) (dots). Results are averaged over 8
+network realizations, shaded region corresponds to 1 s.d.
+ (\textbf{E}) RMSE,
+as a function of $\sigma$ for different population sizes $N$
+(increasing from violet to yellow). The optimal error is attained at an
+optimal $\sigma^{*}(N)$ , which decreases with increasing $N$.  (\textbf{F}) Same
+data, but the error is showed as a function of $N$, for a fixed value of
+$\sigma$. The error at first decreases exponentially fast until global errors
+are suppressed, then the local errors are linearly reduced. Decreasing
+$\sigma$, we increase the $N$ at which the transition occurs, but also the
+error at this critical value. }
+\label{Fig:3}
+\end{figure}\clearpage
+\begin{figure}[p]
+\centering
+\includegraphics[width=\textwidth]{figure4.pdf}\caption{ \textbf{Scaling of the optimal width and optimal error as a function of population size and signal-to-noise ration.} In all simulations $L=500$, and results are averaged over 8 network
+realizations. In (\textbf{A-B}) $\eta^{2} =0.5$.
+(\textbf{A}) The mean optimal $\sigma^{*}$
+decreases exponentially fast with the number of neurons, saturating the lower
+bound imposed by the finite number of neurons of the first layer (corresponding to the spacing of the preferred positions, $1/L$). Simulations
+(circles) show good agreement with the theory (solid line). Shaded region
+corresponds to 1 s.d. 
+(\textbf{B}) As a consequence, the optimal error,
+$\varepsilon(\sigma^{*})$, which is linear in $\sigma$, is also suppressed
+exponentially fast in $N$. As before, simulations (circles) are well predicted by
+the theory (solid curve).
+(\textbf{C,D}) Optimal width (\textbf{C}) and error (\textbf{D}) as a function
+of the parameters  $N-\eta^{2}$. The color code is in log scale, used in order to highlight the exponential scaling.  }
+\label{Fig:4}
+\end{figure}\clearpage
+\begin{figure}[p]
+\includegraphics[width=\textwidth]{figure5.pdf}\caption{\textbf{Compressed coding for high-dimensional stimuli.} Here, for numerical results, we illustrated the case of a three-dimensional stimulus, $L=3375$ , $\eta^{2} =1$, $R=1$; results are  averaged over 8 network
+realizations. 
+\emph{continue to next page}}
+\end{figure}
+
+\begin{figure}[t]
+\captionsetup{labelformat=adja-page} \ContinuedFloat
+\caption[Figure]{ 
+(\textbf{A}) Subsequent mapping of high-dimensional stimulus space into neural activity operated by the two layer coding scheme. Top: two-dimensional stimulus space, colors serving as legend for following plots. Middle: firing rate (z-axis) of a sample sensory neuron, for the two cases, as a function of the two stimulus coordinates (x- and y- axis), colored according to the previous legend. In the pure case (left), a single sensory neuron `fold' the two-dimensional sheet across a direction, specified by its preferred position and dimension (here, $x_2$). In the conjunctive case (right), a sensory neuron creates a `bump' in the sheet. 
+Bottom: joint activity of three representation neurons as a function of the stimulus, colored according to the previous legend. Each of these neurons will randomly sum the transformations of sensory neurons, producing a randomly `folded' sheet in the pure case (left) and a `crumpled' sheet in the conjunctive case (right).
+(\textbf{B}) RMSE as a function of $\sigma$ for different
+population sizes $N$ (increasing from violet to yellow), when the first layer
+consists of pure (left) or conjunctive (right) cells. An optimal $\sigma$, decreasing with $N$, optimizes the balance
+between local and global errors, similarly to the one-dimensional case. In the
+conjunctive case the rapid increase of the error below $\sigma=0.05$ is due to
+the sensory neurons not tiling the space, and it is independent of $N$.
+(\textbf{C}) Mean ratio between the
+error in the two cases, $\varepsilon_{c}/\varepsilon_{p}$, as a function of
+$\sigma$ and population size. Yellow (violet) region indicates an
+outperformance of the pure (conjunctive) population. To aid
+visualization, the yellow region indicates all the values greater than 2. This regime of small sigma values is characterized by a better coverage of the pure population, independently of the output layer population size.
+Values greater than 1 occur also when $N$ is small, due to the
+prefactor of the global error being lower in the pure case. As soon as $N$ is
+sufficiently large and $\sigma$ is sufficiently large to allow for good coverage of the stimulus space, the
+conjunctive case outperforms the pure case. This effect is stronger in the low
+$\sigma$ region, due to the slower scaling of the global errors in the pure
+case. On the other hand, when sigma is sufficiently large the ratio saturates at the value given by the ratio
+of the local errors.
+(\textbf{D,E}) Optimal tuning width (\textbf{D})  and relative error (\textbf{E}), for pure (blue) and conjunctive (red)
+cases. Shaded region corresponds to 1 s.d. The global
+error decreases more slowly in the pure population, as one can see from both
+the optimal width and the total error being larger and with a smaller slope. At very
+low population sizes, the difference in the prefactor of global errors
+leads to slightly better performance of the pure code. For  $N \gtrsim 75 $ the optimal width in the conjunctive case saturates, due to the loss of coverage. The relative error
+stops decreasing exponentially and starts decreasing only linearly, while the
+pure population does not suffer from this limitation. }
+\label{Fig:5}
+\end{figure}
+\clearpage
+
+\begin{figure}[ptb]
+\centering
+\includegraphics[width=\textwidth]{figure6.pdf}\caption{\textbf{Linear vs
+irregular tuning.} (\textbf{A}) Mean percent improvement of the irregular population (averaged over
+8 different pools of a given size) compared to the linear one, as a  function of population size and tuning width. The
+black line indicates the critical values of $N-\sigma$ at which they perform
+equally. In the region below (violet)  global errors heavily affect the irregular
+population, making a smoother code more efficient. With increasing N, global errors become more rare while irregularities improve the local accuracy of the code (yellow region). The advantage increases at smaller values of $\sigma$, but so does the required value of $N$ for the irregular population to be advantageous.   (\textbf{B}) Mean percent improvement ( averaged over 8 different pools of a given size) of
+an irregular population, generated with the data-fitted model, compared to the
+linear one, as a function of $N-\eta^{2}$. At small population sizes,
+the irregular tuning produces global error and smoother tuning curves perform
+better (violet region, $\Delta\varepsilon<0 $ ). By increasing $N$, global
+errors are suppressed and irregularities improve the local accuracy (yellow region,$\Delta \epsilon > 0$). The black line marks the transition values. (\textbf{C},\textbf{D}) Mean percent improvement (\textbf{C}) and RMSE (\textbf{D}) of the irregular population as a function of population size (averaged over 8
+different pools of neurons), for the noise model extracted from data. Shaded
+region corresponds to 1 s.d. A noise variance is assigned to each neuron according to the distribution extracted from the data, showed
+in the inset of panel (\textbf{C}). For low levels of $N$, linear tuning produces better results.
+At $N\sim40$, the higher local accuracy compensates for global errors,
+and the irregular code starts to perform better, although the error is still substantial. The improvement saturates to
+a finite value of $\sim0.4$ at a value of  $N\sim100$, when
+global errors are fully suppressed; the scaling of the error as a function of the population size is no more exponential, but only hyperbolic.}
+\label{Fig:6}
+\end{figure}
+\clearpage
+
+\begin{figure}[ptb]
+\centering
+\includegraphics[width=\textwidth]{figure7.pdf}\caption{\textbf{Dimensionality of the neural code.} (\textbf{A}) Spectrum of the eigenvalues of the covariance matrix of neural responses of a population of $N=100$ representation neurons, for different tuning widths (decreasing from violet to yellow). The spectrum is flat, denoting responses equally spread across different principal axes, up to a cut-off value, which decreases increasing $\sigma$, then it falls quickly to 0. (\textbf{B}) Intrinsic dimensionality, defined as the participation ratio of the eigenvalues of the covariance matrix, for a population of $N=100$ representation neurons, as a function of $\sigma$. Insets showing a typical manifold in a three dimensional space. (\textbf{C}) Ratio of the intrinsic dimensionality at the optimal $\sigma$ and population size (maximal value of intrinsic dimensionality) as a function of population size, for the networks of Fig. \ref{Fig:3},\ref{Fig:4}. Shaded region corresponds to 1 s.d.}
+\label{Fig:7}
+\end{figure}
+\clearpage
+
+
+\begin{figure}[ptb]
+\centering
+\includegraphics[width=\textwidth]{figure8.pdf}\caption{\textbf{Effects of
+correlated noise on compressed coding.} (\textbf{A}) Error ratio (MSE) between
+correlated noise due to input noise and variance-matched diagonal noise, as a function of $N$, and theoretical prediction, Eq.(\ref{Eq:IN}).
+$\sigma=0.045$, $\tilde\eta^{2} = 0.5$ and the contribution of
+input noise is small, $\xi^{2} = 0.05$. Results are averaged over 8 network realizations, shaded region corresponds to 
+1 s.d. High variability for low values of $N$ is expected, as global errors are more dependent on the specific realization of the weights.  (\textbf{B}) Error ratio (MSE)
+between correlated noise due to input noise and diagonal noise (solid lines),
+and error ratio (MSE) between correlated noise with random covariance matrix and
+diagonal noise (dashed). Different colors denote different contributions
+coming from the off-diagonal terms $\xi^{2}$, increasing from violet to
+yellow, when the variance-matched noise is kept fixed, $\tilde\eta^{2} =
+0.5$. When correlations come from shared connections, the ratio is positive
+since we have information-limiting correlations. Their effect are a non-linear
+function of $\xi^{2}/\tilde\eta^{2}$, due to the competition between
+the first order (positive) and second order (negative) corrections. With a
+random covariance matrix, correlations decrease the error and enhance coding precision.}
+\label{Fig:8}
+\end{figure}
+\clearpage
+\begin{figure}[ptb]
+\centering
+\includegraphics[width=\textwidth]{figure_methods.pdf}\caption{ \textbf{Model
+fitting and tuning curves.} (\textbf{A}) Kolmogorov-Smirnov distance between
+the distributions of complexity measure (full line) and $R^{2}$ of fitting
+(dashed) across neurons from the data and the model for different $\sigma$.
+$\sigma_{f}$ is chosen to be the value at which the minimum of the distance
+between complexity distributions is attained, $\sigma_{f}\sim22$. (\textbf{B})
+Normalized histogram of the distribution of complexity measure (arbitrary
+units) across the neurons of the data (red), the irregular population at
+$\sigma_{f}$ (blue) and a linear population (green). The model is able to
+capture the bulk of the distribution of the real data much better than a
+linear model. Nevertheless, the data show a much broader distribution across
+the population. (\textbf{C}) Normalized histogram of the distribution of the
+$R^{2}$ of linear fit across neurons of the data and the irregular population
+at $\sigma_{f}$ (red). Both distributions are broad, but the data show a more
+consistent linear part. (\textbf{D-F}) Three examples of tuning curves of the
+irregular population at $\sigma_{f}$, showing a broad range of behavior with
+respect to the linear fit. The tuning curves are plotted as a  function of the
+projection of the stimulus (target position) onto a preferred position,
+obtained by the fit with Eq.(\ref{Eq:CosTun}) (green line). Some neurons are
+well described by the parametric function (d), some others show consistent
+deviations (e), while in others the linear behavior is absent (f). This is
+reflected in the broadness of the distribution of the $R^{2}$. }
+\label{Fig:M1}
+\end{figure}
 %\bibliographystyle{plain}
 \bibliography{references}
 

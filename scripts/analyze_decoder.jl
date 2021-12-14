@@ -54,3 +54,4 @@ Nmin,Nmax = first(NVec),last(NVec)
 name = savename("relu_lin_decoder" , (@dict Nmin Nmax  L η),"jld2")
 data = Dict("σVec" => σVec ,"MVec" => MVec, "W" => WVec,"dvsσ" => dvsσVec)
 safesave(datadir("sims/iidnoise/MLPdec",name) ,data)
+    
