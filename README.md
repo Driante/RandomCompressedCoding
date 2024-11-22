@@ -1,4 +1,4 @@
-# Random Compressed Coding with Neurons: Code Repository
+# Random Compressed Coding with Neurons
 This repository contains code for reproducing the results from the paper "Random Compressed Coding with Neurons" by Blanco, Malerba et al., 2021. The work investigates neural coding and decoding processes using compressed random encoding strategies in neural networks.
 
 ## Overview
